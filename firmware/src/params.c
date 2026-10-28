@@ -35,11 +35,11 @@ static const char *const N_RCHORD[RS_NCHORD + 1] = {"OCT", "5TH", "4TH", "MAJ", 
 static const char *const N_RDEST[] = {"R.TUN", "R.DCY", "R.MIX", "R.TON", "R.STR", "R.POS", "F.CUT", "F.RES"};   /* LFO DEST 11..18 */
 static const char *const N_FTYPE[] = {"OFF", "LP", "BP", "HP", "NOT"};   /* FILTER TYPE (FT_) */
 static const char *const N_PRIO[] = {"HIGH", "LOW"};                 /* P_PRIO */
-static const char *const N_LSRC[] = {"LFO1", "LFO2"};                /* an LFO DEST slot's SRC */
+static const char *const N_LSRC[] = {"L1BI", "L2BI", "L1U+", "L2U+", "L1U-", "L2U-"}; /* source/mode */
 #define LFO_TP(b, rf)                                                                                     \
     [b + LF_WAVE] = PE("WAVE", N_LWAVE, 3), [b + LF_MODE] = PE("MODE", N_LMODE, 0),                         \
     [b + LF_RATE] = PD("RATE", rf, 0, 127, 23), [b + LF_MORPH] = PD("MORPH", F_INT, 0, 127, 0),              \
-    [b + LF_DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0), [b + LF_DEST] = PD("DEST", F_LDEST, 0, 18, 0),        \
+    [b + LF_DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0), [b + LF_DEST] = PD("DEST", F_LDEST, 0, 19, 0),        \
     [b + LF_TRIG] = PE("TRIG", N_LTRIG, 2), [b + LF_PHASE] = PD("PHASE", F_LPHASE, 0, 127, 0)
 static const param_desc_t TP[P_COUNT] = {
     [P_MODEL] = PE("MODEL", N_MODEL, 0),
@@ -83,10 +83,11 @@ static const param_desc_t TP[P_COUNT] = {
     [P_PRIO] = PE("PRIO", N_PRIO, 0),
     [P_LSRC1] = PE("SRC", N_LSRC, 0), [P_LSRC2] = PE("SRC", N_LSRC, 1),   /* slots 1 / 2: LFO 1 / LFO 2 (the routing
                                                                             * before slots) */
-    [P_LS3SRC] = PE("SRC", N_LSRC, 0), [P_LS3DEST] = PD("DEST", F_LDEST, 0, 18, 0),
+    [P_LS3SRC] = PE("SRC", N_LSRC, 0), [P_LS3DEST] = PD("DEST", F_LDEST, 0, 19, 0),
     [P_LS3DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0),
-    [P_LS4SRC] = PE("SRC", N_LSRC, 1), [P_LS4DEST] = PD("DEST", F_LDEST, 0, 18, 0),
+    [P_LS4SRC] = PE("SRC", N_LSRC, 1), [P_LS4DEST] = PD("DEST", F_LDEST, 0, 19, 0),
     [P_LS4DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0),
+    [P_AMORPH] = PD("MORPH", F_INT, 0, 127, 64),
     [P_RKEY] = PD("KEYF", F_PCT, 0, 127, 0),       /* RESON KEYFOLLOW: 0 off (the ring at TUNE), 127 = 100 % */
 };
 
@@ -144,8 +145,32 @@ static const param_desc_t GP_ACT[4] = {PE("CLR*", N_GO, 0), PE("INIT*", N_GO, 0)
 /* RESON STRCT on CHORD: the chord type, 0..127 split evenly over N_RCHORD (reson.c rs_chord) */
 static const param_desc_t RS_CHORD_DESC = {"CHORD", F_INT, 0, 127, 0, N_RCHORD, 0};
 
+/* Routing IDs and storage remain unchanged. Only UNI DEPTH is unsigned. */
+static const param_desc_t LFO_UNI_DEPTH = PD("DEPTH", F_PCT, 0, 64, 0);
+static int lfo_depth_unipolar(const track_t *t, uint32_t id)
+{
+    uint32_t src = id == P_LFO1 + LF_DEPTH ? P_LSRC1 : id == P_LFO2 + LF_DEPTH ? P_LSRC2
+                 : id == P_LS3DEPTH ? P_LS3SRC : id == P_LS4DEPTH ? P_LS4SRC : 0xFFu;
+    return src != 0xFFu && t->p[src] >= 2;
+}
+/* RC12 negative UNI values (including recorded events) retain magnitude, not phase reversal. */
+static int32_t lfo_depth_value(const track_t *t, uint32_t id, int32_t v)
+{
+    if (!lfo_depth_unipolar(t, id)) return v;
+    v = clamp(v, -64, 64);
+    return v < 0 ? -v : v;
+}
+static void lfo_normalize_depths(track_t *t)
+{
+    static const uint8_t ids[] = {P_LFO1 + LF_DEPTH, P_LFO2 + LF_DEPTH, P_LS3DEPTH, P_LS4DEPTH};
+    uint32_t s;
+    for (s = 0; s < 4u; s++) t->p[ids[s]] = (int16_t)lfo_depth_value(t, ids[s], t->p[ids[s]]);
+}
+
 static const param_desc_t *track_desc(const track_t *t, uint32_t id)
 {
+    if (lfo_depth_unipolar(t, id))
+        return &LFO_UNI_DEPTH;
     if (id >= P_E0 && id <= P_E7)
         return &DMODELS[(uint32_t)t->p[P_MODEL] % NMODELS].edit[id - P_E0];
     if (id == P_RSTRCT && t->p[P_RMODEL] == RS_CHORD)
@@ -202,6 +227,8 @@ static const char *lfo_dest_label(const track_t *t, int32_t dest)
     const param_desc_t *d;
     if (dest <= 0)
         return "OFF";
+    if (dest == 19)
+        return (uint32_t)t->p[P_MODEL]%NMODELS==DM_ACID ? "A.MOR" : "--";
     if (dest >= 11)
         return N_RDEST[clamp(dest, 11, 18) - 11];
     d = track_desc(t, lfo_dest_param((uint32_t)clamp(dest, 1, 10)));

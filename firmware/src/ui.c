@@ -99,6 +99,11 @@ static struct {
     uint32_t glo_t0;             /* GLO's press time | GLO_DOWN OPEN DEAD PLAIN (ui_input.c glo_input) */
     uint8_t mute;                /* the MUTE screen shows (GLO held, spec §5) */
     uint8_t song_row;            /* SONG: the row selected (count = the + row) */
+    struct {                    /* per-track drafts, never persisted or read by the audio ISR */
+        uint8_t selection[REMIX_SCOPES];
+        uint16_t valid, dirty, on;
+        uint32_t epoch;
+    } remix;
     uint8_t keys;                /* KEYS (spec §5): an SCL tap; off at power-on, never stored */
     uint8_t env;                 /* ENV (spec 2026-10-24 parameter locks): 1 STEPS (the white keys the selected track's
                                   * steps on every page), 0 TRACKS (as before); off at power-on, never stored */
@@ -125,7 +130,7 @@ static struct {
         uint8_t pv, pv_trk;      /* the list: track pv_trk auditions the cursor's preset (its own sound in sv_*) */
         uint8_t sv_model, sv_ed; /* .. that sound: MODEL, the 8 SOUND knobs (motion's base while it plays), the preset */
         uint16_t sv_pre;         /*    and its edited mark, put back unless LOAD keeps the audition */
-        int16_t sv_k[8];
+        int16_t sv_k[8], sv_amorph; /* preview cancellation also restores manual PWM/Morph */
     } pr;
 } ui;
 
@@ -150,6 +155,33 @@ static void ui_say(const char *a, const char *b)     /* transient message in the
 }
 
 static void ui_message(const char *s) { ui_say(s, ""); }
+
+/* Refresh clean drafts from committed/queued settings. Dirty drafts survive
+ * page/track changes, but never a project LOAD or initialization. */
+static void remix_draft_sync(void)
+{
+    uint32_t k = seq_remix_scope(song.sel), bit = 1u << k, state;
+    if (ui.remix.epoch != seq_remix_epoch) {
+        ui.remix.valid = ui.remix.dirty = ui.remix.on = 0;
+        ui.remix.epoch = seq_remix_epoch;
+    }
+    state = seq_remix_desired(song.sel);
+    if (state & 256u) ui.remix.on |= (uint16_t)bit;
+    else ui.remix.on &= (uint16_t)~bit;
+    if (!(ui.remix.valid & bit) || !(ui.remix.dirty & bit))
+        ui.remix.selection[k] = (uint8_t)state;
+    ui.remix.valid |= (uint16_t)bit;
+}
+
+static void remix_code_text(char *b, uint32_t code)
+{
+    if (!code) {
+        str_cpy(b, "OFF", 8);
+        return;
+    }
+    b[0] = (char)('A' + ((code - 1u) >> 4));
+    fmt_int(b + 1, (int32_t)((code - 1u) & 15u) + 1);
+}
 
 static int song_lock(void)                          /* a song plays (or is armed): its patterns stay as they are */
 {
@@ -204,6 +236,8 @@ static void grid_drop_holds(void)
 
 static void page_entered(void)
 {
+    if (!ui.home && cur_page()->graph == GR_REMIX)
+        remix_draft_sync();
     ui.srec = 0;                                       /* step record ends (leaving the page, another track) */
     grid_drop_holds();
     song.seq_mode = seq_mode_now();                    /* seq.c: whose the keys are */
@@ -247,6 +281,8 @@ static uint32_t srec_time(const step_t *s) { return s->tie ? 1u : s->on ? 0u : 2
 static int page_hidden(uint32_t i)
 {
     uint8_t ids[16];
+    if (i < NPAGES && (PAGES[i].fam == FAM_GRIDS || PAGES[i].fam == FAM_TB3PO))
+        return (PAGES[i].fam == FAM_TB3PO) != ((uint32_t)TSEL->p[P_MODEL] % NMODELS == DM_ACID);
     if (i >= NPAGES || PAGES[i].fam != FAM_SND || PAGES[i].id[0] < SND_SLOT)
         return 0;
     return PAGES[i].id[0] - SND_SLOT >= snd_list(TSEL, ids);
@@ -569,6 +605,10 @@ static void track_select(uint32_t i)
         return;
     ui.srec = 0;                                       /* step record ends (leaving the page, another track) */
     song.sel = (uint8_t)i;
+    if (!ui.home && (cur_page()->fam==FAM_GRIDS || cur_page()->fam==FAM_TB3PO) && page_hidden(ui.page))
+        open_family((uint32_t)TSEL->p[P_MODEL]%NMODELS==DM_ACID ? FAM_TB3PO : FAM_GRIDS);
+    if (!ui.home && cur_page()->graph == GR_REMIX)
+        remix_draft_sync();
     grid_drop_holds();
     ui.bank = 0;
     ui.force = 1;

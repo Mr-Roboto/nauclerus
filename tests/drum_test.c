@@ -812,6 +812,10 @@ static void test_cost(void)
     printf("     cost: measured by the build without overflow checks (drum_test)\n");
     return;
 #endif
+    if (!instr_available()) {
+        instr_skip("kit CPU budgets: realistic, extreme, four RESON/KEYF cases, FILTER");
+        return;
+    }
     host_init();                                     /* realistic heavy use: the demo with everything on */
     for (i = 0; i < NTRK; i++) {
         track_t *t = &trk[i];
@@ -877,7 +881,8 @@ static uint32_t fnv(const int32_t *x, uint32_t n)
  * with TUNE 7 (every model), and the transpose is clamped to +-24 */
 static void test_drum_transpose(void)
 {
-    static int32_t a[SECS(0.5)];
+    enum { HOST_BUFFER_FRAMES = SECS(0.5) }; /* constant bound for GCC; same sample count */
+    static int32_t a[HOST_BUFFER_FRAMES];
     uint32_t mi, ok = 1, clamp_ok = 1;
     for (mi = 0; mi < NMODELS; mi++) {
         if (mi == DM_ACID)                           /* ACID plays the note itself, unclamped (acid_test) */
@@ -908,7 +913,8 @@ static void test_drum_transpose(void)
 /* a transposed step moves the sample layer as it moves the model: nt +7 = LTUNE + 7 (and TUNE + 7) at nt 0 */
 static void test_layer_transpose(void)
 {
-    static int32_t a[SECS(0.5)];
+    enum { HOST_BUFFER_FRAMES = SECS(0.5) }; /* constant bound for GCC; same sample count */
+    static int32_t a[HOST_BUFFER_FRAMES];
     host_init();
     old_set_model(&trk[0], DM_K909);
     trk[0].p[P_E0] = 0;
@@ -1448,6 +1454,10 @@ static void test_boot_cost(void)
 #ifdef DM_QCHECK
     return;
 #endif
+    if (!instr_available()) {
+        instr_skip("boot CPU budgets: power-on initialization and idle audio");
+        return;
+    }
     i0 = instr_now();
     host_init_live();                                /* drum_tracks_init and the power-on state (the firmware's) */
     init = instr_now() - i0;
@@ -2045,7 +2055,8 @@ static void test_comp_ghost_modes(void)
 /* GHOST changed while the source rings (KEEP -> HIDE -> KEEP -> MUTE with the source muted): 5 ms fades, no click */
 static void test_comp_ghost_switch(void)
 {
-    static int32_t ref[SECS(0.12)], out[SECS(0.12)];
+    enum { HOST_BUFFER_FRAMES = SECS(0.12) }; /* constant bound for GCC; same sample count */
+    static int32_t ref[HOST_BUFFER_FRAMES], out[HOST_BUFFER_FRAMES];
     int32_t dref = 0, dout = 0, hid = 0;
     uint32_t r, f, i;
     for (r = 0; r < 2u; r++) {
@@ -2980,8 +2991,27 @@ static void test_reson_lfo(void)
     }
     param_format(&TP[P_LFO1 + LF_DEST], 0, v, &u);
     ok &= str_eq(v, "OFF");
-    check("LFO DEST 11..16: R.TUN R.DCY R.MIX R.TON R.STR R.POS; 0 OFF (the knob runs on to F.CUT / F.RES, 18)",
-          ok && TP[P_LFO1 + LF_DEST].max == 18);
+    check("LFO DEST 11..16: R.TUN R.DCY R.MIX R.TON R.STR R.POS; 0 OFF (F.CUT / F.RES / A.MOR through 19)",
+          ok && TP[P_LFO1 + LF_DEST].max == 19);
+    {
+        static const uint32_t expected[20] = {0xFFu,P_E0,P_E1,P_E2,P_E3,P_E4,P_E5,P_E6,P_E7,
+            P_LEVEL,P_PAN,0xFFu,P_RDECAY,P_RMIX,P_RTONE,P_RSTRCT,P_RPOS,P_FCUT,P_FRESO,P_AMORPH};
+        static const char *const extra[9] = {"R.TUN","R.DCY","R.MIX","R.TON","R.STR","R.POS","F.CUT","F.RES","A.MOR"};
+        uint32_t m, dest, valid = 1;
+        for (dest=0;dest<20u;dest++) valid &= lfo_dest_param(dest)==expected[dest];
+        for (m=0;m<NMODELS;m++) {
+            drum_set_model(TSEL,m);
+            for (dest=0;dest<20u;dest++) {
+                const char *want = dest==0 ? "OFF" : dest==19 ? (m==DM_ACID ? "A.MOR" : "--")
+                    : dest>=11 ? extra[dest-11] : track_desc(TSEL,expected[dest])->label;
+                if (!want || want[0]=='-') want="--";
+                param_format(&TP[P_LFO1+LF_DEST],(int32_t)dest,v,&u);
+                valid &= !strcmp(v,want);
+            }
+        }
+        check("LFO: all 20 destination IDs/names across every model; A.MOR labelled on ACID only",valid);
+        host_init();
+    }
     rs_setup(RS_STRNG, 48);                           /* R.TUN: a slow sweep moves the line length smoothly */
     trk[0].p[P_RDECAY] = 127;
     trk[0].p[P_LFO1 + LF_WAVE] = LW_TRI;
@@ -3141,7 +3171,8 @@ static double rs_kf_cents(double f, double note) { return 1200 * log2(f / rs_not
 
 static void test_reson_keyfollow(void)
 {
-    static int32_t ref[SECS(0.8)];
+    enum { HOST_BUFFER_FRAMES = SECS(0.8) }; /* constant bound for GCC; same sample count */
+    static int32_t ref[HOST_BUFFER_FRAMES];
     uint32_t m, i, same = 1;
     double f, c, want;
     int32_t before = 0, after = 0, k;
@@ -3669,7 +3700,9 @@ static void test_lfo_dest_slots(void)
     lfo_apply(CTL);
     check("LFO slot 4 on R.TUN: the resonator's fine pitch", trk[0].rfine != 0 && lfo_live(&trk[0], P_RTUNE, &mv));
     lfo_restore();
-    {
+    if (!instr_available()) {
+        instr_skip("LFO CPU budget: four slots versus two routes");
+    } else {
         double c0 = lfo_slots_cost(0), c2 = lfo_slots_cost(1), c4 = lfo_slots_cost(2);
         printf("     LFO cost, host instructions a block (8 tracks): none %.0f, 2 slots (an older project's routes) %.0f, "
                "4 slots %.0f (0e76751, 2 LFOs routed: none 663, 2 routes 3712)\n", c0, c2, c4);

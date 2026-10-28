@@ -1,24 +1,40 @@
-# Hortator
+![Nauclerus](docs/img/nauclerus-banner-1280x320.png)
+
+# Nauclerus
+
+[GitHub repository](https://github.com/Mr-Roboto/nauclerus) · [Releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases)
+
+**[Live simulator](https://mr-roboto.github.io/nauclerus/#play)** ·
+**[Interactive manual](https://mr-roboto.github.io/nauclerus/#manual)** ·
+**[Install Nauclerus](https://mr-roboto.github.io/nauclerus/webapp/installer/)**
+
+![Nauclerus LCD: ORB Remix on track 3](docs/img/nauclerus-display-240.png)
+
+The simulator runs the release's actual firmware. Installation is a separate explicit
+WebMIDI action and is enabled only after verifying the exact stable package SHA-256.
 
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue.svg)](LICENSE)
 
-**Drum-machine firmware for the M-VAVE FM-1.** Eight tracks of drums, a step sequencer, Grids, a pumping
-compressor, LFOs, resonators and live effects, all on the FM-1's own keys, knobs and screen. By DEADACTIVE, built
-on [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita.
+**Groovebox firmware for the M-VAVE FM-1.** Eight tracks of drums and up to two ACID bass voices,
+64-step patterns, ORB Remix, TB-3PO generation, Grids, Motion, parameter locks and per-track LFOs.
+Nauclerus development, modifications and remix work by **Mr. Roboto**, based on **Hortator by DEADACTIVE**,
+built on **[Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita / Hügelton Instruments**.
 
-On a Roman galley, the *hortator* beat the drum that kept the rowers in time. Felucca is a Nile sailing boat; this
-is its drummer.
+**Nauclerus 0.25.0** promotes the accepted RC13 implementation without DSP changes; it also corrects menu-header redraw and modal-input defects. It includes magnitude-only unipolar routing, project compatibility, and the
+Graphite/Champagne/Amber web portal. The owner accepts the remaining subjective ACID
+resonance/filter-character limitation. See the [release validation record](docs/RELEASE_VALIDATION_0.25.0.md).
 
-- **Play it in your browser:** <https://deadactive.github.io/hortator/>. The page runs the real firmware, compiled
-  to WebAssembly, on a 3D FM-1 you can play with the mouse, a touch screen or the computer keyboard.
-- **Install it on your FM-1:** <https://deadactive.github.io/hortator/webapp/installer/>, in Chrome or Edge, over
-  the FM-1's USB cable.
+- **[User guide](docs/USER_GUIDE.md):** current page layouts, button combinations and recording/storage behavior.
+- **[0.25.0 release notes](docs/RELEASE_NOTES_0.25.0.md)** and **[release readiness](docs/RELEASE_READINESS_0.25.0.md)**.
+- Upstream Hortator browser/installer links and historical phase documents describe upstream or earlier
+  implementations. They are not a published Nauclerus 0.25.0 installer or a substitute for its release package.
 
-**Beta.** Hortator is untested on most hardware and may be unstable. You install it at your own risk: the author
-accepts no responsibility if your FM-1 is damaged or misbehaves. M-VAVE's own updater takes you back to the official
-firmware ([below](#back-to-the-official-firmware)).
+On a Roman galley, the *hortator* beat the drum that kept the rowers in time. Nauclerus preserves that
+Hortator/Felucca ancestry; all original contributor and license notices remain below.
 
-![FM-1 controls](docs/panel.jpg)
+The [panel/navigation guide](docs/USER_GUIDE.md#panel-navigation) describes the accepted controls.
+The legacy panel photograph is not included in release staging: its redistribution permission is unverified,
+and it is not presented as a screenshot of 0.25.0. No historical UI mockup is advertised as a stable screenshot.
 
 ## What it does
 
@@ -29,7 +45,7 @@ firmware ([below](#back-to-the-official-firmware)).
   swing. Accents, PROB and RATCH per step, fills that play every other bar, live recording, mutes that wait for the
   next bar (the MUTE screen: hold GLO).
 - **Notes and ACID.** Every step holds a note. Drum tracks play their steps transposed (C4 plays as tuned); ACID, a
-  303-style bass voice (TUNE DECAY CUTOF RESO ENVMD ACCNT WAVE GATE: saw or square into a resonant 24 dB filter, with
+  303-style bass voice (TUNE DECAY CUTOF RESO ENVMD ACCNT WAVE GATE: SAW, variable-width PULSE, TRIANGLE or MORPH into a resonant 24 dB filter, with
   accent, slide and tie), plays them as a bass line on up to two tracks ("ACID: 2 TRACKS MAX"). SCL turns the keys
   into a keyboard for the selected track (KEYS): play it, record it live, or enter a line step by step. Live record:
   on TRACKS a REC tap arms / disarms the selected track (`T3 REC ARMED` / `T3 REC OFF`); on every other screen a REC
@@ -43,14 +59,32 @@ firmware ([below](#back-to-the-official-firmware)).
   drum. KEYS notes send no MIDI out, and an ACID note (or a tied chain) longer than 5.5 s
   is cut (a safety limit). A loaded project keeps ACID on its first two ACID tracks; the others come back as their
   power-on kit drum.
+- **ORB Remix.** 256 owner-created mappings, A1–P16, with neutral A1. One shared GLOBAL DRUM selection and
+  independent Bass selections per physical ACID track. K1/K2 draft, K4 SET or OCT+ confirm; K3 ON/OFF needs
+  no confirmation. Playback changes at chronological step boundaries; notes, Motion and locks follow the
+  source while recording stays chronological. Song rows use their project slot's configurations.
+- **TB-3PO.** The actual X0X-RMX v1.1.0 melody core, 22 scales, seeded phrases and restrained mutation.
+  ARP on ACID opens GENERATE/SCALE; OCT+ NEW and OCT− MUTATE work with KEYS or ENV/STEPS enabled.
+  Settings/seeds are independent per physical track and saved with projects. Automatic mutation counts
+  completed pattern loops, not necessarily 4/4 bars.
+- **ACID PWM and MORPH.** FASTSLOW is the first ACID preset: TUNE −12, DECAY50, CUTOF80, RESO30,
+  ENVMD60, ACCNT64, PULSE, GATE40; new untouched track LEVEL104 (−4dB), width64. MORPH controls
+  5–95% pulse width, or Sharkfin/Trapezoid/Notch-Trapezoid. SAW and TRIANGLE disable its editor without losing the value.
+  One MORPH voice at a time; SAW/PULSE/TRIANGLE remain available independently on both ACID tracks.
 - **MOTION.** Knob turns recorded per step while a track plays, and played back with the pattern: up to 1024 events
   per project (shared by the 8 tracks).
 - **SONG and names.** Chain up to 16 rows of projects with repeats; name projects on the device.
 - **Grids.** Mutable Instruments' pattern generator: a map of drum patterns, chaos, or Euclidean rhythms. Any track
-  can follow one of its three channels.
+  can follow one of its three channels. On GRIDS page 2, K4 clockwise assigns T1–T3 to kick/snare/hat.
+  Stopped, OCT+ on either GRIDS page writes a deterministic snapshot to eligible drum tracks,
+  preserves each track's LEN, clears steps beyond it, sets DIV1/32/SRC STEP and enables ordinary Remix playback.
 - **Compressor.** The Streams compressor keyed by any track, for ducking and pumping; GHOST keeps the pump with the
   key track muted.
-- **Movement.** Two LFOs per track, ten waves with a morph between them, synced to the tempo.
+- **Movement.** Two LFOs per track, ten wave shapes, three rate modes and four independent SRC/DEST/DEPTH slots.
+  Each slot selects L1BI/L2BI (existing bipolar), L1U+/L2U+ (positive-only) or L1U-/L2U- (negative-only).
+  UNI modes use unsigned 0–100% DEPTH; the mode alone sets direction. Legacy negative UNI values retain their absolute magnitude without phase reversal.
+  A.MOR routes either/both LFOs to ACID pulse width or oscillator morph, with the manual value as base.
+  Stored source 0/1 and all defaults remain exact BIP; 2–5 add modes without changing project size or IDs.
 - **Effects.** DIST, the SLICER and RESON (string, pipe or chord resonator) per track; delay, ROOM or SPRING reverb
   and chorus sends; a master limiter; SPEAKER EQ with BASS+ for the small speaker. RESON is tuned in semitones (TUNE);
   its **KEYF** (KEYFOLLOW, RESON 2/2 KNOB 4, 0 % = off) makes the ring follow the note of each hit from C4: at 100 % a
@@ -65,7 +99,7 @@ firmware ([below](#back-to-the-official-firmware)).
 - **MIDI LEARN.** Up to 32 controls of any controller: a CC moves one knob of one track, a CC or a note presses PLAY,
   REC, next / previous track, or holds a PERFORM effect ([below](#midi-learn)).
 - **Connections.** MIDI in over USB and the TRS jack, MIDI clock in (USB or TRS), and USB audio: the FM-1 records
-  into a DAW over its USB cable. On a computer or an iPad it shows up as **Hortator** (USB MIDI and audio, in a DAW
+  into a DAW over its USB cable. On a computer or an iPad it shows up as **Nauclerus** (USB MIDI and audio, in a DAW
   or AUM; earlier versions: Felucca); while an update is being written it shows up as **Felucca Update**
   (the update loader, upstream Felucca's). The Bluetooth version adds Bluetooth MIDI ([below](#bluetooth-midi)): a BLE-MIDI
   keyboard or clock, or the M-VAVE SMC-Mixer as a mixer for the eight tracks.
@@ -75,19 +109,20 @@ firmware ([below](#back-to-the-official-firmware)).
 
 | Button | Opens |
 | --- | --- |
-| **HOME** | two modes: **TRACKS** (levels, lengths, pans; the selected track's steps on the keys) and **HOME** (the scope, the selected track's first four knobs, the keys play the tracks; SELECT on to the compressor's pages). A HOME tap on HOME switches between them; from any other screen it opens the one last shown. Power-on: TRACKS. Hold HOME for the menu |
+| **HOME** | short: HOME/TRACKS behavior; from MENU/normal overlays, cancel to real HOME. Long: Settings. Within Settings, short cycles GLOBAL → SYSTEM → GLOBAL; long exits to real HOME. |
 | **EDIT** | the selected track's sound: its model and knobs (on HOME, EDIT, FX and LFO the selected track's key is lit; a white key F3..F4 selects its track) |
-| **SEQ** | the steps on the white keys (a short tap: on / off, on the release; hold a step 0.3 s: an off step turns on at once, an on step stays as it is; while held KNOB 1 / 2 / 3: PROB / RATCH / ACCENT (right on, left off); hold OCT+ and tap a step: its accent; OCT+ alone / OCT-: the bank), then PATTERN, MOTION and SONG |
+| **SEQ** | the steps on the white keys (a short tap: on / off, on the release; hold a step 0.3 s: an off step turns on at once, an on step stays as it is; while held KNOB 1 / 2 / 3: PROB / RATCH / ACCENT (right on, left off); hold OCT+ and tap a step: its accent; OCT+ alone / OCT-: the bank), then PATTERN, REMIX, MOTION and SONG |
 | **FX** | FX, SLICER, RESON, delay, reverb and chorus; hold it for PERFORM |
-| **ARP** | Grids |
+| **ARP** | Selected drum: GRIDS (2 pages); selected ACID: TB-3PO GENERATE/SCALE. |
 | **LFO** | the track's two LFOs, side by side on every page (LFO 1 on KNOB 1-2, LFO 2 on KNOB 3-4), then DEST: 4 slots, each a source (LFO 1 / LFO 2), a destination knob and its own depth |
 | **REC** | on TRACKS: arms / disarms the selected track for recording (`T3 REC ARMED` / `T3 REC OFF`; during REC ALL: REC ALL ends, the selected track armed). On every other screen: REC ALL on / off (every track armed, each white key records its own track; off: the arm state from before back). It never starts play: PLAY does. On STEP with KEYS on and stopped: step record. Held on a SEQ page: CLEAR TRACK; on SONG: DELETE ROW / CLEAR SONG |
-| **GLO** | a tap: global and system settings; held: the MUTE screen ([mutes](#mutes); G4: [MIDI LEARN](#midi-learn)) |
-| **SAVE** | projects (save, load, name) and tools |
-| **SCL** (labelled SEL in the web simulator) | KEYS: the keys play the selected track; OCT- / OCT+ set the octave (-2 to +2); on STEP, stopped, REC starts step record |
+| **GLO** | short: system MENU open/close; held: MUTE overlay ([mutes](#mutes); G4: [MIDI LEARN](#midi-learn)). |
+| **SAVE** | PROJECT and TOOLS. On PROJECT: K3/OCT− LOAD, K4/OCT+ SAVE; existing two-activation safeguards remain. |
+| **SCL** (labelled SEL in the web simulator) | Outside MENU, KEYS: the keys play the selected track; OCT- / OCT+ set the octave (-2 to +2); on STEP, stopped, REC starts step record  In MENU: alternative ENTER for dedicated submenus only; SELECT encoder still navigates. |
 | **ENV** | STEPS / TRACKS (and [parameter locks](#parameter-locks)) (a tap, on its release; its LED lit and a padlock in the top bar, left of the battery, in STEPS). **STEPS**: the white keys are the selected track's steps on every page (HOME, EDIT, FX, LFO, COMP, TRACKS armed ...), tapped and held as on SEQ; hold ENV and press OCT+ / OCT- for the next / previous bank; OCT+ held + a step: its accent; OCT+ alone and OCT- keep their page's job (LAYER, back to SOUND, the LFO's RATE MODE). Finger drumming needs TRACKS (ENV off: the keys as before). ENV turns KEYS off, SCL turns STEPS off. Off at power-on |
 
-With KEYS on, OCT- / OCT+ are the octave: LAYER (from EDIT) and the LFO pages' OCT+ (the RATE MODE of the LFO turned
+On the two ACID TB-3PO pages, an ordinary OCT+ / OCT− is NEW / MUTATE regardless of KEYS or ENV/STEPS;
+held-step editing, ENV-held banking and modal actions retain priority. Elsewhere, with KEYS on, OCT- / OCT+ are the octave: LAYER (from EDIT) and the LFO pages' OCT+ (the RATE MODE of the LFO turned
 last) need KEYS off; the STEP
 bank stays on KNOB 1; TRACKS keeps OCT as its bank. TRACKS, COMP, NAME, the menu, PERFORM (FX held) and the MUTE
 screen (GLO held) keep their keys.
@@ -103,7 +138,7 @@ USER bank, DELETE). The SOUND pages show the track's preset, with `*` once a SOU
 
 ### Mutes
 
-Hold GLO: the **MUTE screen**, up while GLO is held (a quick GLO tap opens GLOBAL instead; a key pressed while GLO
+Hold GLO: the **MUTE screen**, up while GLO is held (a quick GLO tap opens MENU instead; a key pressed while GLO
 is down opens the screen at once). The eight tracks are boxes, **filled = heard, outline = muted**, each with its
 number and model, and under it the key that toggles it (F3 to F4, the white keys; their LEDs lit for the heard
 tracks). The top C# sets `MUTE: NOW`, the top D# `MUTE: NEXT BAR` (the same setting as GLOBAL 3/3 MUTE): with NEXT
@@ -170,6 +205,12 @@ buffer effects stop when their key is let go.
 
 ### Projects
 
+Current FDRF records remain 3840 bytes. In addition to the existing sounds, patterns and banks, reserved
+metadata stores global Drum/per-track Bass Remix and TB-3PO settings/seeds; ACID MORPH/PWM is retained
+per track. Legacy/invalid extensions default safely without regenerating old steps. Song uses per-slot
+steps, timing, Motion/locks, Remix, generator settings and ACID wave/MORPH; it does not switch an entire
+sound kit. See [Projects and Song](docs/USER_GUIDE.md#projects-and-song).
+
 SAVE > PROJECT: four slots, A to D. **The last project saved loads at power-on** (`LOADED` in the top bar, stopped;
 PROJECT's SLOT points at it). If it can't be loaded (the slot is empty or unreadable), the FM-1 asks
 `LOAD FAILED: SLOT B` / `START NEW PROJECT?`: OCT+ (YES) forgets it, OCT- (NO) tries it again at the next power-on;
@@ -183,7 +224,7 @@ upstream Felucca overwrote it), the project still loads, without its motion, and
 
 **User sample slot 3 (USR3) holds up to 48 KiB** (USR1 and USR2: 80 KiB, as before): the rest of its flash holds the
 projects' lock banks. A longer USR3 (uploaded under upstream Felucca) is shortened to its first 48 KiB once, at the
-next power-on (`USR3 SHORTENED TO 48K`); it keeps playing, minus what was past 48 KiB. Hortator has no sample upload:
+next power-on (`USR3 SHORTENED TO 48K`); it keeps playing, minus what was past 48 KiB. Nauclerus does not add a sample-upload workflow:
 an 80 KiB upload to USR3 under upstream Felucca afterwards overwrites the lock banks.
 
 ### Parameter locks
@@ -208,15 +249,20 @@ MASTER volume, on the speaker, the headphones and USB audio. A device setting: s
 
 ### Screen colours
 
-MENU (hold HOME) **COLOR**: the screen's two colours. The row shows the theme's name: **RED** (the default, red
-ground and dark ink, the Machinedrum's look), **RED INV** (red on black), **BLUE** (white on blue), **BLUE INV** (blue
-on white), **GREEN** (dark on green), **GREEN INV** (green on black): each colour, then its inverse. KNOB 1 on the
-row steps back and on, OCT+ steps on; both wrap. A device setting: saved when the menu closes, not part of projects;
-a colour chosen on an older Hortator stays the same.
+In 0.25.1 development, GLO short > MENU > COLOR offers fourteen themes:
+**ORANGE** (default), **ORANGE INV**, **BLUE**, **BLUE INV**, **WHITE**, **WHITE INV**,
+**YELLOW**, **YELLOW INV**, **VIOLET**, **VIOLET INV**, **RED**, **RED INV**, **PINK**, **PINK INV**.
+K1 steps back/forward; OCT+ advances; selection wraps. ORANGE has #E96F25 background and #321308 ink;
+ORANGE INV is #160904 background with #F48532 ink. RED is #D80000/white; RED INV reverses it.
+VIOLET is #905BA8/white; PINK is #D397CA/black; their INV variants swap the exact pairs.
+Published 0.25.0 firmware and simulator retain twelve themes and the previous VIOLET color.
+See the [guide palette table](docs/USER_GUIDE.md#color-themes) for all pairs and stored indices.
+Preferences and default ID remain compatible: historical GREEN/GREEN INV slots are WHITE variants,
+and stored IDs0/1 now show Orange. Color is device-wide and saves when MENU closes.
 
 ### Knob acceleration
 
-MENU (hold HOME) **ACCEL** (ON by default): a knob turned on in one direction over a wide value (more than 32
+MENU (GLO short) **ACCEL** (ON by default): a knob turned on in one direction over a wide value (more than 32
 steps) speeds up with how fast it turns. A click at a time, or a turn of up to about 12 clicks a second, is one step
 a click (fine control); faster, the steps grow with the speed, in fractions of a step: about x2 at 20 clicks a
 second, x4 at 40, up to x8 (x4 on a value of 64 steps or less). A 0..127 value takes about 65 clicks at 20 a second,
@@ -226,7 +272,7 @@ most x4. ACCEL OFF: one step a click at any speed.
 
 ### Key backlight
 
-MENU (hold HOME) **BACKLIGHT** (the LED levels of upstream Felucca's MENU > LEDS): OFF (lit or dark, as before),
+MENU (GLO short) **BACKLIGHT** (the LED levels of upstream Felucca's MENU > LEDS): OFF (lit or dark, as before),
 DIM LO, DIM HI, INV, INV LO, INV HI. DIM LO (an older Hortator's BACKLIGHT ON): every key LED that is not lit and every
 idle button glows at about 5 %, so the panel can be found in the dark; on every screen where the white keys are the
 selected track's steps (STEP, PATTERN, MOTION and SONG while KEYS is off; HOME's TRACKS mode while no track is armed),
@@ -248,16 +294,17 @@ a held ACID note goes last. The same order picks the voice to stop when too many
 
 ## Bluetooth MIDI
 
-A second version of each release, **Hortator + Bluetooth MIDI** (experimental): the installer offers it next to the
-plain one, and the release has it as `hortator-X.Y.Z-bluetooth.fwsc`. Everything above works the same in it.
+The following describes the inherited **Hortator + Bluetooth MIDI** variant (experimental).
+The default Nauclerus acceptance/package does not establish a separate Nauclerus BLE release.
+These controls apply only to a separately built BLE variant, not the default package.
 Bluetooth is **off at every power-on**, unless you set AUTOSTART ON (below); it runs only after you turn it on, until
 the FM-1 is switched off.
 
-Please credit me if you using bluetooth code in your firmware🙏🏻
+BLE MIDI implementation credit: **DEADACTIVE**; preserve this attribution when reusing that code.
 
 ### The Bluetooth page
 
-MENU (hold HOME), SELECT to **BLUETOOTH**, OCT+. SELECT moves the cursor, KNOB 1 changes the row, OCT+ acts on it,
+MENU (GLO short), SELECT to **BLUETOOTH**, OCT+. SELECT moves the cursor, KNOB 1 changes the row, OCT+ acts on it,
 OCT- goes back to the menu.
 
 | Row | What it does |
@@ -287,7 +334,7 @@ ON, or 5 s after it with AUTOSTART ON (no scan or pick needed). While it is not 
 
 The M-VAVE SMC-Mixer in its DAW (Mackie Control) mode, MODE AUTO or SMC DAW. Only presses act.
 
-| Control | Hortator |
+| Control | Nauclerus BLE variant (inherited) |
 | --- | --- |
 | Fader 1–8 | track 1–8 LEVEL, with pickup (below); recorded as motion for the selected track while it is armed and playing |
 | Master fader | nothing |
@@ -316,28 +363,33 @@ FM-1's keys as live record does.
   is dimmed on HOME and TRACKS, as a muted one; the mutes are unchanged. The FM-1 has no SOLO control, so solo
   clears by itself when the SMC-Mixer disconnects and when MODE leaves SMC DAW (every track audible again; nothing
   is cut). Solo is not saved: INIT and a power-on clear it too.
-- **Leaving SMC DAW** (MODE MIDI while connected): Hortator turns the mixer's LEDs off once and sends it nothing
+- **Leaving SMC DAW** (MODE MIDI while connected): Nauclerus's inherited BLE code turns the mixer's LEDs off once and sends it nothing
   more.
 
 ## Install
 
-1. Open the [installer](https://deadactive.github.io/hortator/webapp/installer/) in Chrome or Edge on a computer.
-2. Connect the FM-1 straight to the computer with a USB data cable. No probe or Transporter is needed.
-3. Press Install and keep the cable in until it says Done. The FM-1 restarts with Hortator.
+Stable package: [nauclerus-0.25.0.fwsc](https://github.com/Mr-Roboto/nauclerus/releases/download/v0.25.0/nauclerus-0.25.0.fwsc).
 
-Releases are also on [GitHub](https://github.com/DeadActive/hortator/releases) as `hortator-<version>.fwsc`, with
-what changed in each ([CHANGELOG.md](CHANGELOG.md)). `tools/fm1_install.py` installs a package from a terminal.
+```text
+SHA-256 b496e081fd78c05eaa3cd368caf384285ec7b708477c5ff638f373e6a3c2a870
+```
 
-The site counts visits and finished installs with [GoatCounter](https://www.goatcounter.com) (site code
-`deadactive`, `GC_CODE` in `web/sim/counter.js`; empty turns it off): its count.js on the landing page, the installer
-and the editor, and one anonymous event ("install", titled with the version) after the installer says Done. No
-cookies, no personal data; the landing page shows the install total. Nothing is counted on a local copy or a preview,
-and `tools/fm1_install.py` sends nothing.
+It identifies as **Nauclerus 0.25.0**, using application/package identity **FM-1_25000**, the existing
+USB VID/PID and **Felucca Update** loader. Download the matching
+source archive and licenses from [release v0.25.0](https://github.com/Mr-Roboto/nauclerus/releases/tag/v0.25.0).
+
+Use only the exact package approved for your installation and its matching instructions/checksum;
+keep a known-good recovery path available. Existing installer/recovery tools are in this tree,
+and the [Nauclerus installer](https://mr-roboto.github.io/nauclerus/webapp/installer/)
+verifies the stable package before enabling installation. Use the updated tools for
+RC13 migration or rollback; legacy port names remain supported. Upstream Hortator
+installers distribute their own firmware. See [release readiness](docs/RELEASE_READINESS_0.25.0.md)
+and [recovery notes](docs/RECOVERY.md).
 
 ### Back to the official firmware
 
 Use M-VAVE's updater, M-UPGRADE, from <https://www.m-vave.com/download> (Downloads → PC Software → M-UPGRADE), with
-the official firmware (PC Firmware → FM-1 V15). If the FM-1 stops answering both the installer and M-UPGRADE, a Mac
+the appropriate official FM-1 firmware; consult [the recovery notes](docs/RECOVERY.md) before relying on that path. If the FM-1 stops answering both the installer and M-UPGRADE, a Mac
 can put the official firmware back through the chip's boot mode, with no extra hardware: [docs/RECOVERY.md](docs/RECOVERY.md).
 If it does not start at all and never reaches boot mode, recovering it needs a
 [Transporter](https://github.com/kurogedelic/FM-1-transporter).
@@ -345,11 +397,14 @@ If it does not start at all and never reaches boot mode, recovering it needs a
 ## Build
 
 - The firmware and its package: [BUILDING.md](BUILDING.md) (`./build.sh`; `DRUM_PACKAGE=1 ./build.sh` for an
-  installable package and the site).
+  installable package; website preparation is independent).
 - The web simulator and the landing page: [docs/SIMULATOR.md](docs/SIMULATOR.md) (`tools/build_sim.sh`; build it
-  before the package, so the site carries both).
+  independently of device packaging; preview installation is disabled until a verified
+  package is explicitly staged).
 - Tests: `tests/run_tests.sh` and `tests/run_drum_tests.sh` (firmware), `tools/build_sim.sh` (simulator and site).
-- Versions and publishing: [docs/VERSIONING.md](docs/VERSIONING.md), `tools/publish.sh`.
+- Version/tool background: [docs/VERSIONING.md](docs/VERSIONING.md). For this release, follow the
+  [current 0.25.0 readiness record](docs/RELEASE_READINESS_0.25.0.md); publishing tools are inherited
+  and do not themselves authorize a stable release or establish a Nauclerus hosted installer.
 
 ## Layout
 
@@ -364,7 +419,15 @@ If it does not start at all and never reaches boot mode, recovering it needs a
 
 ## Credits
 
-- Hortator by DEADACTIVE. BLE MIDI: 2026 DEADACTIVE.
+- **Nauclerus by Mr. Roboto:** development, modifications, integration and remix work; credited on-device in ABOUT.
+- **X0X-RMX v1.1.0**, pinned at `a4e78f3a6e16fa310b7614e5876d07e16a0020f9`: TB-3PO musical core,
+  canonical ORB mapping import and mathematical reference for the fixed-point MORPH family.
+  TB-3PO retains its schwung-tb3po / Phazerville Hemisphere Suite / djphazer and contributors lineage.
+- **ORB-inspired pattern data creation:** Mr. Roboto, who explicitly declares independent creation and
+  authorizes redistribution in Nauclerus. Future Retro Orb is conceptual inspiration, not copied pattern data.
+  The [current declaration](assets/remix/README.md#attribution-record) supersedes the older transcription account;
+  the pinned source/compiled-table chain is verified and existing GPL notices remain.
+- [Hortator](https://github.com/DeadActive/hortator) by DEADACTIVE. BLE MIDI: 2026 DEADACTIVE.
 - [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita ([@kurogedelic](https://github.com/kurogedelic)),
   [Hügelton Instruments](https://hugelton.com): the firmware Hortator is built on, its hardware layer, update
   loader, installer, UI and engines.
@@ -374,13 +437,13 @@ If it does not start at all and never reaches boot mode, recovering it needs a
   compressor is a C port (MIT).
 - [Plaits](https://github.com/pichenettes/eurorack/tree/master/plaits) by Emilie Gillet, Mutable Instruments: integer
   ports of its drum algorithms and stmlib (MIT).
-- [DaisySP](https://github.com/electro-smith/DaisySP) by Electrosmith and Emilie Gillet: the modal resonator and
+- [DaisySP](https://github.com/daisyaudio/DaisySP) by Electrosmith and Emilie Gillet: the modal resonator and
   membrane of the SKIN engine and the RESON effect are fixed-point ports (MIT).
 - Pixel font and VU logo: drawn by DEADACTIVE.
 - Font: [Terminus](https://terminus-font.sourceforge.net/) by Dimitar Toshkov Zhekov,
   [SIL OFL 1.1](assets/fonts/Terminus-LICENSE.txt).
 - Samples: [Versilian Studios](https://versilian-studios.com/) VSCO-2 Community Edition and VCSL, CC0 1.0
-  ([attribution](assets/samples-cc0/ATTRIBUTION.txt)); the Hügelton Sample Pack (© Hügelton Instruments, not CC0).
+  ([attribution](assets/samples-cc0/ATTRIBUTION.txt)); the Hügelton Sample Pack (CC0 1.0 under the independently verified rights-holder grant; see [LICENSING.md](LICENSING.md)).
 - Web editor icons: Fukiai by Hügelton Instruments, [MIT](web/FUKIAI-LICENSE.txt).
 - Package format and boot files: [JieLi AC79 SDK](https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK) (Apache-2.0, not
   included).
@@ -395,10 +458,14 @@ If it does not start at all and never reaches boot mode, recovering it needs a
 
 Code: [GPL-3.0-only](LICENSE). Assets and third-party material: [LICENSING.md](LICENSING.md).
 
-M-VAVE and FM-1 are trademarks of their respective owners. Hortator is independent firmware that runs on FM-1
+M-VAVE and FM-1 are trademarks of their respective owners. Nauclerus and Hortator are independent firmware that runs on FM-1
 hardware; it is not affiliated with, endorsed by or supported by them. The plain version never enables the
 hardware's Bluetooth / Wi-Fi radio; the Bluetooth version turns on Bluetooth only when you set BLUETOOTH ON (or
 AUTOSTART ON: then 5 s after each power-on).
 
 Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments; drum machine fork: 2026 DEADACTIVE; BLE MIDI:
 2026 DEADACTIVE.
+
+Nauclerus development, modifications and remix work: Mr. Roboto (2026). Original notices and third-party licenses remain in force.
+
+Identity migration and compatibility: [NAU-0250-015](docs/IDENTITY_MIGRATION_0.25.0.md).

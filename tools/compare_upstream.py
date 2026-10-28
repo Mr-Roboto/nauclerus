@@ -25,6 +25,7 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from functools import lru_cache
 
 sys.path.insert(0, str(Path(__file__).parent))
 import dis_parse  # noqa: E402
@@ -52,6 +53,33 @@ INLINED = {"ota_send_msg": ("union", ("ota_wire_send",)), "fm1_cstart": ("prefix
 # through the pointer ("ptr") are accesses to the object the caller passes. ota_send_msg calls
 # ota_wire_send(ota_wire, w) (firmware/src/ota.c)
 PTR_ARG = {("ota_send_msg", "ota_wire_send"): "ota_wire"}
+
+
+@lru_cache(maxsize=1)
+def pointer_fact_source():
+    """Independent pinned bytes, not the current file or either binary's layout.
+
+An exact binary match must not excuse corrupt reviewed comparison metadata.
+The complete ota.c blob is already pinned by the security source manifest.
+"""
+    from security_baseline import ROOT as baseline_root, COMMIT, git, load
+    load()
+    return git(baseline_root, "show", COMMIT + ":firmware/src/ota.c").decode()
+
+
+def pointer_fact_error(name):
+    for (caller, callee), obj in PTR_ARG.items():
+        if caller != name:
+            continue
+        source = pointer_fact_source()
+        signature = "static int " + caller + "("
+        if source.count(signature) != 1:
+            return "reviewed pointer caller not uniquely present in pinned source"
+        body = source.split(signature, 1)[1].split("\n}", 1)[0]
+        pattern = r"\b" + re.escape(callee) + r"\s*\(\s*" + re.escape(obj) + r"\s*,"
+        if len(re.findall(pattern, body)) != 1:
+            return "reviewed pointer binding differs from pinned frozen source"
+    return None
 
 
 def frozen_names():
@@ -211,10 +239,35 @@ class Prog:
         return c
 
 
+def approved_identity_comparison(ours, up):
+    """NAU-0250-015: only the exact ID literal and its copying bound differ.
+    Source ota.c and both independent reference pins remain unchanged.
+    All instructions, the 27-byte reply, calls and checksum protocol must match.
+    """
+    from security_baseline import source_errors
+    if source_errors():
+        return "identity exception requires the complete approved source boundary"
+    for program,expected in [(ours,b'FM-1_25000\0'),(up,b'FM-1_900\0')]:
+        found=[(a,n) for a,n,s in program.elf.syms if s=='ota_reply_identity.ID']
+        if len(found)!=1 or found[0][1]!=len(expected) or program.elf.bytes_at(found[0][0],len(expected))!=expected:
+            return "compiled identity does not match exact approved/reference bytes"
+    text=ours.text('ota_reply_identity');reference=up.text('ota_reply_identity')
+    literal='r1 = <"FM-1_25000">';bound='if (r0 <= 9) {'
+    if text.count(literal)!=1 or text.count(bound)!=1:
+        return "identity literal/copy bound not uniquely approved"
+    normalized=[x.replace(literal,'r1 = <"FM-1_900">').replace(bound,'if (r0 <= 7) {') for x in text]
+    return None if normalized==reference else "identity code differs beyond approved literal/copy bound"
+
+
 def judge(ours, up, name):
     """None if the frozen function passes, else why"""
+    fact = pointer_fact_error(name)
+    if fact:
+        return fact
     if name not in ours.funcs:
         return "in upstream's binary, not in ours (inlined or removed)"
+    if name=='ota_reply_identity':
+        return approved_identity_comparison(ours,up)
     if ours.text(name) == up.text(name):
         return None
     eo, eu = ours.effects(name), up.effects(name)
@@ -362,6 +415,16 @@ def selftest(ours, up):
         print(f"compare_upstream selftest: {key[1]}'s pointer bound to the wrong object in {key[0]} is "
               f"{'caught' if why else 'NOT caught'}")
     ok &= bool(why)
+    identity='ota_reply_identity'
+    saved=list(ours.funcs[identity])
+    for label,pattern,replacement in [('identity copy bound','<= 9','<= 10'),('identity reply width','r2 = 27','r2 = 26')]:
+        altered=[(a,t.replace(pattern,replacement)) for a,t in saved]
+        assert altered!=saved,label
+        ours.funcs[identity]=altered
+        caught=judge(ours,up,identity) is not None
+        print(f"compare_upstream selftest: {label}: {'caught' if caught else 'NOT caught'}")
+        ok &= caught
+    ours.funcs[identity]=saved
     return 0 if ok else 1
 
 

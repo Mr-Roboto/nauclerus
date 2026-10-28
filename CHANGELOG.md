@@ -1,9 +1,130 @@
 # Changelog
 
-The drum firmware's versions (docs/VERSIONING.md). Newest first; notes go under "Unreleased" as work is merged to
-`main`, and `python3 tools/version.py bump patch|minor|major` dates them with the new version.
+Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
+[releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
+Release artifacts and validation: [release readiness](docs/RELEASE_READINESS_0.25.0.md).
+
+Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes the
+accepted RC13 functionality and the release UI corrections listed below.
+Historical entries retain their original scope and terminology.
 
 ## Unreleased
+
+### Nauclerus 0.25.1 development
+
+- Grids WRITE preserves each target track's LEN (1–64), writes snapshot triggers
+  and accents only through LEN−1, and clears unused steps beyond LEN. DIV 1/32,
+  SRC STEP, snapshot generation, target selection and transport restrictions remain
+  unchanged; live Grids and Euclidean channel lengths are unaffected.
+
+- ACID WAVE 2 is now TRIANGLE, using the existing Q15 triangle oscillator converted
+  to Q24. All four choices are selectable in order: SAW, PULSE, TRIANGLE, MORPH,
+  with the existing waveform crossfade. PWM applies only to PULSE (ID 1);
+  TRIANGLE dims/disables MORPH editing and preserves its stored value. Remove
+  the former WAVE 2 preset width initialization; WAVE 1 still starts at 50%.
+  Saved WAVE 2 values now select TRIANGLE. Two-bit encoding, storage layout,
+  MORPH ownership and existing ACID gain remain unchanged.
+
+- Update VIOLET (ID 8) to background #905BA8 / ink #FFFFFF and VIOLET INV
+  (ID 9) to background #FFFFFF / ink #905BA8.
+- Append PINK (ID 12), background #D397CA / ink #000000, and PINK INV
+  (ID 13), background #000000 / ink #D397CA. Fourteen selectable themes in order:
+  ORANGE, ORANGE INV, BLUE, BLUE INV, WHITE, WHITE INV, YELLOW, YELLOW INV,
+  VIOLET, VIOLET INV, RED, RED INV, PINK, PINK INV. Existing IDs 0–11, default,
+  legacy mapping, THEME_TAG encoding and settings format remain unchanged.
+- Simulator LCD palettes come from the shared firmware renderer; no JavaScript
+  palette is added. The published 0.25.0 simulator remains unchanged.
+
+## 0.25.0 - 2026-10-28
+
+- Stable release of the accepted RC13 implementation; no additional DSP changes.
+- Fix cached MENU/ABOUT transport headers, same-frame modal MIDI Learn/effect cancellation and REMIX held-step accents.
+- Correct obsolete release test references using independent accepted-firmware evidence; retain integrity guards and test tolerances.
+- Four-slot BIP / magnitude-only UNI+ / UNI− routing; compatibility and source IDs preserved.
+- Source-matched WASM simulator and interactive manual with Graphite/Champagne/Amber styling.
+- Web installer requires exact stable package SHA-256, acknowledgement and explicit confirmation.
+- ACID default-render golden updated only after byte-identical RC11/RC12/RC13 comparison; all other goldens and thresholds unchanged.
+
+
+### Nauclerus 0.25.0-rc.13
+
+- All four LFO routing slots use unsigned 0–100% DEPTH for UNI+/UNI−.
+  Mode alone selects direction; negative UNI values retain magnitude without phase reversal.
+  BIP signed-depth arithmetic and audio remain unchanged. Mode switching, MIDI Learn,
+  RC12 project loading and legacy Motion/lock playback normalize UNI magnitudes;
+  parameter IDs, project/Song formats and stored event bytes remain unchanged.
+
+### Nauclerus 0.25.0-rc.12
+
+- Four LFO DEST slots now independently select L1BI/L2BI, L1U+/L2U+ or L1U-/L2U-.
+  Source fields 0/1 retain exact BIP signed-depth/rounding; 2–5 add unipolar modes.
+  Negative unipolar depth reverses trajectory without reversing UNI offset direction.
+  All source readers, meters and OCT rate-mode selection use the correct LFO bit.
+- Existing parameter IDs/FDRF size remain unchanged. Old projects and default slots
+  remain BIP; presets do not reset routing. MIDI Learn expands SRC to six choices.
+  Accumulation, base restoration and existing live-routing Song ownership remain.
+- Owner's explicit 2026-10-28 declaration resolves the ORB provenance record: independent
+  creation and authorized redistribution; Future Retro Orb is conceptual inspiration,
+  not copied pattern data. Old transcription wording is superseded, not hidden.
+  Canonical values and their pinned SHA-256/production packing are unchanged.
+- ACID/filter/oscillator DSP, all accepted RC11 sound/UI behavior outside the routing
+  controls, presets, project/Song layout, USB identity and loader are preserved.
+
+
+### Nauclerus 0.25.0 — completed through RC11
+
+- ORB Remix: all 256 canonical mappings from X0X-RMX v1.1.0, identity A1 and independent 16-step block
+  mapping over 64 steps. GLOBAL DRUM serves all current drum models; each physical ACID track retains
+  its independent Bass selection. Notes, ACID lookahead, Motion and locks use mapped sources while
+  timing, recording and manual editing remain chronological. Grids still bypasses mapping.
+- REMIX page between PATTERN and MOTION: K1/K2 draft Bank/Pattern, K4 SET or OCT+ confirm;
+  K3 ON/OFF affects only the confirmed selection. Playing changes latch at safe track-step boundaries;
+  STOP retains explicit queued edits. Song rows use their slot-owned configurations.
+- Compact validated project extensions for Remix and per-track TB-3PO settings/seeds. Existing FDRF
+  records remain 3840 bytes; legacy/invalid extensions load safe defaults without rewriting old phrases.
+  Existing lock-bank transactions, storage allocation and Song row structure are preserved.
+- TB-3PO port of the actual pinned X0X-RMX generator:22 scales, deterministic motif/phrase generation,
+  restrained manual/automatic mutation, independent physical-track settings and safe playing edits.
+  ARP routes to GENERATE/SCALE on ACID and retains GRIDS on drums. OCT NEW/MUTATE works with KEYS
+  and ENV/STEPS modes while deliberate held editing combinations retain priority.
+- ACID: SAW, variable 5–95% PULSE and the Sharkfin/Trapezoid/Notch-Trapezoid MORPH family; smoothed
+  waveform controls and one-MORPH-voice arbitration. Stable old WAVE IDs prevent legacy MORPH/PULSE
+  confusion; legacy SQUARE becomes 50% PULSE and old fixed 25% PULSE becomes the nearest width setting.
+- FASTSLOW, UID 152, first ACID preset in MODERN: TUNE −12, DECAY 50, CUTOF 80, RESO 30, ENVMD 60,
+  ACCNT 64, PULSE, GATE 40; default width 64. New untouched ACID LEVEL 104 (−4 dB); saved/user levels remain.
+- Final four-page ACID EDIT layout preserves all 15 controls, including GATE and additional MORPH,
+  with the final column empty. SAW disables MORPH editing while retaining its value. Pulse preset
+  audition cancellation restores the previous manual width/MORPH.
+- LFO destination A.MOR appended without renumbering existing destinations. Either/both LFOs and
+  all four routing slots can modulate PWM/MORPH around the restored manual base, with signed depth.
+- ACID resonance-feedback high-pass improves measured bass retention without raising global gain.
+  Existing oscillator geometry is retained. Subjective resonance/filter character remains an
+  owner-accepted limitation, not a claim of X0X-RMX/analogue sonic equivalence.
+- Grids WRITE: stopped OCT+ captures a deterministic 64-position two-bar MAP/EUCLID snapshot into
+  eligible drum tracks, sets LEN 64/DIV 1/32/SRC STEP, retains sounds and allows ordinary Drum Remix.
+  K4 clockwise on GRIDS page 2 assigns T1–T3 kick/snare/hat sources. WRITE-available OCT+ cue added.
+- HOME/GLO: short GLO opens/closes MENU, held GLO keeps MUTE; held HOME enters Settings and exits
+  that family to real HOME. Short HOME cycles its three Settings pages; from MENU/normal overlays it
+  cancels directly to real HOME. Release after a long press does not also tap.
+- MENU SEL/SCL ENTER for dedicated screens, retaining OCT+ ENTER, OCT− BACK and SELECT navigation.
+  PROJECT OCT− LOAD / OCT+ SAVE reuse the existing guarded actions.
+- Twelve device color themes: ORANGE/INV, BLUE/INV, WHITE/INV, YELLOW/INV, VIOLET/INV, RED/INV.
+  RC11 integrates Orange at existing IDs 0/1; other IDs/preferences/default remain compatible.
+- Mr. Roboto's development/modifications/remix credit added to ABOUT; original attribution preserved.
+- Linux host harness portability retained with unavailable instruction counters explicitly skipped;
+  minimal song timing and DSP signed-shift undefined-behavior fixes, without changing golden references.
+- Independently adopted Nauclerus security baseline with immutable pins and fail-closed source/reference
+  guards; loader identity, USB compatibility and recovery implementation remain unchanged.
+- RC11 acceptance: owner reports 10/11 physical checks PASS; the remaining subjective resonance concern
+  is accepted for stable. No per-item hardware log is invented. Stable identity/package and public
+  release preparation remain pending separate authorization.
+
+
+## 0.25.0-rc.1 - 2026-10-27
+
+- Nauclerus local release candidate: canonical ORB Remix on eight tracks, staged SEQ > REMIX APPLY, Song ownership, project persistence and chronological recording.
+- Ten color themes; preserved Linux regression portability and focused song timing/DSP correctness fixes.
+- Independently reviewed local security baseline, strict source/reference guards and unchanged update loader. No hardware installation or public release.
 
 ## 0.24.0 - 2026-10-25
 

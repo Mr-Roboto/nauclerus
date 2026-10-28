@@ -9,7 +9,11 @@ import { el } from './lab_ui.js';
 import { B, ENC } from './controls.js';
 import { parseReel, snapshots } from './reel.js';
 
-const PIECES = {                                     // data-piece -> its module, loaded once the analyser runs
+const PIECES = {
+  acid: () => import('./lab_nauclerus.js'),
+  melody: () => import('./lab_nauclerus.js'),
+  remix: () => import('./lab_nauclerus.js'),
+  events: () => import('./lab_nauclerus.js'),                                     // data-piece -> its module, loaded once the analyser runs
   voices: () => import('./lab_voices.js'),
   reson: () => import('./lab_reson.js'),
   comp: () => import('./lab_comp.js'),
@@ -23,6 +27,10 @@ const PIECES = {                                     // data-piece -> its module
 // each chapter's page on the FM-1's own screen: the panel moves that open it from the power-on screen (HOME's TRACKS
 // mode), as the chapter's "On the panel"
 const PAGES = {
+  acid: [{sel:0},{tap:'EDIT'}],
+  melody: [{sel:0},{tap:'ARP'}],
+  remix: [{sel:0},{tap:'SEQ'},{tap:'SEQ'},{tap:'SEQ'}],
+  events: [{sel:0},{tap:'SEQ'},{tap:'SEQ'},{tap:'SEQ'},{tap:'SEQ'}],
   voices: [{ sel: 0 }, { tap: 'EDIT' }],                       // SOUND 1/3
   reson: [{ sel: 0 }, ...Array(5).fill({ tap: 'FX' })],       // FILTER 1, 2, FX, SLICER, RESON 1
   comp: [{ tap: 'HOME' }, { enc: 'SELECT' }],                   // the HOME screen, SELECT on: COMP 2/3
@@ -172,6 +180,7 @@ async function mount(chapter) {
   const load = PIECES[stage?.dataset.piece];
   if (!load) return;
   const { default: make } = await load();
+  const analyser = ['acid','melody','remix','events'].includes(stage.dataset.piece) ? await Lab.create(wasm,ids) : lab;
   const button = el('button', 'lab-play', 'Play');
   const lcd = chapter.querySelector('.device-screen canvas'), page = PAGES[stage.dataset.piece] ?? [];
   const shown = lcd ? watch(chapter, lcd, stage.dataset.piece) : null;
@@ -179,13 +188,13 @@ async function mount(chapter) {
   // screen(more): the FM-1's screen for the analyser's state now (a piece calls it at the end of a render): with a
   // clip, only for a change made here (then held LIVE_MS); without one, always
   const screen = (more = []) => {
-    if (!lab || !lcd || (shown?.clip && !ready)) return;
-    paint(lcd, lab.screen(panel([...page, ...more])));
+    if (!analyser || !lcd || (shown?.clip && !ready)) return;
+    paint(lcd, analyser.screen(panel([...page, ...more])));
     if (shown?.clip) shown.live = performance.now() + LIVE_MS;
   };
   let piece = null;
   // audition(): the piece's sound, started if it is not on (a pad, a held key); -> the player or null
-  piece = make(stage, { lab, ids, screen, audition: () => play(chapter, piece, button, false) });
+  piece = make(stage, { lab: analyser, ids, screen, audition: () => play(chapter, piece, button, false) });
   ready = true;
   if (!piece.start) return;                           // a diagram: nothing to hear
   button.type = 'button';

@@ -20,7 +20,9 @@ typedef struct {                           /* a slot as its rows play it */
     const step_t *step[NTRK];
     const lk_bank_t *m;                    /* its lock bank: motion and locks (LK_NONE: none, or a broken one) */
     int16_t timing[NTRK][4];               /* CHAIN_TIMING, inside their ranges */
+    uint8_t acid_wave[NTRK], acid_morph[NTRK]; /* 255 wave: slot is not ACID; keep live sound */
     uint8_t model[NTRK];                   /* its models: another model now = its P_E events skipped (motion.c) */
+    uint16_t remix[REMIX_SCOPES];                  /* validated effective snapshots (seq_remix_state), prepared before PLAY */
 } chain_src_t;
 static const uint8_t CHAIN_TIMING[4] = {P_SLEN, P_SDIV, P_SSWING, P_SRC};
 static const lk_bank_t LK_NONE;
@@ -30,6 +32,7 @@ static struct {
     char name[NAME_LEN + 1u];              /* the project's name, "" = none */
     uint8_t from;                          /* the slot loaded or saved last + 1, 0 = none (its rename renames this) */
     chain_src_t src[4];                    /* the slots (chain_prepare) */
+    uint8_t keep_acid_wave[NTRK], keep_acid_morph[NTRK];
     int16_t keep[NTRK][4];                 /* the timing before the song (STOP puts it back) */
     volatile uint8_t armed, running;       /* PLAY on SONG: armed until seq_start takes it; running */
     uint8_t row, left, ref, slot;          /* the row playing, its repeats left (this one too), its longest track, slot */
@@ -66,6 +69,17 @@ static void name_set(char *d, const char *s)      /* d: NAME_LEN + 1 bytes, 0-pa
 }
 
 /* ---- the ISR (seq.c) */
+static uint32_t seq_remix_effective(uint32_t k)
+{
+    /* The same slot owns steps, timing, Motion/locks and Remix. No decoding in
+     * the ISR, and no song writes to the live project's configuration. */
+    uint32_t scope = seq_remix_scope(k);
+    if (chain.running) return chain.src[chain.slot].remix[scope];
+    if (chain.armed) return 0u;
+    /* Model/preset changes already cut the old voice. Route immediately, without
+     * overwriting the Bass scope; unchanged tracks retain their event snapshot. */
+    return !song.playing || seq_remix_owner[k] != scope ? seq_remix_config[scope] : seq_remix[k];
+}
 static const step_t *seq_steps(const track_t *t)   /* the steps a track plays: a song's row, else its own */
 {
     return chain.running ? chain.src[chain.slot].step[t - trk] : t->step;
@@ -73,7 +87,8 @@ static const step_t *seq_steps(const track_t *t)   /* the steps a track plays: a
 #define B24_WRAP 768u                              /* a multiple of 24 and of every division's two steps in 1/24 beats */
 static uint32_t step24(uint32_t div, uint32_t *den)   /* a step of DIV div in 1/24 beats (1/32: 3 .. 4BAR: 384) */
 {
-    return div_num_den(div, den) * 24u / *den;
+    uint32_t num = div_num_den(div, den);
+    return num * 24u / *den;
 }
 static uint32_t chain_beats(const track_t *t, uint32_t *den)   /* t's pattern: num / den beats */
 {
@@ -84,11 +99,22 @@ static void chain_apply(uint32_t x)                /* row chain.row starts x sam
 {
     const chain_src_t *s;
     uint32_t k, j, best = 0, bn = 0, bd = 1;
-    chain.slot = chain.cfg.row[chain.row].slot;
+    chain.slot = chain.cfg.row[chain.row].slot;      /* also selects all eight prepared Remix states before any event */
     chain.left = chain.cfg.row[chain.row].repeat;
     s = &chain.src[chain.slot];
     mo.src = s->m ? s->m : &LK_NONE;
     mo.model = s->model;
+    /* Update sound controls together; cut an outgoing Morph before handing
+     * its CPU slot to another track (the existing drum_cut tail declicks it). */
+    for (k=0;k<NTRK;k++) {
+        track_t *t=&trk[k];
+        uint32_t wave=s->acid_wave[k]<4u ? s->acid_wave[k] : chain.keep_acid_wave[k];
+        if ((uint32_t)t->p[P_MODEL]%NMODELS==DM_ACID) {
+            t->p[P_E6]=(int16_t)wave;
+        }
+        t->p[P_AMORPH]=s->acid_morph[k];
+    }
+    acid_wave_resolve();
     for (k = 0; k < NTRK; k++) {
         track_t *t = &trk[k];
         uint32_t n, d;
@@ -121,6 +147,10 @@ static void chain_start(void)                      /* seq_start: an armed song f
     if (!chain.armed && !chain.running)
         return;
     if (!chain.running) {
+        for (k=0;k<NTRK;k++) {
+            chain.keep_acid_wave[k]=(uint8_t)clamp(trk[k].p[P_E6],0,3);
+            chain.keep_acid_morph[k]=(uint8_t)clamp(trk[k].p[P_AMORPH],0,127);
+        }
         for (k = 0; k < NTRK; k++)
             for (j = 0; j < 4u; j++)
                 chain.keep[k][j] = trk[k].p[CHAIN_TIMING[j]];
@@ -143,6 +173,14 @@ static void chain_stop(void)                       /* seq_stop: the timing and R
     for (k = 0; k < NTRK; k++)
         for (j = 0; j < 4u; j++)
             trk[k].p[CHAIN_TIMING[j]] = chain.keep[k][j];
+    for (k=0;k<NTRK;k++) {
+        track_t *t=&trk[k];
+        if ((uint32_t)t->p[P_MODEL]%NMODELS==DM_ACID) {
+            t->p[P_E6]=chain.keep_acid_wave[k];
+        }
+        t->p[P_AMORPH]=chain.keep_acid_morph[k];
+    }
+    acid_wave_resolve();
     song.rec = chain.rec;
     mo.src = 0;
     mo.model = 0;
@@ -166,6 +204,7 @@ static void chain_tick(uint32_t n)
         chain.left--;
         return;
     }
+    tb_song_wraps(cur - t->seq_pos);
     if (chain.row + 1u < chain.cfg.count)
         chain.row++;
     else if (chain.cfg.loop)

@@ -1,3 +1,4 @@
+# Nauclerus local adoption authorized 2026-10-27; see docs/NAUCLERUS_SECURITY_BASELINE_ADOPTION.md.
 # The frozen-code baseline (docs/superpowers/specs/2026-10-06-frozen-baseline-stage2-design.md): the git rev / tag
 # whose frozen files ours equal (tools/check_untouched.py) and whose build is H2's and the stack check's
 # reference (tools/upstream_build.sh), and the commit it must resolve to (a moved or missing tag fails the checks).
@@ -6,6 +7,10 @@
 # "Felucca"; the update loader's "Felucca Update", VID/PID and every other frozen file unchanged)
 # frozen-base-10 (user decision 2026-10-24, option D of the parameter-locks spec): frozen-base-9 + storage.c's lock-bank
 # objects OBJ_LOCKS0..3 at 0xD4000..0xDBFFF (the map comment, the object enum, st_sector; nothing else)
-FROZEN_BASE frozen-base-10 731386008fae060ae885f44b4765d172ecfae4b3
+# Historical missing reference, not reconstructed: frozen-base-10 731386008fae060ae885f44b4765d172ecfae4b3
+FROZEN_BASE nauclerus-security-base-1 2690e74aba6fb99eeb547010e65e52cc2da395e9
+BASELINE_TAG_OBJECT 07462232c82f044bb5a50cf46d16a9ed2a333260
+BASELINE_TREE 3b0583347cc1e91e7870b0051fe4256e0066055d
+BASELINE_MANIFEST_SHA256 b55fc9404167b9098314a2af508bbf40f2d36fc8fc5a7f82ad020f6bccfe8738
 # the update loader the FM-1 runs (build/loader/ota.bin, 6493 B): it must not change
 LOADER_SHA256 cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d

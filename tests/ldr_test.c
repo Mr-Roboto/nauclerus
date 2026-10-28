@@ -146,6 +146,14 @@ int main(int argc, char **argv)
     memset(nor, 0xFF, sizeof nor);
     memcpy(nor, old + ofo, 0x93000);
     memcpy(head, nor, sizeof head);
+    static uint8_t userdata[0x100000];
+    if (argc == 4) {                           /* independently produced real project/lock flash records */
+        FILE *f = fopen(argv[3], "rb");
+        if (!f || fread(userdata, 1, sizeof userdata, f) != sizeof userdata) return 2;
+        fclose(f);
+        memcpy(nor + 0x97000, userdata + 0x97000, 0xE0000 - 0x97000);
+        memcpy(nor + 0xFC000, userdata + 0xFC000, 0x2000);
+    }
     {
         uint8_t r[112] = {0};
         r[2] = 0x0D; r[3] = 0x5A; r[4] = 0x01; r[5] = 0x5A; r[6] = 0x41; r[7] = 0x54;
@@ -161,6 +169,11 @@ int main(int argc, char **argv)
     bad += check("finish asked (0xF0000000)", f0_asked >= 1);
     bad += check("update record cleared (RAM + flash)", record_cleared && nor[0xE4F06] == 0xFF);
     bad += check("no write outside the allowed windows", bad_range == 0);
+    if (argc == 4) {
+        bad += check("real project/lock/sample/preset sectors survive the loader record-cleanup scan",
+                     !memcmp(nor + 0x97000, userdata + 0x97000, 0xE0000 - 0x97000));
+        bad += check("real settings survive the loader", !memcmp(nor + 0xFC000, userdata + 0xFC000, 0x2000));
+    }
     /* same package again: nothing to erase */
     erases = 0; requests = 0;
     rc = ldr_session();
@@ -176,5 +189,8 @@ int main(int argc, char **argv)
         logical[nfo + 0x4000 + 5] = save;
     }
     printf("%s\n", bad ? "LOADER TEST FAILED" : "loader test passed");
+    free(old);
+    free(logical);
+    logical = NULL;
     return bad != 0;
 }

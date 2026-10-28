@@ -324,8 +324,22 @@ static void test_song_valid(void)
           !name_char_ok('a') && !name_char_ok('!') && !name_char_ok(0));
 }
 
+static void test_step24(void)
+{
+    static const uint32_t ticks[10] = {24, 12, 6, 3, 8, 4, 48, 96, 192, 384};
+    static const uint32_t denominators[10] = {1, 2, 4, 8, 3, 6, 1, 1, 1, 1};
+    uint32_t div, ok = 1;
+    for (div = 0; div < 10u; div++) {
+        uint32_t den = 0;
+        uint32_t got = step24(div, &den);
+        ok &= got == ticks[div] && den == denominators[div];
+    }
+    check("song: step24 initializes its denominator before division, all ten rates", ok);
+}
+
 int main(void)
 {
+    test_step24();
     test_song_rows();
     test_song_loop();
     test_song_longest();

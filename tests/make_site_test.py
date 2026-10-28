@@ -1,62 +1,24 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-# Drum machine fork: 2026 DEADACTIVE
-"""web/make_site.py: one release, two versions (2026-10-09). With a second package (the Bluetooth build) the site
-carries both and the installer's metadata lists them; without one it is as before (one package, no choice).
-Needs a packaged build: build/felucca-UNTESTED.fwsc (DRUM_PACKAGE=1 ./build.sh)."""
-import json
-import re
-import shutil
-import sys
-import tempfile
+"""Current Nauclerus staging: exact package and fail-closed corrupt/unknown artifacts."""
+import json,sys,tempfile,shutil
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "web"))
-import make_site  # noqa: E402
-
-fails = 0
-
-
-def check(c, what):
-    global fails
-    print(("ok    " if c else "FAIL  ") + what)
-    fails += not c
-
-
-def meta(out):
-    html = (out / "webapp" / "installer" / "index.html").read_text(encoding="utf-8")
-    return json.loads(re.search(r"const meta = (\{.*?\});\n", html).group(1))
-
-
-pkg = ROOT / "build" / "felucca-UNTESTED.fwsc"
-if not pkg.exists():
-    sys.exit("make_site_test: no build/felucca-UNTESTED.fwsc (DRUM_PACKAGE=1 ./build.sh)")
-with tempfile.TemporaryDirectory() as d:
-    d = Path(d)
-    ble = d / "felucca-ble-UNTESTED.fwsc"
-    shutil.copy(pkg, ble)
-    out = d / "site"
-    make_site.main(pkg, "drum-9.9.9+abc1234", out, ble)
-    fw = sorted(f.name for f in (out / "firmware").glob("felucca-*.fwsc"))
-    check(fw == ["felucca-drum-9.9.9-abc1234-ble.fwsc", "felucca-drum-9.9.9-abc1234.fwsc"], f"both packages: {fw}")
-    m = meta(out)
-    v = m.get("variants", [])
-    check([x["id"] for x in v] == ["std", "ble"], "the installer lists both versions, the plain one first")
-    check(m["pkg"] == v[0]["pkg"] == "../../firmware/felucca-drum-9.9.9-abc1234.fwsc" and
-          m["version"] == v[0]["version"] == "drum-9.9.9+abc1234", "the plain version is the default")
-    check(v[1]["pkg"] == "../../firmware/felucca-drum-9.9.9-abc1234-ble.fwsc" and
-          v[1]["version"] == "drum-9.9.9+abc1234+ble", "the Bluetooth version: its package and its label")
-    make_site.main(pkg, "drum-9.9.9+abc1234", out)
-    fw = sorted(f.name for f in (out / "firmware").glob("felucca-*.fwsc"))
-    check(fw == ["felucca-drum-9.9.9-abc1234.fwsc"], "one package again without the second (old ones removed)")
-    check("variants" not in meta(out), "no choice with one package")
-    bad = d / "bad.fwsc"
-    bad.write_bytes(pkg.read_bytes().replace(b"FELUCCA-LOADER-1", b"XXXXXXXX-LOADER-1"))
-    try:
-        make_site.main(pkg, "drum-9.9.9+abc1234", d / "site2", bad)
-        check(False, "a second package without the Felucca loader is refused")
-    except SystemExit:
-        check(True, "a second package without the Felucca loader is refused")
-print("make_site: " + (f"{fails} FAILED" if fails else "all checks passed"))
-sys.exit(fails != 0)
+ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'web'),str(ROOT/'tools')]
+import make_site,version
+pkg=ROOT/'build'/('nauclerus-'+version.read()+'.fwsc')
+with tempfile.TemporaryDirectory() as td:
+ out=Path(td)/'site';out.mkdir()
+ info=make_site.install_site(pkg,'nauclerus-'+version.read()+'+test',out)
+ assert (out/'firmware'/pkg.name).read_bytes()==pkg.read_bytes()
+ assert info['product']=='FM-1_25000' and len(info['sha256'])==64
+ html=(out/'webapp/installer/index.html').read_text()
+ assert 'SHA-256/size mismatch' in html and 'meta.sha256' in html and 'requestMIDIAccess' in html and 'id="ack"' in html
+ shutil.copy2(ROOT/'build/felucca.bin',Path(td)/'felucca.bin')
+ (Path(td)/'loader').mkdir();shutil.copy2(ROOT/'build/loader/ota.bin',Path(td)/'loader/ota.bin')
+ # Mutate a byte inside the verified flash payload, retaining all adjacent inputs.
+ raw=bytearray(pkg.read_bytes());raw[2048]^=1
+ bad=Path(td)/pkg.name;bad.write_bytes(raw)
+ try:make_site.install_site(bad,'bad',Path(td)/'bad')
+ except ValueError:pass
+ else:raise AssertionError('corrupted/unbound package accepted')
+print('make_site: exact Nauclerus identity, package bytes, integrity/hash gating and corrupt artifact rejection PASS')

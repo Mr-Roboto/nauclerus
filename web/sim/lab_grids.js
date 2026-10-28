@@ -43,13 +43,13 @@ export default function grids(plate, { lab, ids, screen }) {
   // ---- the pad: X / Y (0..127), Grids' 5 x 5 nodes behind
   const padScope = scope('xy', (g, w, h) => {
     g.save();
-    g.fillStyle = '#000000';
+    g.fillStyle = INK.bg;
     g.fillRect(0, 0, w, h);
-    g.fillStyle = '#505050';
+    g.fillStyle = INK.dim;
     for (let i = 0; i < 5; i++)
       for (let j = 0; j < 5; j++) g.fillRect(i / 4 * (w - 12) + 4, j / 4 * (h - 12) + 4, 4, 4);
     const px = state.x / 127 * w, py = (1 - state.y / 127) * h;
-    g.strokeStyle = '#282828';
+    g.strokeStyle = INK.grid;
     g.beginPath();
     g.moveTo(px, 0); g.lineTo(px, h);
     g.moveTo(0, py); g.lineTo(w, py);
@@ -91,7 +91,7 @@ export default function grids(plate, { lab, ids, screen }) {
   const laneScope = scope('lanes', (g, w, h) => {
     const left = 52, cw = (w - left) / 32, rh = h / 3;
     g.save();
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     g.textBaseline = 'middle';
     for (let ch = 0; ch < 3; ch++) {
       g.fillStyle = INK.dry;
@@ -116,13 +116,13 @@ export default function grids(plate, { lab, ids, screen }) {
           g.fillRect(x, y0 + full * 0.45, cw - 3, full * 0.55);
           g.shadowBlur = 0;
         } else {
-          g.fillStyle = '#282828';
+          g.fillStyle = INK.grid;
           g.fillRect(x, y0 + full - 3, cw - 3, 3);
         }
       }
     }
     if (now >= 0) {
-      g.fillStyle = '#282828';
+      g.fillStyle = INK.grid;
       g.fillRect(left + now * cw, 0, cw, h);
     }
     g.restore();

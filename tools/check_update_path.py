@@ -329,8 +329,12 @@ def source_errors(base):
             continue
         if status == "M" and path == MAIN_C and main_hook_only(git("show", f"{base}:{path}"), worktree_text(path) or ""):
             continue
-        if status == "M" and path == USB_APP_C and usb_name_only(git("show", f"{base}:{path}"), worktree_text(path) or ""):
-            continue
+        if status == "M" and path == USB_APP_C:
+            from security_baseline import approved_source_bytes
+            reference=git("show",f"{base}:{path}").encode()
+            current=(worktree_text(path) or "").encode()
+            if approved_source_bytes(path,current)==reference or usb_name_only(reference.decode(),current.decode()):
+                continue
         if status == "M" and path == STORAGE_C and storage_locks_only(git("show", f"{base}:{path}"),
                                                                        worktree_text(path) or ""):
             continue
@@ -342,14 +346,19 @@ def source_note(base):
     """what gate 2a allowed beyond the release's sources ("" for nothing)"""
     changed = git("diff", "--name-only", base, "--", MAIN_C, USB_APP_C, STORAGE_C).split()
     return ((" + main.c's recorded backlight hook (frozen-base-8)" if MAIN_C in changed else "") +
-            (" + usb_app.c's recorded USB name Hortator (frozen-base-9)" if USB_APP_C in changed else "") +
+            (" + usb_app.c's exact approved product descriptor (NAU-0250-015 / legacy frozen-base-9)" if USB_APP_C in changed else "") +
             (" + storage.c's recorded lock-bank objects (frozen-base-10)" if STORAGE_C in changed else ""))
 
 
 def main(argv):
     if argv[1:2] == ["--sources"]:
-        base = argv[2] if len(argv) > 2 else last_release()
+        # The adopted immutable reference is authoritative. Historical hunk
+        # predicates remain tested, but cannot exempt bytes from its strict guard.
+        from security_baseline import COMMIT, load, source_errors as frozen_errors
+        load()
+        base = argv[2] if len(argv) > 2 else COMMIT
         errors = source_errors(base)
+        errors += frozen_errors()
         for e in errors:
             print("gate 2a:", e)
         if not errors:

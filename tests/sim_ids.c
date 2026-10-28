@@ -70,9 +70,12 @@ int main(void)
     ID(P_, MODEL); ID(P_, E0); ID(P_, E1); ID(P_, E2); ID(P_, E3); ID(P_, E4); ID(P_, E5); ID(P_, E6); ID(P_, E7);
     ID(P_, LEVEL); ID(P_, PAN); ID(P_, MUTE); ID(P_, DIST); ID(P_, CHOR); ID(P_, DLY); ID(P_, REV);
     ID(P_, SLCR); ID(P_, SLPAT); ID(P_, SLRATE); ID(P_, SLDEPTH); ID(P_, SLEN); ID(P_, SDIV); ID(P_, SSWING);
+    ID(P_, AMORPH); ID(P_, LSRC1); ID(P_, LSRC2); ID(P_, LS3SRC); ID(P_, LS3DEST); ID(P_, LS3DEPTH); ID(P_, LS4SRC); ID(P_, LS4DEST); ID(P_, LS4DEPTH);
     ID(P_, SRC); ID(P_, DUCK); ID(P_, LFO1); ID(P_, LFO2);
     ID(P_, RMODEL); ID(P_, RTUNE); ID(P_, RDECAY); ID(P_, RMIX); ID(P_, RTONE); ID(P_, RSTRCT); ID(P_, RPOS);
     ID(P_, FTYPE); ID(P_, FCUT); ID(P_, FRESO); ID(P_, FENV); ID(P_, FDEC);
+    printf("},\n\"GR\": {");
+    first=1; ID(GR_, MODEL); ID(GR_, REMIX); ID(GR_, TB3PO); ID(GR_, GRIDS); ID(GR_, SLOTS); ID(GR_, LDEST);
     printf("},\n\"LF\": {");
     first = 1;
     ID(LF_, WAVE); ID(LF_, MODE); ID(LF_, RATE); ID(LF_, MORPH); ID(LF_, DEPTH); ID(LF_, DEST); ID(LF_, TRIG); ID(LF_, PHASE);

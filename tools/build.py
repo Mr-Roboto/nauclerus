@@ -51,7 +51,7 @@ SDK_SHA256 = {
     "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
 }
 
-PRODUCT = "FM-1_900"                # package identity; release builds are FM-1_9XY
+PRODUCT = drum_version.PRODUCT                # fixed project identity; VERSION.txt supplies the semantic version
 VERSION = None                      # FELUCCA_VERSION for release builds (default: the drum version, VERSION.txt)
 
 
@@ -99,7 +99,8 @@ def generate():
     tools = SRC / "tools"
     cmds = [[tools / "gen_font.py", GEN / "felucca_font.h"],
             [tools / "gen_tables.py", GEN / "felucca_tables.h"],
-            [tools / "gen_samples.py", GEN / "felucca_samples.h"]]
+            [tools / "gen_samples.py", GEN / "felucca_samples.h"],
+            [tools / "gen_remix.py", GEN / "nauclerus_remix_table.h"]]
     procs = [subprocess.Popen([sys.executable, *map(str, c)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                               text=True) for c in cmds]
     failed = []
@@ -436,7 +437,7 @@ def drum_label():
     def git(*a):
         return subprocess.run(["git", *a], cwd=SRC, capture_output=True, text=True).stdout.strip()
     rev = git("rev-parse", "--short", "HEAD") or "unknown"
-    return f"drum-{drum_version.read()}+{rev}" + ("-dirty" if git("status", "--porcelain", "--untracked-files=no") else "")
+    return f"nauclerus-{drum_version.read()}+{rev}" + ("-dirty" if git("status", "--porcelain", "--untracked-files=no") else "")
 
 
 def main():
@@ -454,13 +455,8 @@ def main():
     if measure and os.environ.get("DRUM_PACKAGE") == "1":
         raise SystemExit("build: BLE_MEASURE=1 only measures; no package with it")
     name = "felucca.fwsc"
-    if a.release:                   # one digit each: the identity has room for two
-        m = re.fullmatch(r"(\d)\.(\d)(-[A-Za-z0-9]+)?", a.release)
-        if not m:
-            raise SystemExit(f"--release {a.release}: use X.Y or X.Y-suffix, one digit each")
-        PRODUCT = "FM-1_9" + m[1] + m[2]
-        VERSION = a.release.upper() if "BETA" in a.release.upper() else a.release.upper() + " BETA"
-        name = f"felucca-{a.release}.fwsc"
+    if a.release:
+        raise SystemExit("Nauclerus uses VERSION.txt and its fixed FM-1_25000 identity; legacy --release X.Y is not supported")
     if ble:                         # a gated BLE build (gates 1-5) may be packaged, named as one
         name = name.replace("felucca", "felucca-ble", 1)
     ble_pkg = None
@@ -518,8 +514,14 @@ def main():
         print("package  skipped (DRUM_PACKAGE=1 writes build/felucca-UNTESTED.fwsc; never install it in M1)")
         return 0
     name = name.replace(".fwsc", "-UNTESTED.fwsc")
+    if not a.release and not ble:
+        name = f"nauclerus-{drum_version.read()}.fwsc"
     pkg = fm1pkg_make.ufw(fm1pkg_make.flash_image(img, fm1pkg_make.KEY), ota, PRODUCT)
     (OUT / name).write_bytes(pkg)
+    if not a.release and not ble:
+        # Byte-identical compatibility paths consumed by existing offline regression tests.
+        (OUT / "felucca-UNTESTED.fwsc").write_bytes(pkg)
+        (OUT / "felucca.fwsc").write_bytes(pkg)
     att = SRC / "assets" / "samples-cc0" / "ATTRIBUTION.txt"
     if att.exists():
         shutil.copy(att, OUT / "ATTRIBUTION.txt")

@@ -154,7 +154,7 @@ static void test_theme_index(void)
     theme_set(THEME_TAG | 2u);
     check("theme_set: C_BG / C_INK are the theme's (WHITE ON BLUE)", C_BG == THEMES[2].bg && C_INK == THEMES[2].ink &&
           C_BG == RGB(0x24, 0x45, 0xc8) && C_INK == RGB(0xea, 0xf1, 0xff));
-    check("themes: MD RED #e0472b / #38100a", THEMES[0].bg == RGB(0xe0, 0x47, 0x2b) && THEMES[0].ink == RGB(0x38, 0x10, 0x0a));
+    check("themes: accepted ORANGE #e96f25 / #321308", THEMES[0].bg == RGB(0xe9, 0x6f, 0x25) && THEMES[0].ink == RGB(0x32, 0x13, 0x08));
     theme_set(THEME_TAG | 0u);
 }
 

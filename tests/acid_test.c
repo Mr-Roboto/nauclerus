@@ -247,8 +247,36 @@ static void test_self_osc_far(void)                  /* RESO 127, the note 7 oct
     play(t, 96, -60, buf, N / 2);                    /* C-1 (8 Hz) under ~2.2 kHz */
     for (g = fc * 0.85; g < fc * 1.15; g += fc / 2000)
         best = fmax(best, goertzel(buf + FS / 2, FS / 2, g));
-    check("acid: RESO 127 oscillates by itself far from the note (a sine near the cutoff, magnitude > 1000)",
-          best > 1000.0);
+    /* RC10's accepted feedback high-pass changes the *driven* band amplitude.
+     * Test actual autonomous oscillation, not the saw's modulation of it: the
+     * existing SAW is exactly zero at half-cycle, held there per sample. No DSP
+     * substitution. Retain the original >1000 autonomous magnitude criterion. */
+    double driven = best, autonomous = 0, control = 0, rms_first = 0, rms_last = 0;
+    int bounded = 1;
+    for (unsigned res = 0; res <= 127u; res += 127u) {
+        t = acid(); t->p[P_E2] = 100; t->p[P_E3] = (int16_t)res; t->p[P_E4] = 0;
+        play(t, 96, -60, buf, FS);
+        dvoice_t *voice = &t->v[0];
+        for (unsigned second = 0; second < 4u; second++) {
+            for (unsigned j = 0; j < FS; j++) {
+                voice->ph[0] = 0x80000000u; buf[j] = 0;
+                acid_render(t, voice, buf + j, 1);
+            }
+            best = 0;
+            for (g = fc * .85; g < fc * 1.15; g += fc / 2000)
+                best = fmax(best, goertzel(buf + FS / 2, FS / 2, g));
+            bounded &= peak(buf, FS) < 32767;
+            if (res) {
+                autonomous = best;
+                if (!second) rms_first = rms(buf + FS / 2, FS / 2);
+                if (second == 3u) rms_last = rms(buf + FS / 2, FS / 2);
+            } else control = fmax(control, best);
+        }
+    }
+    printf("     self-osc: driven %.6f; zero-input %.6f; RES0 %.6f; settled RMS %.6f -> %.6f\n",
+           driven, autonomous, control, rms_first, rms_last);
+    check("acid: autonomous RESO127 oscillation near cutoff exceeds 1000, stays bounded/stable for 4s; RESO0 decays",
+          autonomous > 1000.0 && control < 1.0 && bounded && rms_last > .95*rms_first && rms_last < 1.05*rms_first);
 }
 
 static void test_cutoff_smooth(void)                 /* blocks vs the cutoff computed every sample: no zipper */

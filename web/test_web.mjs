@@ -526,7 +526,7 @@ async function packages() {
   const logical = py(`import sys; raw = open(sys.argv[1], "rb").read()
 sys.stdout.buffer.write(b"".join(raw[i * 48:i * 48 + 47] for i in range(20)) + raw[960:])`, pkg);
   ok(eq(logicalImage(raw), logical), "fm1pkg.js logicalImage");
-  ok(/^FM-1_9\d\d$/.test(productOf(raw)), "fm1pkg.js productOf");
+  ok(productOf(raw) === "FM-1_25000", "fm1pkg.js productOf");
 }
 
 /* ------------------------------------------------- update protocol (fm1ota.js) --- */
@@ -603,6 +603,17 @@ async function updater() {
   const gotH = await new Updater(devH.access).install(image, "FM-1_901").then((r) => r, (x) => x);
   ok(gotH === "FM-1_901" && devH.bad === 0, "fm1ota.js: install: running Hortator -> loader -> Hortator");
 
+  for (const [identity,name,after,afterName] of [
+    ["FM-1_900","Hortator","FM-1_25000","Nauclerus"],
+    ["FM-1_25000","Nauclerus","FM-1_25000","Nauclerus"],
+    ["FM-1_25000","Nauclerus","FM-1_900","Hortator"],
+    ["FM-1_900","Hortator","FM-1_25000","Hortator"],
+  ]) {
+    const migrant=new FakeFM1(image,{identity,name,after,afterName});
+    const result=await new Updater(migrant.access).install(image,after);
+    ok(result===after && migrant.bad===0,`fm1ota.js migration/rollback ${identity}/${name} -> shared loader -> ${after}/${afterName}`);
+  }
+
   const dev2 = new FakeFM1(image, { unplugAfter: 3 });
   dev2.boot("ota-FM-1_900", "Felucca Update");
   const t0 = Date.now();
@@ -637,7 +648,7 @@ async function counter() {
   const site = { protocol: "https:", hostname: "deadactive.github.io" };
   const calls = [];
   const spy = (url, opt) => { calls.push([url, opt]); return Promise.resolve({ ok: true }); };
-  ok(GC_CODE === "deadactive" && counterOn(site), "counter: the site's code, deadactive: on at the published site");
+  ok(GC_CODE === "" && !counterOn(site), "counter: Nauclerus defaults to disabled; no upstream analytics account");
   ok(!counterOn(site, "") && countInstall("0.23.0", { code: "", loc: site, fetch: spy }) === false && calls.length === 0,
     "counter: off without a code: no ping");
   ok(await installCount({ code: "", loc: site, fetch: spy }) === null && calls.length === 0, "counter: off: no read");
@@ -682,10 +693,10 @@ async function counter() {
       createElement: (tag) => ({ tag, dataset: {}, setAttribute(k, v) { this[k] = v; } }), head: { append: (e) => added.push(e) } };
   };
   const d1 = fakeDoc();
-  ok(loadPageCounter({ doc: d1, loc: site }) === true && d1.added.length === 1 && d1.added[0].tag === "script"
+  ok(loadPageCounter({ doc: d1, loc: site, code: "hortator" }) === true && d1.added.length === 1 && d1.added[0].tag === "script"
     && d1.added[0].src === "https://gc.zgo.at/count.js" && d1.added[0].async === true
-    && d1.added[0]["data-goatcounter"] === "https://deadactive.goatcounter.com/count", "counter: count.js on the site, async, https");
-  ok(loadPageCounter({ doc: d1, loc: site }) === false && d1.added.length === 1, "counter: count.js added once");
+    && d1.added[0]["data-goatcounter"] === "https://hortator.goatcounter.com/count", "counter: count.js on the site, async, https");
+  ok(loadPageCounter({ doc: d1, loc: site, code: "hortator" }) === false && d1.added.length === 1, "counter: count.js added once");
   for (const loc of [{ protocol: "http:", hostname: "127.0.0.1" }, { protocol: "http:", hostname: "localhost" }, undefined]) {
     const d = fakeDoc();
     ok(loadPageCounter({ doc: d, loc }) === false && d.added.length === 0, `counter: no count.js on ${loc ? loc.hostname : "no page"}`);

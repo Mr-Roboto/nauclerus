@@ -38,7 +38,7 @@ class Fm1Processor extends AudioWorkletProcessor {
     if (out[1]) out[1].set(right);
     if (uiFrames) {
       const fb = this.sim.fb();
-      this.port.postMessage({ t: 'frame', fb, leds: this.sim.leds(), keyLeds: this.sim.keyLeds() }, [fb.buffer]);
+      this.port.postMessage({ t: 'frame', fb, leds: this.sim.leds(), keyLeds: this.sim.keyLeds(), context:this.sim.x.sim_context(), track:this.sim.x.sim_selected(), model:this.sim.x.sim_get_param(this.sim.x.sim_selected(),0), playing:this.sim.playing() }, [fb.buffer]);
       const dirty = this.sim.takeDirty();
       if (dirty.length) this.port.postMessage({ t: 'flash', sectors: dirty }, dirty.map(d => d.bytes.buffer));
     }
@@ -53,7 +53,7 @@ registerProcessor('fm1', Fm1Processor);
 import { Lab } from './lab.js';
 
 const LAB_CALLS = new Set(['reset', 'model', 'param', 'global', 'step', 'note', 'play', 'hit', 'perf', 'watch', 'mute', 'motion',
-  'knob', 'motionClear']);
+  'knob', 'motionClear', 'remix', 'generate', 'lock', 'recordDemo']);
 
 class Fm1LabProcessor extends AudioWorkletProcessor {
   constructor(options) {

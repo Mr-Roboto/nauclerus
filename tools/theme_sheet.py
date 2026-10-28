@@ -9,8 +9,11 @@ import html
 import sys
 from pathlib import Path
 
-THEMES = [("md-red", "RED"), ("red-on-black", "RED INV"), ("white-on-blue", "BLUE"), ("blue-on-white", "BLUE INV"),
-          ("black-on-green", "GREEN"), ("green-on-black", "GREEN INV")]   # MENU > COLOR's order and names
+THEMES = [("md-red", "ORANGE"), ("red-on-black", "ORANGE INV"), ("white-on-blue", "BLUE"), ("blue-on-white", "BLUE INV"),
+          ("black-on-white", "WHITE"), ("white-on-black", "WHITE INV"),
+          ("amber-on-black", "YELLOW"), ("black-on-amber", "YELLOW INV"),
+          ("violet-on-beige", "VIOLET"), ("beige-on-violet", "VIOLET INV"), ("red", "RED"), ("red-inv", "RED INV"),
+          ("pink", "PINK"), ("pink-inv", "PINK INV")]   # MENU > COLOR's order and names
 
 
 def main(root):
@@ -22,13 +25,13 @@ def main(root):
         rows.append(f"<tr><th>{html.escape(page)}</th>{cells}</tr>")
     head = "".join(f"<th>{n}</th>" for _, n in THEMES)
     (root / "index.html").write_text(f"""<!doctype html>
-<meta charset="utf-8"><title>Hortator screens by theme</title>
+<meta charset="utf-8"><title>Nauclerus screens by theme</title>
 <style>
 body {{ background:#1d1d1d; color:#ddd; font:14px system-ui; margin:16px; }}
 table {{ border-collapse:collapse; }} th, td {{ padding:6px; vertical-align:top; }}
 th {{ text-align:left; font-weight:600; }} img {{ width:480px; height:480px; image-rendering:pixelated; display:block; }}
 </style>
-<h1>Hortator screens by theme</h1>
+<h1>Nauclerus screens by theme</h1>
 <table><tr><th></th>{head}</tr>
 {chr(10).join(rows)}
 </table>

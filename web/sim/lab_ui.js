@@ -127,4 +127,5 @@ export function hitPad(audition, t = 0, label = 'Hit') {
 
 // the firmware's MONO palette (gfx.c) in its roles: white the accent, the brightest grey values, then secondary,
 // labels, inactive, rules; no glow (a pixel screen): shadows are drawn transparent
-export const INK = { led: '#ffffff', glow: 'rgba(0,0,0,0)', dim: '#505050', dry: '#828282', grid: '#282828', warm: '#bababa' };
+const theme=getComputedStyle(document.documentElement), color=n=>theme.getPropertyValue(n).trim();
+export const INK = { bg:color('--bg'),led:color('--accent'),glow:'rgba(0,0,0,0)',dim:color('--c2'),dry:color('--secondary'),grid:color('--surface'),warm:color('--text') };

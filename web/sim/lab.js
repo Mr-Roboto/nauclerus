@@ -18,6 +18,10 @@ export class Lab {
   }
 
   reset() { this.x.lab_reset(); }
+  remix(k,selection,on) { this.x.lab_remix(k,selection,on?1:0); }
+  generate(k,on=true) { this.x.lab_generate(k,on?1:0); }
+  lock(k,step,id,value) { this.x.lab_lock(k,step,id,value); }
+  recordDemo(k) { this.x.lab_record_demo(k); }
   model(t, m) { this.x.lab_model(t, m); }
   param(t, p, v) { this.x.lab_param(t, p, Math.round(v)); }
   global(g, v) { this.x.lab_global(g, Math.round(v)); }

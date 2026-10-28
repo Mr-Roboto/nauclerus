@@ -21,6 +21,7 @@
 #define ACID_KMAX Q24(4.4)                              /* RESO 127: the ladder's feedback past 4: it oscillates at
                                                          * every CUTOF (but the lowest, under a far higher note), the
                                                          * soft clip holds the amplitude */
+#define ACID_FB_G Q24(0.0105731107511256)                 /* 150 Hz feedback high-pass, as X0X/Open303 */
 #define ACID_GAIN 870                                   /* the output gain, Q8 (x3.4): the defaults level with TOM's */
 
 static inline int32_t acid_clip(int32_t x)              /* x - 4/27 x^3, x held to +-1.5 (Q24): out +-1, smooth */
@@ -42,6 +43,11 @@ static inline int32_t acid_blep(uint32_t ph, uint32_t inc)   /* polyBLEP residua
     }
     return 0;
 }
+#include "acid_wave.c"
+static uint8_t acid_wave_last[NTRK];
+static volatile uint8_t acid_wave_conflict;
+static uint32_t acid_wave_guard(track_t *t); /* presets.c: one physical Morph owner */
+
 static uint32_t acid_inc(int32_t p16)                   /* pitch in 1/16 semitone (0 = MIDI 0) -> increment */
 {
     static const uint32_t FINE[16] = {65536, 65773, 66011, 66250, 66489, 66730, 66971, 67213,   /* 2^(i / 192), Q16 */
@@ -64,7 +70,10 @@ static void acid_trigger(track_t *t, dvoice_t *v)
     const int16_t *p = &t->p[P_E0];
     int32_t acc = v->vel > 110u ? clamp(p[5], 0, 127) * 258 : 0;   /* ACCNT (Q15) on an accented note */
     v->x[0] = v->x[1] = acid_pitch(t);
-    v->x[2] = 1 | (p[6] ? 4 : 0);                         /* the gate open, the attack running; WAVE */
+    uint32_t wave=acid_wave_guard(t);
+    v->k[0]=(uint32_t)clamp(t->p[P_AMORPH],0,127)*65536u; /* smoothed Morph Q16 */
+    v->k[2]=wave | (wave<<2);                         /* current/old wave, fade samples in bits 8.. */
+    v->x[2] = 1 | (wave == 1u ? 4 : 0);                         /* the gate open, the attack running; WAVE */
     v->x[3] = acc;
     v->ph[0] = 0;
     v->env[0] = 0;
@@ -73,6 +82,7 @@ static void acid_trigger(track_t *t, dvoice_t *v)
         t->wow = qmin(t->wow + (acc << 9) / 2, ENV1);      /* the wow charges on accents, across notes */
     v->k[1] = acid_decay(acc ? clamp(p[1], 0, 127) / 3 : p[1]);   /* DECAY; an accent: shorter */
     v->f[0] = v->f[1] = v->f[2] = v->f[3] = 0;
+    v->c[1].a1=0; /* TPT low-pass state subtracted only in the feedback path */
 }
 
 static void acid_glide(track_t *t, dvoice_t *v)          /* slide: a new target, nothing restarts */
@@ -115,7 +125,13 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
     uint32_t i, j, inc, kn = v->k[1];
     int32_t d, G, inv, G1, inv1, dG, dinv, k, gain, gain1, dgain, s0 = v->f[0], s1 = v->f[1], s2 = v->f[2],
                                                                         s3 = v->f[3];
-    int32_t sq = v->x[2] & 4, amp = v->env[0];
+    int32_t amp = v->env[0], fb=v->c[1].a1;
+    uint32_t wave=acid_wave_guard(t), current=v->k[2]&3u, old=(v->k[2]>>2)&3u, fade=v->k[2]>>8;
+    uint32_t recip=0, pwm_duty=0, pwm_end=0;
+    int32_t pwm_step=0, pwm_gain=1<<30, pwm_gain_step=0;
+    acid_morph_mix_t morph;
+    if (wave!=current) {old=current;current=wave;fade=128u;}
+
     /* pitch: toward the target in the log domain, at least 1/16 semitone a block (no stall short of it) */
     d = v->x[1] - v->x[0];
     if (d) {
@@ -123,12 +139,29 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
         v->x[0] += s ? s : d > 0 ? 1 : -1;
     }
     inc = acid_inc(v->x[0]);
+    if (current==3u || (fade && old==3u)) {
+        recip=(uint32_t)((1ull<<48)/inc);
+        acid_morph_prepare(&morph,(int32_t)v->k[0]);
+    }
+    if (current==1u || (fade && old==1u)) {
+        int32_t pos=(int32_t)v->k[0], target=clamp(t->p[P_AMORPH],0,127)*65536;
+        int32_t amount=(127*65536/221)*(int32_t)n;
+        uint32_t end=(uint32_t)(pos+qlim(target-pos,-amount,amount));
+        pwm_duty=acid_pwm_duty((uint32_t)pos);pwm_end=acid_pwm_duty(end);
+        pwm_step=(int32_t)(((int64_t)pwm_end-pwm_duty)/(int32_t)n);
+        pwm_gain=acid_pwm_gain((uint32_t)pos)*32768; /* Q30 ramp: retain sub-Q15 gain steps */
+        pwm_gain_step=(acid_pwm_gain(end)*32768-pwm_gain)/(int32_t)n;
+        /* During a Pulse/Morph crossfade the Morph loop advances this same
+         * position; a pure Pulse path advances once per block. */
+        if (current!=3u && !(fade && old==3u)) v->k[0]=end;
+    }
     /* the ladder's coefficients at the block's end (the filter envelope n samples on: DECAY^n, n a power of two as
      * CTL) and the output gain (velocity x voice level x gain x the accent, <= 122332); each ramps from where the
      * last block ended (a new voice: from its value now) */
     for (j = n; j > 1u; j >>= 1)
         kn = (uint32_t)(((uint64_t)kn * kn) >> 16);
     k = clamp(t->p[P_E0 + 3], 0, 127) * (ACID_KMAX / 127);  /* RESO: 0 .. 4.4 (self-oscillation from ~4, 116) */
+    k=qm(k,QONE-ACID_FB_G); /* instantaneous HP coefficient retained in the ZDF denominator */
     G1 = acid_coef(t, v, mulq16(v->env[1], kn), k, &inv1);
     gain1 = (int32_t)(((int64_t)mulq15(vel_gain(v), VOICE_FS) * ACID_GAIN * (ENV1 + (v->x[3] << 9) / 2)) >> 32);
     if (!(v->x[2] & 8)) {
@@ -145,12 +178,34 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
     for (i = 0; i < n; i++) {
         int32_t x, S, y, u, a, G2, G3;
         uint32_t ph = v->ph[0];
-        if (sq) {                                        /* square +-1: two saws half a cycle apart */
-            x = (int32_t)(ph >> 7) - (int32_t)((ph + 0x80000000u) >> 7);
-            x -= acid_blep(ph, inc) - acid_blep(ph + 0x80000000u, inc);
-        } else {
-            x = (int32_t)(ph >> 7) - QONE;                /* saw -1 .. +1 */
-            x -= acid_blep(ph, inc);
+        if (current==3u || (fade && old==3u)) {
+            int32_t target=clamp(t->p[P_AMORPH],0,127)*65536, pos=(int32_t)v->k[0];
+            if (!(i&3u) && pos!=target) {
+                int32_t step=(127*65536/221)*(int32_t)qmin(4u,n-i);
+                pos+=qlim(target-pos,-step,step);
+                v->k[0]=(uint32_t)pos;
+                acid_morph_prepare(&morph,pos);
+            }
+        }
+        uint32_t edge_inc=inc;
+        if (current==1u || (fade && old==1u)) {
+            int64_t speed=(int64_t)inc+pwm_step;
+            edge_inc=(uint32_t)(speed<0 ? -speed : speed);
+            if (!edge_inc) edge_inc=1;
+        }
+        x=current==3u ? acid_morph_eval(&morph,ph,inc,recip) :
+          current==2u ? osc_tri(ph)*512 : /* Q15 -> Q24; multiplication also handles negative samples */
+          current==1u ? acid_pwm_wave(ph,inc,pwm_duty,edge_inc,pwm_gain>>15) : acid_plain_wave(ph,inc,0);
+        if (fade) {
+            int32_t prev=old==3u ? acid_morph_eval(&morph,ph,inc,recip) :
+                old==2u ? osc_tri(ph)*512 :
+                old==1u ? acid_pwm_wave(ph,inc,pwm_duty,edge_inc,pwm_gain>>15) : acid_plain_wave(ph,inc,0);
+            x=prev+(int32_t)(((int64_t)(x-prev)*(128u-fade))/128);
+            fade--;
+        }
+        if (current==1u || (fade && old==1u)) {
+            pwm_duty=(uint32_t)((int64_t)pwm_duty+pwm_step);
+            pwm_gain+=pwm_gain_step;
         }
         v->ph[0] = ph + inc;
         x >>= 1;                                         /* into the ladder at half: the soft clip stays near
@@ -164,12 +219,15 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
          * clip on the ladder's input (x - k y, the feedback subtracted); each one-pole: v = (u - s) G, y = v + s,
          * s = y + v */
         S = qm(QONE - G, qm(G3, s0) + qm(G2, s1) + qm(G, s2) + s3);
-        y = qm(qm(qm(G3, G), x) + S, inv);
-        u = acid_clip(x - qm(k, y));
+        /* HP(y4)=(1-Gfb)*(y4-fb). The known state term belongs in
+         * the same ZDF solve, not an explicit delayed feedback loop. */
+        y = qm(qm(qm(G3, G), x+qm(k,fb)) + S, inv);
+        u = acid_clip(x - qm(k, y-fb));
         a = qm(u - s0, G); u = a + s0; s0 = u + a;
         a = qm(u - s1, G); u = a + s1; s1 = u + a;
         a = qm(u - s2, G); u = a + s2; s2 = u + a;
         a = qm(u - s3, G); u = a + s3; s3 = u + a;
+        fb+=2*qm(ACID_FB_G,u-fb);
         /* the amp: attack, hold while the gate is open, release */
         if (v->x[2] & 1) {
             if (!(v->x[2] & 2)) {
@@ -188,10 +246,12 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
         env_step(v, 1);                                  /* the filter envelope: DECAY */
     }
     v->f[0] = s0; v->f[1] = s1; v->f[2] = s2; v->f[3] = s3;
+    v->c[1].a1=fb;
     v->c[0].a1 = G1;                                     /* the next block ramps from these */
     v->c[0].a2 = inv1;
     v->c[0].a3 = gain1;
     v->env[0] = amp;
+    v->k[2]=current | (old<<2) | (fade<<8);
     v->t += n;
     if (v->t >= ACID_LIFE)
         v->x[2] &= ~1;
@@ -199,8 +259,8 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
         dm_end(v);
 }
 
-static const char *const N_ACIDWAVE[2] = {"SAW", "SQR"};
-#define DM_ACID_DEF {"ACID", 1, 0, {PD("TUNE", F_SEMI, -24, 24, 0), PD("DECAY", F_INT, 0, 127, 50), \
-    PD("CUTOF", F_INT, 0, 127, 40), PD("RESO", F_INT, 0, 127, 64), PD("ENVMD", F_INT, 0, 127, 64), \
-    PD("ACCNT", F_INT, 0, 127, 64), PE("WAVE", N_ACIDWAVE, 0), PD("GATE", F_INT, 0, 127, 56)}, acid_trigger, \
+static const char *const N_ACIDWAVE[4] = {"SAW", "PULSE", "TRIANGLE", "MORPH"};
+#define DM_ACID_DEF {"ACID", 1, 0, {PD("TUNE", F_SEMI, -24, 24, -12), PD("DECAY", F_INT, 0, 127, 50), \
+    PD("CUTOF", F_INT, 0, 127, 80), PD("RESO", F_INT, 0, 127, 30), PD("ENVMD", F_INT, 0, 127, 60), \
+    PD("ACCNT", F_INT, 0, 127, 64), PE("WAVE", N_ACIDWAVE, 1), PD("GATE", F_INT, 0, 127, 40)}, acid_trigger, \
     acid_render, 1, acid_glide, acid_gate}

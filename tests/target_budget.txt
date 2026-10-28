@@ -1,3 +1,4 @@
+# ACID and Song entries: accepted RC13 binary reproduced byte-exact; see docs/RELEASE_TARGET_COST_0.25.0.md.
 # FELUCCA target cost budget (tests/target_budget.py): instructions in the loops of each
 # function in build/felucca.dis, x4 per nesting level, divides x9. The check allows +10 %.
 # Rewritten by BUDGET_UPDATE=1.
@@ -28,14 +29,14 @@ perf_mute 19
 perf_pre 26
 perf_block 793
 perf_harm 0
-chain_apply 174
+chain_apply 202
 memb_render 290
 reson_modal 125
 px_memb_block 106
 px_modal_block_q 113
 trk_filter 228
 fm_render 83
-acid_render 326
+acid_render 540
 metro_block 40
 ktrx_render 320
 sdtrx_render 318

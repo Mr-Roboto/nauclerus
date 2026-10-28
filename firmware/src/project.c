@@ -47,8 +47,22 @@ static void proj_xp_put(proj_trk_t *s, const int16_t *p)
     uint32_t i;
     for (i = P_NSTORED; i < P_COUNT; i++)
         s->step[i - P_NSTORED].rsv = (uint8_t)clamp(p[i], 0, 255);
+    s->step[2].rsv = 0xA9u; /* RC10: variable PWM semantics; record layout unchanged */
 }
-static int16_t proj_xp_get(const proj_trk_t *s, uint32_t id) { return (int16_t)s->step[id - P_NSTORED].rsv; }
+_Static_assert(P_COUNT - P_NSTORED == 2u, "Morph marker must not overlap a parameter");
+static int16_t proj_xp_get(const proj_trk_t *s, uint32_t id)
+{
+    if (id == P_AMORPH) {
+        uint32_t marker=s->step[2].rsv;
+        if (marker==0xA9u) return (int16_t)s->step[id-P_NSTORED].rsv;
+        /* RC8/9: 1 was fixed square, 2 fixed 25% pulse. Existing 3
+         * remains Morph, and its manual shape value is preserved exactly. */
+        if (s->p[P_MODEL]==DM_ACID && s->p[P_E6]==1) return 64;
+        if (s->p[P_MODEL]==DM_ACID && s->p[P_E6]==2) return 28; /* 24.6875%, nearest stored PWM value */
+        if (marker!=0xA8u) return 64;
+    }
+    return (int16_t)s->step[id - P_NSTORED].rsv;
+}
 typedef struct {
     uint32_t magic, size;
     int16_t g[G_COUNT];
@@ -57,7 +71,7 @@ typedef struct {
     uint16_t lk_n;                              /* FDRF: its lock bank's count (0: no bank needed); FDR8..FDRE: the
                                                  * motion here */
     uint32_t lk_link;                           /* FDRF: .. its proj_link */
-    uint8_t rsv_mo[510];                        /* FDRF: reserved, 0 */
+    uint8_t rsv_mo[510];                        /* FDRF: optional versioned Remix extension, otherwise 0 */
     chain_config_t song;                        /* FDR9: the song (song.c) */
     char name[NAME_LEN];                        /* FDR9: the name (NAME_SET, 0-padded; "" = none) */
     uint16_t pre[NTRK];                         /* FDRD: each track's preset: a factory one's uid, 0x8000 | a user
@@ -66,6 +80,9 @@ typedef struct {
     uint32_t sum;
 } project_t;
 typedef char project_size[sizeof(project_t) == 3840u ? 1 : -1];
+_Static_assert(__builtin_offsetof(project_t, rsv_mo) == 3252u &&
+               __builtin_offsetof(project_t, song) == 3762u &&
+               __builtin_offsetof(project_t, sum) == 3836u, "FDRF layout must not change");
 project_t proj_slot[4] __attribute__((section(".noinit")));
 /* FDRE (0.23.x): FDRF's layout with the motion (128 events) where FDRF has its bank link */
 typedef struct {
@@ -109,6 +126,115 @@ static uint32_t proj_hash(const void *p, uint32_t n)   /* FNV-1a over n bytes */
 }
 static uint32_t proj_sum(const project_t *p) { return proj_hash(p, sizeof *p - 4u); }
 static int proj_ok(const project_t *q) { return q->magic == PROJ_MAGIC && q->size == sizeof *q && q->sum == proj_sum(q); }
+
+/* rsv_mo v2: existing 8-byte signature; version 2 / payload 18 / tracks 8 / 0;
+ * nine LE16 states (Bass T1..T8, global Drum), then LE32 FNV-1a of bytes 0..29.
+ * Bits 0..7 retain selection even OFF; bit 8 enables it. Total 34 of 510 reserved
+ * bytes; FDRF and .noinit sizes unchanged. v1 Bass codes migrate, global OFF. */
+static const uint8_t PROJ_REMIX_HEAD[12] = {'N', 'A', 'U', 'O', 'R', 'B', 0xA5, 0x5A, 2, 18, 8, 0};
+enum { PROJ_REMIX_BYTES = 34 };
+_Static_assert(NTRK == 8 && PROJ_REMIX_BYTES <= sizeof(((project_t *)0)->rsv_mo), "Remix extension fits");
+static uint16_t proj_remix_code(const project_t *p, uint32_t k)
+{
+    const uint8_t *d = p->rsv_mo + 12u + 2u * k;
+    return (uint16_t)((uint32_t)d[0] | (uint32_t)d[1] << 8);
+}
+static int proj_remix_valid(const project_t *p)
+{
+    const uint8_t *d = p->rsv_mo;
+    uint32_t k, end, h;
+    if (memcmp(d, PROJ_REMIX_HEAD, 8u) || (d[8] != 1u && d[8] != 2u) ||
+        d[9] != (d[8] == 1u ? 16u : 18u) || d[10] != NTRK || d[11]) return 0;
+    end = d[8] == 1u ? 28u : 30u;
+    h = (uint32_t)d[end] | (uint32_t)d[end+1u] << 8 | (uint32_t)d[end+2u] << 16 | (uint32_t)d[end+3u] << 24;
+    if (h != proj_hash(d, end)) return 0;
+    for (k = 0; k < (d[8] == 1u ? NTRK : REMIX_SCOPES); k++)
+        if (proj_remix_code(p, k) > (d[8] == 1u ? 256u : 511u)) return 0;
+    return 1;
+}
+static uint16_t proj_remix_decoded(const project_t *p, uint32_t k)
+{
+    return p->rsv_mo[8] == 1u ? (k < NTRK ? seq_remix_state(proj_remix_code(p, k)) : 0u)
+                                : proj_remix_code(p, k);
+}
+static uint16_t proj_remix_get(const project_t *p, uint32_t k)
+{
+    return k < REMIX_SCOPES && proj_ok(p) && proj_remix_valid(p) ? proj_remix_decoded(p, k) : 0;
+}
+static void proj_remix_put(project_t *p)
+{
+    uint8_t *d = p->rsv_mo;
+    uint32_t k, any = 0, h;
+    for (k = 0; k < REMIX_SCOPES; k++) any |= seq_remix_config[k] <= 511u ? seq_remix_config[k] : 0u;
+    if (!any) return;                              /* canonical A1/OFF defaults remain absent */
+    memcpy(d, PROJ_REMIX_HEAD, sizeof PROJ_REMIX_HEAD);
+    for (k = 0; k < REMIX_SCOPES; k++) {
+        uint32_t state = seq_remix_config[k] <= 511u ? seq_remix_config[k] : 0u;
+        d[12u + 2u*k] = (uint8_t)state;
+        d[13u + 2u*k] = (uint8_t)(state >> 8);
+    }
+    h = proj_hash(d, 30u);
+    for (k = 0; k < 4u; k++) d[30u+k] = (uint8_t)(h >> (8u*k));
+}
+/* Independent optional TB-3PO extension at rsv_mo[48..159]. Remix owns 0..33.
+ * 8-byte signature, version/count/payload/reserved, 8 explicitly encoded
+ * 12-byte configurations, FNV-1a over header+payload. Outer FDRF checksum
+ * still covers everything; invalid/absent metadata defaults without edits. */
+#define PROJ_TB_OFFSET 48u
+#define PROJ_TB_BYTES 112u
+static const uint8_t PROJ_TB_HEAD[12] = {'N','A','U','T','B','3','P','O',1,8,96,0};
+_Static_assert(PROJ_TB_OFFSET >= PROJ_REMIX_BYTES &&
+               PROJ_TB_OFFSET + PROJ_TB_BYTES <= sizeof(((project_t *)0)->rsv_mo), "TB-3PO fits reserved bytes");
+static uint32_t tb_get_u32(const uint8_t *d)
+{
+    return (uint32_t)d[0] | (uint32_t)d[1]<<8 | (uint32_t)d[2]<<16 | (uint32_t)d[3]<<24;
+}
+static void tb_put_u32(uint8_t *d, uint32_t v)
+{
+    uint32_t i;
+    for (i=0;i<4u;i++) d[i]=(uint8_t)(v>>(8u*i));
+}
+static void proj_tb_get(const project_t *p, uint32_t k, tb_state_t *g)
+{
+    const uint8_t *d=p->rsv_mo+PROJ_TB_OFFSET, *v=d+12u+12u*k;
+    memset(g,0,sizeof *g);
+    tb3po_defaults(&g->cfg,0xBEEFu+k);
+    if (memcmp(d,PROJ_TB_HEAD,12u) || tb_get_u32(d+108u)!=proj_hash(d,108u) ||
+        v[0]>100u || v[1]>100u || v[2]>100u || v[3]<1u || v[3]>3u ||
+        v[4]>11u || v[5]>=TB3PO_NSCALES || v[6]>4u || v[7]>16u) return;
+    g->cfg.density=v[0];g->cfg.accent=v[1];g->cfg.slide=v[2];g->cfg.oct_range=v[3];
+    g->cfg.root=v[4];g->cfg.scale=v[5];g->cfg.base_oct=v[6];g->cfg.mutate_bars=v[7];
+    g->cfg.seed=tb_get_u32(v+8u);
+}
+static void proj_tb_put(project_t *p)
+{
+    uint8_t *d=p->rsv_mo+PROJ_TB_OFFSET;
+    uint32_t k;
+    memcpy(d,PROJ_TB_HEAD,12u);
+    for (k=0;k<NTRK;k++) {
+        const tb3po_cfg_t *g=&tb_live[k].cfg;
+        uint8_t *v=d+12u+12u*k;
+        v[0]=g->density;v[1]=g->accent;v[2]=g->slide;v[3]=g->oct_range;
+        v[4]=g->root;v[5]=g->scale;v[6]=g->base_oct;v[7]=g->mutate_bars;
+        tb_put_u32(v+8u,g->seed);
+    }
+    tb_put_u32(d+108u,proj_hash(d,108u));
+}
+static void proj_tb_load(const project_t *p)
+{
+    uint32_t k;
+    for (k=0;k<NTRK;k++) {
+        proj_tb_get(p,k,&tb_live[k]);
+        tb_pending_valid[k]=0;
+    }
+}
+
+static void proj_remix_load(const project_t *p)
+{
+    uint32_t k, valid = (uint32_t)proj_remix_valid(p);
+    for (k = 0; k < REMIX_SCOPES; k++) seq_remix_config[k] = valid ? proj_remix_decoded(p, k) : 0;
+    seq_remix_forget();
+}
 
 typedef struct { uint8_t on, acc, cond, rat; } step_v9_t;   /* a step as FDR2..FDRA stored it */
 /* FDRA: everything, the steps as FDR2..FDR9 (same size as FDRB: told by the marker) */
@@ -516,6 +642,8 @@ static void project_save(uint32_t slot)
     p->lk_n = lk_slot[slot & 3u].count;
     p->song = chain.cfg;
     memcpy(p->name, chain.name, NAME_LEN);
+    proj_remix_put(p);
+    proj_tb_put(p);
     p->sum = proj_sum(p);
     chain.from = (uint8_t)((slot & 3u) + 1u);
 #if FELUCCA_FLASH
@@ -586,6 +714,7 @@ static int proj_load(uint32_t slot, int irq)
             const param_desc_t *d = i >= P_E0 && i <= P_E7 ? &DMODELS[m].edit[i - P_E0] : &TP[i];
             t->p[i] = (int16_t)clamp(i < P_NSTORED ? s->p[i] : proj_xp_get(s, i), d->min, d->max);
         }
+        lfo_normalize_depths(t);                     /* legacy RC12 UNI depths: preserve magnitude */
         t->p[P_MODEL] = (int16_t)m;
         t->model = (uint8_t)m;
         t->pre = (uint16_t)preset_ref(preset_rec_dec(p->pre[k]), m);
@@ -613,6 +742,7 @@ static int proj_load(uint32_t slot, int irq)
             drum_set_model(&trk[k], KIT_DEF[k][0]);
             trk[k].p[P_NOTE] = note;
         }
+    acid_wave_resolve();
     for (k = 0, i = 0; k < NTRK; k++)                   /* CHORD on 2 of them at most: the first two keep it */
         if (trk[k].p[P_RMODEL] == RS_CHORD && ++i > 2u)
             trk[k].p[P_RMODEL] = RS_STRNG;
@@ -625,6 +755,8 @@ static int proj_load(uint32_t slot, int irq)
     else
         memset(&mo.b, 0, sizeof mo.b);
     motion_forget();                                    /* the new knobs are the base: the stop puts nothing back */
+    proj_remix_load(p);
+    proj_tb_load(p);
     if (chain_valid(&p->song))                          /* the song and the name: broken ones dropped */
         chain.cfg = p->song;
     else
@@ -1058,10 +1190,17 @@ static uint32_t chain_prepare(void)
         if ((used >> i) & 1u) {
             const project_t *p = &proj_slot[i];
             chain_src_t *d = &chain.src[i];
+            uint32_t remix_ok = (uint32_t)proj_remix_valid(p); /* project_used already validated the outer record */
             d->m = lk_valid(&lk_slot[i], i) ? &lk_slot[i] : &LK_NONE;
+            d->remix[REMIX_DRUM] = remix_ok ? proj_remix_decoded(p, REMIX_DRUM) : 0u;
             for (k = 0; k < NTRK; k++) {
-                d->step[k] = p->t[k].step;
+                memcpy(tb_song_steps[i][k], p->t[k].step, sizeof tb_song_steps[i][k]);
+                d->step[k] = tb_song_steps[i][k];
+                proj_tb_get(p, k, &tb_song[i][k]);
                 d->model[k] = (uint8_t)p->t[k].p[P_MODEL];
+                d->acid_wave[k]=d->model[k]==DM_ACID ? (uint8_t)clamp(p->t[k].p[P_E6],0,3) : 255u;
+                d->acid_morph[k]=(uint8_t)clamp(proj_xp_get(&p->t[k],P_AMORPH),0,127);
+                d->remix[k] = remix_ok ? proj_remix_decoded(p, k) : 0u;
                 for (j = 0; j < 4u; j++) {
                     uint32_t id = CHAIN_TIMING[j];
                     d->timing[k][j] = (int16_t)clamp(p->t[k].p[id], TP[id].min, TP[id].max);

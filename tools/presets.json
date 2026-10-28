@@ -1487,6 +1487,22 @@
     "note": "low tom, a pitch sweep"
    },
    {
+    "uid": 152,
+    "name": "FASTSLOW",
+    "model": "ACID",
+    "k": [
+     -12,
+     50,
+     80,
+     30,
+     60,
+     64,
+     1,
+     40
+    ],
+    "source": "Nauclerus owner RC8 sound definition"
+   },
+   {
     "uid": 144,
     "name": "SQUELCH",
     "model": "ACID",

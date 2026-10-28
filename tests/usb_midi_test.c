@@ -158,14 +158,14 @@ int main(void)
 
     /* the product string (iProduct 2): the name hosts, DAWs and AUM show; the manufacturer string stays */
     {
-        static const char NAME[] = "Hortator";
+        static const char NAME[] = "Nauclerus";
         const uint8_t *d = 0;
         uint16_t l = 0;
-        int got = get_desc(0x0302u, &d, &l), same = got && l == 2u + 2u * 8u;
-        for (i = 0; same && i < 8u; i++)
+        int got = get_desc(0x0302u, &d, &l), same = got && l == 2u + 2u * 9u;
+        for (i = 0; same && i < 9u; i++)
             same = d[2u + 2u * i] == (uint8_t)NAME[i] && d[3u + 2u * i] == 0u;
-        bad += check("USB product string: \"Hortator\" (18 B, type 3, UTF-16LE), iProduct 2",
-                     same && d[0] == l && d[1] == 3u && sizeof STR2 == 18u && DEV_DESC[15] == 2u);
+        bad += check("USB product string: \"Nauclerus\" (20 B, type 3, UTF-16LE), iProduct 2",
+                     same && d[0] == l && d[1] == 3u && sizeof STR2 == 20u && DEV_DESC[15] == 2u);
         got = get_desc(0x0301u, &d, &l);
         bad += check("USB manufacturer string unchanged (the 42 B Hugelton Instruments one)",
                      got && l == 42u && d[0] == 42u && d[1] == 3u && d[2] == 'H' && d[4] == 0xFCu);

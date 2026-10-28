@@ -96,7 +96,7 @@ export default function seq(plate, { lab, ids, audition, screen }) {
   const diceScope = scope('dice', (g, w, h) => {
     const left = 30, cw = (w - left) / 16, rh = h / BARS;
     g.save();
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     g.textBaseline = 'middle';
     for (let b = 0; b < BARS; b++) {
       g.fillStyle = INK.dim;
@@ -107,7 +107,7 @@ export default function seq(plate, { lab, ids, audition, screen }) {
           g.fillStyle = INK.grid;
           g.fillRect(x + cwi / 2 - 1.5, y + chi / 2 - 1.5, 3, 3);
         } else if (!n) {
-          g.strokeStyle = '#505050';
+          g.strokeStyle = INK.dim;
           g.strokeRect(x + 0.5, y + 0.5, cwi - 1, chi - 1);
         } else {
           g.fillStyle = INK.led;
