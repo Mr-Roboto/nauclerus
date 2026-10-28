@@ -11,8 +11,9 @@ export class Fm1Sim {
   static async create(bytes) {
     const module = await WebAssembly.compile(bytes);
     const imports = {};
-    for (const imp of WebAssembly.Module.imports(module))       // none today; a stub keeps a new one from failing
-      if (imp.kind === 'function') (imports[imp.module] ??= {})[imp.name] = () => 0;
+    // Do not silently stub a newly introduced firmware/HAL dependency.
+    if (WebAssembly.Module.imports(module).length)
+      throw new Error('Unexpected WASM imports: rebuild/review the simulator adapter');
     return new Fm1Sim(await WebAssembly.instantiate(module, imports));
   }
 

@@ -4,9 +4,9 @@
 // the 16ths, the hats and the line ducked under the kick (Streams' compressor keyed by track 1). The firmware renders
 // the bar twice, bypassed and compressed, after a bar of warm-up; the compressor's gain reduction per audio half (the
 // lab's probes) is drawn under it. Playing, a playhead follows the sequencer's step and a meter shows the reduction now.
-import { el, knob, chips, scope, INK } from './lab_ui.js?v=53f9d0fd26';
-import * as draw from './lab_draw.js?v=53f9d0fd26';
-import { ditherPattern } from './dither.js?v=53f9d0fd26';
+import { el, knob, chips, scope, INK } from './lab_ui.js?v=319fa1756664';
+import * as draw from './lab_draw.js?v=319fa1756664';
+import { ditherPattern } from './dither.js?v=319fa1756664';
 
 const DB = gr => gr * 241 / 327680;                  // comp.gr -> dB, as the FM-1's COMP page (ui_draw.c)
 const FLOOR = -24;                                   // the trace's bottom, dB
@@ -115,7 +115,7 @@ export default function comp(plate, { lab, ids, screen }) {
       g.arc(b / 4 * w + 6, 7, 4, 0, 2 * Math.PI);
       if (heard) g.fill(); else g.stroke();
     }
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     g.fillStyle = INK.dry;
     g.textBaseline = 'middle';
     g.fillText(heard ? 'kick' : 'kick, unheard', 15, 7);
@@ -138,7 +138,7 @@ export default function comp(plate, { lab, ids, screen }) {
     const y = d => 2 + Math.min(1, d / FLOOR) * (h - 18);
     beats(g, w, h);
     g.save();
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     g.fillStyle = INK.dim;
     g.textBaseline = 'bottom';
     g.fillText(`${FLOOR} dB`, 2, h);

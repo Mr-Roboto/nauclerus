@@ -99,7 +99,7 @@ export class FlashStore {
 
 export function openFlashDb() {
   return new Promise((resolve, reject) => {
-    const r = indexedDB.open('fm1-sim', 1);
+    const r = indexedDB.open('nauclerus-sim', 1);
     r.onupgradeneeded = () => r.result.createObjectStore('flash');
     r.onsuccess = () => resolve(r.result);
     r.onerror = () => reject(r.error);

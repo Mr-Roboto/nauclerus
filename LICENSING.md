@@ -1,12 +1,60 @@
-# Felucca licensing
+# Nauclerus / Hortator / Felucca licensing
 
-Felucca is free software. Its **code** is licensed under the GNU General Public License,
-version 3 only (`GPL-3.0-only`, full text in `LICENSE`). Its **assets** are not part of
-that licence: the panel image `docs/panel.jpg` and the drum sounds made by
-`tools/gen_waves.py` (the Hügelton Sample Pack) are Copyright (C) 2026 Hügelton Instruments,
-all rights reserved. Their licence terms will be published later.
+Felucca's code is licensed under the GNU General Public License, version3 only
+(`GPL-3.0-only`, full text in `LICENSE`), with component notices below.
+
+**Updated rights-holder evidence:** upstream Felucca commit
+[`5738617968a22b5d4c0d3470cfcc95559052f446`](https://github.com/hugelton/Felucca/commit/5738617968a22b5d4c0d3470cfcc95559052f446)
+explicitly dedicates `tools/gen_waves.py` and the sounds it generates (the Hügelton
+Sample Pack) under CC0 1.0. Its executable Python AST matches the local generator;
+only notices, comments and docstrings differ. This supersedes the stale local
+“asset terms will be published later” description for that generator/sample pack.
+The local generator source/header is preserved; the independent grant is recorded
+here, with [CC0 legal text](LICENSES/CC0-1.0.txt).
+
+The legacy panel photograph `docs/panel.jpg` is a separate work. The old local
+licensing record reserved rights to it. The newer grant for `docs/controls.jpg`
+does not establish identity/permission for this different image. It and four
+unverified historical design images are omitted from the prepared source candidate,
+while the working-tree originals are preserved. See the
+[asset audit](docs/ASSET_AUDIT_0.25.0.md) for exact files, exclusions and the resolved ORB outcome.
 
 Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+
+## Nauclerus additions and attribution
+
+Nauclerus development, modifications and remix integration: **Mr. Roboto**. The
+Hortator drum-machine fork and BLE MIDI work are by **DEADACTIVE**. The original
+Felucca author is **Leo Kuroshita (@kurogedelic), Hügelton Instruments**. These credits
+supplement the original notices above and in source; they do not replace them or
+change any third-party license terms. MENU > ABOUT retains the original credits
+and includes Mr. Roboto's Nauclerus development/modifications/remix credit.
+
+Nauclerus imports the TB-3PO core, ORB mapping data and MORPH mathematical reference
+from **Mr-Roboto/fm1-x0x-rmx v1.1.0**, commit
+`a4e78f3a6e16fa310b7614e5876d07e16a0020f9`. TB-3PO's retained source notice identifies
+**schwung-tb3po**, derived from the **Phazerville Hemisphere Suite TB_3PO applet,
+djphazer and contributors**, GPL-3.0. The X0X-RMX phrase/mutation refinements remain
+attributed to that pinned implementation; historical upstream generator output is
+not claimed identical. The fixed-point oscillator adaptation retains its X0X-RMX
+attribution rather than claiming to import the complete floating-point bass engine.
+
+The ORB table's current authorship/permission record is in
+[assets/remix/README.md](assets/remix/README.md#attribution-record). On 2026-10-28,
+Mr. Roboto explicitly declared independent creation of the pattern data and
+permitted redistribution in Nauclerus; Future Retro Orb was conceptual inspiration,
+not a copied pattern-data source. That declaration supersedes the earlier
+transcription account. The existing GPL-3.0-only notice remains applicable.
+Historical inspiration credits do not create a speculative redistribution blocker.
+The pinned import/digest/compiled-table chain is verified; those hashes alone do not
+prove authorship, which is the owner's explicit declaration. No independent
+contrary source artifact was identified.
+
+The historical GPL section7 asset-combination permission below is retained as
+inherited text. It does not supply missing rights for a different asset; the
+specific newer sample-pack grant above and individual third-party terms govern
+their respective material. The ORB record is resolved by the explicit owner declaration, separately from
+the independently verified sample-pack grant.
 
 ## What is code (GPL-3.0-only)
 
@@ -40,6 +88,10 @@ assets, is entirely governed by the GPL.
 
 | What | Licence | Where |
 | --- | --- | --- |
+| TB-3PO musical core and data subset from X0X-RMX v1.1.0; schwung-tb3po / Phazerville TB_3PO lineage | Retained GPL-3.0-only headers; upstream lineage notice says GPL-3.0 | `firmware/src/tb3po.c`, `tb3po.h`, `tb3po_pattern.h`, `tb3po_adapter.c`; `LICENSE` |
+| Owner-created ORB-inspired mapping data imported through X0X-RMX v1.1.0 | GPL-3.0-only notice retained; explicit independent-authorship/redistribution declaration above | `assets/remix/remixes.txt`, `assets/remix/README.md`, `tools/gen_remix.py` |
+| Fixed-point MORPH geometry adaptation from X0X-RMX v1.1.0 | GPL-3.0-only | `firmware/src/acid_wave.c`; `LICENSE` |
+| Hügelton Sample Pack generator and its generated sounds | CC0 1.0; independent rights-holder grant above | `tools/gen_waves.py`; `LICENSES/CC0-1.0.txt`; generator code preserved |
 | Instrument samples (Versilian Studios VSCO-2 CE, VCSL) | CC0 1.0 | `assets/samples-cc0/`, provenance in `ATTRIBUTION.txt` there |
 | Terminus font 8x16 (ter-u16n): the web pages' typeface (`tests/sim_font.mjs`); no longer in the firmware | SIL OFL 1.1 | `assets/fonts/ter-u16n.bdf`, `assets/fonts/Terminus-LICENSE.txt` |
 | UnifrakturMaguntia (j. 'mach' wust, Peter Wiegel): the boot screen study (`tools/boot_variants.py`; no longer in the firmware: the screens are drawn in the pixel font below) | SIL OFL 1.1 | `assets/fonts/UnifrakturMaguntia-Book.ttf`, `assets/fonts/UnifrakturMaguntia-LICENSE.txt` |
@@ -48,7 +100,7 @@ assets, is entirely governed by the GPL.
 | Grids by Emilie Gillet / Mutable Instruments (<https://github.com/pichenettes/eurorack>): the GRIDS pattern engine is a C port of `grids/pattern_generator.cc` with its pattern tables (and avrlib's random generator) | GPL-3.0-or-later | `firmware/src/grids.c`, `firmware/src/grids_tables.h` |
 | Streams by Emilie Gillet / Mutable Instruments (<https://github.com/pichenettes/eurorack>): the COMP sidechain compressor is a C port of `streams/compressor.cc` with its tables | MIT | `firmware/src/comp.c`, `firmware/src/comp_tables.h`; `LICENSES/MIT-Mutable-Instruments.txt` |
 | Plaits and stmlib by Emilie Gillet / Mutable Instruments (<https://github.com/pichenettes/eurorack>): integer ports of its drum algorithms | MIT | `firmware/src/dm_kick.c`, `dm_snare.c`, `dm_metal.c`, `dm_dsp.c`; `LICENSES/MIT-Mutable-Instruments.txt` |
-| DaisySP by Electrosmith and Emilie Gillet (<https://github.com/electro-smith/DaisySP>): the modal resonator and the membrane (SKIN engine, RESON effect) are fixed-point ports of its physical models (Source/PhysicalModeling, Filters, Noise, Utility) | MIT | `firmware/src/phys_dsp.c`; `LICENSES/MIT-DaisySP.txt` |
+| DaisySP by Electrosmith and Emilie Gillet (<https://github.com/daisyaudio/DaisySP>): the modal resonator and the membrane (SKIN engine, RESON effect) are fixed-point ports of its physical models (Source/PhysicalModeling, Filters, Noise, Utility) | MIT | `firmware/src/phys_dsp.c`; `LICENSES/MIT-DaisySP.txt` |
 | jl-uboot-tool by Andrey Grigoryev (kagaimiq) (<https://github.com/kagaimiq/jl-uboot-tool>): the boot-mode cipher and command framing in the Mac recovery tool. Its `wl82loader.bin` is not in this tree; users fetch it (docs/RECOVERY.md) | MIT | `tools/rescue/fm1_uboot.py`; `LICENSES/MIT-jl-uboot-tool.txt` |
 | JieLi AC79 SDK: `uboot.boot`, `cfg_tool.bin`, `eq_cfg_hw.bin` are read from your SDK checkout at build time and placed in the package; no SDK files are in this tree | Apache-2.0 | <https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK>; `LICENSES/Apache-2.0.txt` |
 | JieLi AC79 SDK BT libraries (btctrler, btstack, wl_rf_common, crypto_toolbox, lib_ccm_aes, compiler_rt; members of system.a, cpu.a) and its BT config sources (`lib_btctrler_config.c`, `bt_profile_config.c`), linked into BLE builds only (`FELUCCA_BLE=1`): read from your SDK V1.2.0 copy at build time, none in this tree | Apache-2.0 | SDK V1.2.0, pinned in `tools/ble_libs.py`; `LICENSES/Apache-2.0.txt` |
@@ -86,7 +138,10 @@ by those owners.
 
 ## Radio
 
-Felucca never enables the Bluetooth / Wi-Fi radio of the hardware.
+The default Nauclerus package does not enable the hardware radio. The separately gated
+Hortator-derived BLE variant enables Bluetooth only through its existing controls;
+its presence in source is not a claim of BLE acceptance for the default package.
+No Wi-Fi user feature is provided.
 
 The screen's pixel fonts (`assets/fonts/md_font.txt`) and the VU logo (`cv_vu`, `firmware/src/gfx.c`) are drawn by
 hand for this fork, in the style of the Elektron Machinedrum's LCD (no Elektron material is included): GPL-3.0-only,

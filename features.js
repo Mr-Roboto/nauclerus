@@ -4,25 +4,33 @@
 // piece on the firmware's own DSP. The analyser (lab.js Lab, silent, in the page) starts when the section nears the
 // screen and draws every piece; the player (LabPlayer, an AudioWorklet) starts on the first Play and sounds one piece
 // at a time. A piece that leaves the screen, or a hidden tab, stops.
-import { Lab, LabPlayer } from './lab.js?v=53f9d0fd26';
-import { el } from './lab_ui.js?v=53f9d0fd26';
-import { B, ENC } from './controls.js?v=53f9d0fd26';
-import { parseReel, snapshots } from './reel.js?v=53f9d0fd26';
+import { Lab, LabPlayer } from './lab.js?v=319fa1756664';
+import { el } from './lab_ui.js?v=319fa1756664';
+import { B, ENC } from './controls.js?v=319fa1756664';
+import { parseReel, snapshots } from './reel.js?v=319fa1756664';
 
-const PIECES = {                                     // data-piece -> its module, loaded once the analyser runs
-  voices: () => import('./lab_voices.js?v=53f9d0fd26'),
-  reson: () => import('./lab_reson.js?v=53f9d0fd26'),
-  comp: () => import('./lab_comp.js?v=53f9d0fd26'),
-  lfo: () => import('./lab_lfo.js?v=53f9d0fd26'),
-  seq: () => import('./lab_seq.js?v=53f9d0fd26'),
-  grids: () => import('./lab_grids.js?v=53f9d0fd26'),
-  fx: () => import('./lab_fx.js?v=53f9d0fd26'),
-  ble: () => import('./lab_ble.js?v=53f9d0fd26'),
+const PIECES = {
+  acid: () => import('./lab_nauclerus.js?v=319fa1756664'),
+  melody: () => import('./lab_nauclerus.js?v=319fa1756664'),
+  remix: () => import('./lab_nauclerus.js?v=319fa1756664'),
+  events: () => import('./lab_nauclerus.js?v=319fa1756664'),                                     // data-piece -> its module, loaded once the analyser runs
+  voices: () => import('./lab_voices.js?v=319fa1756664'),
+  reson: () => import('./lab_reson.js?v=319fa1756664'),
+  comp: () => import('./lab_comp.js?v=319fa1756664'),
+  lfo: () => import('./lab_lfo.js?v=319fa1756664'),
+  seq: () => import('./lab_seq.js?v=319fa1756664'),
+  grids: () => import('./lab_grids.js?v=319fa1756664'),
+  fx: () => import('./lab_fx.js?v=319fa1756664'),
+  ble: () => import('./lab_ble.js?v=319fa1756664'),
 };
 
 // each chapter's page on the FM-1's own screen: the panel moves that open it from the power-on screen (HOME's TRACKS
 // mode), as the chapter's "On the panel"
 const PAGES = {
+  acid: [{sel:0},{tap:'EDIT'}],
+  melody: [{sel:0},{tap:'ARP'}],
+  remix: [{sel:0},{tap:'SEQ'},{tap:'SEQ'},{tap:'SEQ'}],
+  events: [{sel:0},{tap:'SEQ'},{tap:'SEQ'},{tap:'SEQ'},{tap:'SEQ'}],
   voices: [{ sel: 0 }, { tap: 'EDIT' }],                       // SOUND 1/3
   reson: [{ sel: 0 }, ...Array(5).fill({ tap: 'FX' })],       // FILTER 1, 2, FX, SLICER, RESON 1
   comp: [{ tap: 'HOME' }, { enc: 'SELECT' }],                   // the HOME screen, SELECT on: COMP 2/3
@@ -57,9 +65,9 @@ const screens = new Map();                            // chapter -> { lcd, clip,
 function loadClips() {
   if (!window.DecompressionStream || still.matches) return Promise.resolve();
   return Promise.all([
-    fetch('features.bin.gz?v=53f9d0fd26').then(r => (r.ok ? new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
+    fetch('features.bin.gz?v=319fa1756664').then(r => (r.ok ? new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
       : Promise.reject(new Error(`features.bin.gz: HTTP ${r.status}`)))),
-    fetch('features.json?v=53f9d0fd26').then(r => (r.ok ? r.json() : Promise.reject(new Error(`features.json: HTTP ${r.status}`)))),
+    fetch('features.json?v=319fa1756664').then(r => (r.ok ? r.json() : Promise.reject(new Error(`features.json: HTTP ${r.status}`)))),
   ]).then(([buf, list]) => {
     reel = parseReel(buf);
     clips = Object.fromEntries(list.map(c => [c.name, c]));
@@ -118,8 +126,8 @@ let lab = null, ids = null, wasm = null, player = null, starting = null, playing
 
 async function boot() {
   const [w, i] = await Promise.all([
-    fetch('fm1sim.wasm?v=53f9d0fd26').then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`fm1sim.wasm: HTTP ${r.status}`)))),
-    fetch('lab_ids.json?v=53f9d0fd26').then(r => (r.ok ? r.json() : Promise.reject(new Error(`lab_ids.json: HTTP ${r.status}`)))),
+    fetch('fm1sim.wasm?v=319fa1756664').then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`fm1sim.wasm: HTTP ${r.status}`)))),
+    fetch('lab_ids.json?v=319fa1756664').then(r => (r.ok ? r.json() : Promise.reject(new Error(`lab_ids.json: HTTP ${r.status}`)))),
   ]);
   wasm = w;
   ids = i;
@@ -172,6 +180,7 @@ async function mount(chapter) {
   const load = PIECES[stage?.dataset.piece];
   if (!load) return;
   const { default: make } = await load();
+  const analyser = ['acid','melody','remix','events'].includes(stage.dataset.piece) ? await Lab.create(wasm,ids) : lab;
   const button = el('button', 'lab-play', 'Play');
   const lcd = chapter.querySelector('.device-screen canvas'), page = PAGES[stage.dataset.piece] ?? [];
   const shown = lcd ? watch(chapter, lcd, stage.dataset.piece) : null;
@@ -179,13 +188,13 @@ async function mount(chapter) {
   // screen(more): the FM-1's screen for the analyser's state now (a piece calls it at the end of a render): with a
   // clip, only for a change made here (then held LIVE_MS); without one, always
   const screen = (more = []) => {
-    if (!lab || !lcd || (shown?.clip && !ready)) return;
-    paint(lcd, lab.screen(panel([...page, ...more])));
+    if (!analyser || !lcd || (shown?.clip && !ready)) return;
+    paint(lcd, analyser.screen(panel([...page, ...more])));
     if (shown?.clip) shown.live = performance.now() + LIVE_MS;
   };
   let piece = null;
   // audition(): the piece's sound, started if it is not on (a pad, a held key); -> the player or null
-  piece = make(stage, { lab, ids, screen, audition: () => play(chapter, piece, button, false) });
+  piece = make(stage, { lab: analyser, ids, screen, audition: () => play(chapter, piece, button, false) });
   ready = true;
   if (!piece.start) return;                           // a diagram: nothing to hear
   button.type = 'button';

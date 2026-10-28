@@ -3,7 +3,7 @@
 // The FM-1 firmware in the audio thread: every quantum renders 128 frames (the firmware's audio ISR runs per
 // half buffer, its UI frame every 15 ms of audio, inside sim_render). Input arrives as messages; frames (the
 // screen + LEDs) and written flash sectors go back to the page.
-import { Fm1Sim } from './engine.js?v=53f9d0fd26';
+import { Fm1Sim } from './engine.js?v=319fa1756664';
 
 class Fm1Processor extends AudioWorkletProcessor {
   constructor(options) {
@@ -38,7 +38,7 @@ class Fm1Processor extends AudioWorkletProcessor {
     if (out[1]) out[1].set(right);
     if (uiFrames) {
       const fb = this.sim.fb();
-      this.port.postMessage({ t: 'frame', fb, leds: this.sim.leds(), keyLeds: this.sim.keyLeds() }, [fb.buffer]);
+      this.port.postMessage({ t: 'frame', fb, leds: this.sim.leds(), keyLeds: this.sim.keyLeds(), context:this.sim.x.sim_context(), track:this.sim.x.sim_selected(), model:this.sim.x.sim_get_param(this.sim.x.sim_selected(),0), playing:this.sim.playing() }, [fb.buffer]);
       const dirty = this.sim.takeDirty();
       if (dirty.length) this.port.postMessage({ t: 'flash', sectors: dirty }, dirty.map(d => d.bytes.buffer));
     }
@@ -50,10 +50,10 @@ registerProcessor('fm1', Fm1Processor);
 
 // ---- the landing page's lab player (lab.js LabPlayer): the feature pieces' sound, live. The same wasm in its own
 // instance; calls arrive as messages (whitelisted Lab methods), probes go back about 60 times a second.
-import { Lab } from './lab.js?v=53f9d0fd26';
+import { Lab } from './lab.js?v=319fa1756664';
 
 const LAB_CALLS = new Set(['reset', 'model', 'param', 'global', 'step', 'note', 'play', 'hit', 'perf', 'watch', 'mute', 'motion',
-  'knob', 'motionClear']);
+  'knob', 'motionClear', 'remix', 'generate', 'lock', 'recordDemo']);
 
 class Fm1LabProcessor extends AudioWorkletProcessor {
   constructor(options) {

@@ -4,86 +4,24 @@
      Drum machine fork: 2026 DEADACTIVE -->
 <html lang="en">
 <head>
+<meta name="author" content="Mr. Roboto">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Install Hortator</title>
+<title>Install Nauclerus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Silkscreen&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="../../sim.css">
 <style>
-  :root {
-    --backdrop: #c3c8ce; --ink: #23272c; --ink-soft: #4d545c; --panel: #5a5e65; --panel-ink: #e6e4dc;
-    --card: #d3d7dc; --rule: #a9afb6; --warn-bg: #e9ddc7; --warn-ink: #4a3a1c; --accent: #23272c; --on-accent: #f3f4f6;
-    color-scheme: light dark;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --backdrop: #1f2226; --ink: #e3e6ea; --ink-soft: #a7aeb6; --card: #2a2e33;
-      --rule: #3c4249; --warn-bg: #3a3222; --warn-ink: #ead9b5; --accent: #e6e4dc; --on-accent: #1f2226; }
-  }
-  :root[data-theme="dark"] { --backdrop: #1f2226; --ink: #e3e6ea; --ink-soft: #a7aeb6; --card: #2a2e33;
-    --rule: #3c4249; --warn-bg: #3a3222; --warn-ink: #ead9b5; --accent: #e6e4dc; --on-accent: #1f2226; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--backdrop); color: var(--ink);
-         font: 400 16px/1.55 "IBM Plex Sans", system-ui, sans-serif; padding: 16px; }
-  a { color: inherit; }
-  .back { display: inline-block; font-size: 14px; color: var(--ink-soft); text-decoration: none; margin: 8px 0 0; }
-  .back:hover { color: var(--ink); text-decoration: underline; }
-  main { max-width: 600px; margin: 0 auto; }
-  .plate {
-    margin: 20px 0 28px; padding: 22px 24px 20px; border-radius: 22px; color: var(--panel-ink);
-    background: linear-gradient(170deg, #63676e, var(--panel) 45%, #474b51);
-    box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 12px 30px rgba(20,24,30,.3);
-  }
-  .plate .silk { font: 13px/1 "Silkscreen", ui-monospace, monospace; letter-spacing: .04em; color: #c9ccd1; margin: 0 0 10px; }
-  h1 { font-size: 28px; font-weight: 600; line-height: 1.2; margin: 0; }
-  .plate p { margin: 8px 0 0; color: #d9dce0; max-width: 46ch; }
-  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0 0 28px; }
-  ol.steps > li { counter-increment: step; position: relative; padding: 0 0 22px 52px; }
-  ol.steps > li::before {
-    content: counter(step); position: absolute; left: 0; top: -2px; width: 34px; height: 34px; border-radius: 9px;
-    display: grid; place-items: center; font: 14px/1 "Silkscreen", ui-monospace, monospace;
-    background: linear-gradient(180deg, #4a4e55, #3b3e44); color: #e6e4dc; box-shadow: 0 2px 0 #1c1e21;
-  }
-  ol.steps > li:not(:last-child)::after {
-    content: ""; position: absolute; left: 16px; top: 38px; bottom: 4px; width: 2px; background: var(--rule);
-  }
-  ol.steps h2 { font-size: 17px; font-weight: 600; margin: 3px 0 2px; }
-  ol.steps p { margin: 0; color: var(--ink-soft); }
-  #go {
-    font: 600 17px/1 "IBM Plex Sans", system-ui, sans-serif; margin: 10px 0 0; padding: 14px 34px; border: 0;
-    border-radius: 999px; background: var(--accent); color: var(--on-accent); cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0,0,0,.22);
-  }
-  #go:disabled { opacity: .35; cursor: default; box-shadow: none; }
-  #variants { border: 0; padding: 0; margin: 10px 0 4px; }
-  #variants legend { padding: 0; font-weight: 500; }
-  #variants label { display: block; margin: 4px 0 0; cursor: pointer; }
-  #variants p { margin: 6px 0 0; font-size: 14px; }
-  progress { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 8px; margin: 16px 0 0;
-             border: 0; border-radius: 4px; background: var(--card); overflow: hidden; }
-  progress::-webkit-progress-bar { background: var(--card); border-radius: 4px; }
-  progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
-  progress::-moz-progress-bar { background: var(--accent); border-radius: 4px; }
-  #status { margin: 10px 0 0; min-height: 1.55em; font-weight: 500; color: var(--ink); }
-  #counted { margin: 6px 0 0; font-size: 13px; opacity: .75; }
-  .notes { background: var(--card); border-radius: 16px; padding: 18px 20px; margin: 0 0 20px; }
-  .notes p { margin: 0 0 12px; font-size: 15px; color: var(--ink-soft); }
-  .notes p:last-child { margin-bottom: 0; }
-  .notes .beta { background: var(--warn-bg); color: var(--warn-ink); border-radius: 10px; padding: 10px 12px; }
-  details { margin: 0 0 24px; font-size: 14px; color: var(--ink-soft); }
-  summary { cursor: pointer; }
-  pre { font-size: 12px; white-space: pre-wrap; margin: 8px 0 0; }
-  footer { font-size: 13px; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: 14px; }
-  footer p { margin: 0 0 8px; }
-  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+body{display:block;padding:32px 20px;background:var(--bg);color:var(--text)}main{max-width:850px;margin:auto}h1,h2{color:var(--text);line-height:1.2}.plate,.steps,.notes,details{padding:24px;border:1px solid var(--border);background:var(--surface);margin:24px 0}.steps{list-style-position:inside}button{background:var(--accent);color:var(--bg);padding:12px 24px;border:1px solid var(--border)}button:disabled{background:var(--surface);color:var(--secondary)}progress{display:block;width:100%;accent-color:var(--accent);margin:20px 0}.ack{display:block;margin:20px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}footer{color:var(--secondary)}fieldset[hidden]{display:none}
 </style>
 </head>
 <body>
 <main>
-  <a class="back" href="../../">← Hortator: play it in the browser</a>
+  <a class="back" href="../../">← Nauclerus: play it in the browser</a>
   <header class="plate">
-    <p class="silk">HORTATOR</p>
-    <h1>Install Hortator on your FM-1</h1>
+    <p class="silk">NAUCLERUS</p>
+    <h1>Install Nauclerus on your FM-1</h1>
     <p>Drum-machine firmware for the M-VAVE FM-1. It installs over USB from this page, in a few minutes.</p>
   </header>
 
@@ -99,6 +37,7 @@
         <label><input type="radio" name="variant" value="ble"> <span data-t="v_ble"></span></label>
         <p data-t="v_ble_note"></p>
       </fieldset>
+      <label class="ack"><input type="checkbox" id="ack"> I have backed up my work and read the recovery prerequisites.</label>
       <button id="go" disabled data-t="install"></button>
       <progress id="bar" max="100" value="0"></progress>
       <p id="status" role="status"></p>
@@ -109,7 +48,7 @@
   <section class="notes" aria-label="Before you install">
     <p class="beta" data-t="beta"></p>
     <p><span data-t="brick"></span>
-      <a href="https://github.com/DeadActive/hortator/blob/main/docs/RECOVERY.md" target="_blank" rel="noopener">Recovery
+      <a href="https://github.com/Mr-Roboto/nauclerus/blob/v0.25.0/docs/RECOVERY.md" target="_blank" rel="noopener">Recovery
       guide</a>. <span data-t="brick2"></span>
       <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener">FM-1-transporter</a></p>
     <p><span data-t="back"></span>
@@ -122,7 +61,7 @@
   </details>
 
   <footer>
-    <p>Hortator by DEADACTIVE, built on Felucca by Leo Kuroshita (@kurogedelic),
+    <p>Nauclerus by Mr. Roboto, based on Hortator by DEADACTIVE, built on Felucca by Leo Kuroshita (@kurogedelic),
       <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>.</p>
     <p>Font: Terminus (Dimitar Toshkov Zhekov, SIL OFL 1.1). Samples: Versilian Studios VSCO-2 Community Edition and
       VCSL (CC0 1.0). M-VAVE and FM-1 are trademarks of their respective owners.</p>
@@ -278,7 +217,7 @@ class Updater {
     const outs = [...this.access.outputs.values()];
     for (const input of this.access.inputs.values()) {
       if (input.state === "disconnected") continue;
-      if (!/fm-1|hortator|felucca|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
+      if (!/fm-1|nauclerus|hortator|felucca|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
       const output = outs.find((o) => o.name === input.name && o.state !== "disconnected");
       if (!output) continue;
       try { await input.open(); await output.open(); } catch (_) { continue; }
@@ -399,7 +338,7 @@ class Updater {
 
 // the GoatCounter site code (CODE.goatcounter.com); '' = the counter is off: no count.js, no ping, no count shown.
 // The site's settings must allow "adding visitor counts on your website" for the count to be readable.
-const GC_CODE = 'deadactive';
+const GC_CODE = ''; // No Nauclerus analytics service is configured.
 const GC_EVENT = 'install';                          // the event's path (its name in the dashboard)
 const LOCAL = /^(localhost|127\.\d+\.\d+\.\d+|\[::1\]|0\.0\.0\.0|.*\.local)$/;
 
@@ -466,14 +405,14 @@ const TEXT = {
     direct: "Connect the FM-1 straight to the computer with a USB data cable. No probe or Transporter is needed.",
     warn: "Keep the cable in and this page open until it says Done. The FM-1 restarts by itself.",
     install: "Install",
-    beta: "Hortator is beta firmware and may be unstable. You install it at your own risk: the author accepts no responsibility if your FM-1 is damaged or misbehaves.",
+    beta: "Back up your projects before installing. The accepted resonance-character limitation remains. You install it at your own risk: the author accepts no responsibility if your FM-1 is damaged or misbehaves.",
     brick: "If the FM-1 stops answering the installer, it can be brought back from a Mac over the same USB cable, with no extra hardware:",
     brick2: "If it does not start at all and does not even reach boot mode, recovering it needs a Transporter:",
     back: "To go back to the official firmware, use M-VAVE's updater M-UPGRADE (Downloads → PC Software → M-UPGRADE) with the official firmware (PC Firmware → FM-1 V15).",
     nomidi: "This browser cannot install firmware. Open the page in Chrome or Edge on a computer.", loadfail: "Could not load the firmware: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     counted: "Counts visits and installs anonymously with GoatCounter: no cookies, no personal data.",
-    reboot: "Restarting", done: "Done. The FM-1 restarts with Hortator.", stopped: "Stopped. Replug the USB cable and press Install again.",
+    reboot: "Restarting", done: "Done. The FM-1 restarts with Nauclerus.", stopped: "Stopped. Replug the USB cable and press Install again.",
     error: "Error: ",
     denied: "MIDI (SysEx) access was not allowed. Allow MIDI in the site settings (address bar) and press Install again.",
     notfound: "FM-1 not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
@@ -486,9 +425,9 @@ const TEXT = {
     leave: "Writing. Do not close the page.",
     license: "GPL-3.0, no warranty.",
     which: "Version",
-    v_std: "Hortator",
-    v_ble: "Hortator + Bluetooth MIDI (experimental)",
-    v_ble_note: "The same Hortator with Bluetooth MIDI added: MENU (hold HOME) > BLUETOOTH connects a BLE-MIDI keyboard or the M-VAVE SMC-Mixer (DAW mode: faders, knobs, mute, solo, record, transport). Bluetooth is off at every power-on until you turn it on there.",
+    v_std: "Nauclerus",
+    v_ble: "Nauclerus + Bluetooth MIDI (experimental)",
+    v_ble_note: "The same Nauclerus with Bluetooth MIDI added: MENU (tap GLO) > BLUETOOTH connects a BLE-MIDI keyboard or the M-VAVE SMC-Mixer (DAW mode: faders, knobs, mute, solo, record, transport). Bluetooth is off at every power-on until you turn it on there.",
   },
 };
 const lang = "en";
@@ -504,7 +443,7 @@ const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textCont
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (t) => { $("log").textContent += t + "\n"; };
 let image = null;
-const meta = {"version": "drum-0.24.0+2690e74", "product": "FM-1_900", "pkg": "../../firmware/felucca-drum-0.24.0-2690e74.fwsc", "variants": [{"id": "std", "version": "drum-0.24.0+2690e74", "pkg": "../../firmware/felucca-drum-0.24.0-2690e74.fwsc"}, {"id": "ble", "version": "drum-0.24.0+2690e74+ble", "pkg": "../../firmware/felucca-drum-0.24.0-2690e74-ble.fwsc"}]};
+const meta = {"version": "nauclerus-0.25.0+8c7fdcc", "product": "FM-1_25000", "pkg": "../../firmware/nauclerus-0.25.0.fwsc", "bytes": 609649, "sha256": "b496e081fd78c05eaa3cd368caf384285ec7b708477c5ff638f373e6a3c2a870"};
 
 let writing = false;
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
@@ -512,15 +451,18 @@ window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault
 const load = async () => {
   if (!navigator.requestMIDIAccess) { sayK("nomidi"); return; }
   try {
-    const r = await fetch(meta.pkg);
+    const r = await fetch(meta.pkg, {cache:"no-store"});
     if (!r.ok) throw new Error(`${meta.pkg}: HTTP ${r.status}`);
     const pkg = new Uint8Array(await r.arrayBuffer());
+    const digest = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",pkg)),x=>x.toString(16).padStart(2,"0")).join("");
+    if (pkg.length !== meta.bytes || digest !== meta.sha256) throw new Error("Stable package SHA-256/size mismatch: installation disabled");
     if (productOf(pkg) !== meta.product) { sayK("badpkg"); return; }
     image = logicalImage(pkg);
-    say(`Hortator ${meta.version}`);
-    $("go").disabled = false;
+    say(`Nauclerus ${meta.version}`);
+    $("go").disabled = !$("ack").checked;
   } catch (e) { sayK("loadfail", e.message); }
 };
+$("ack").addEventListener("change",()=>{$("go").disabled=!image || !$("ack").checked;});
 load();
 loadPageCounter();
 if (counterOn()) $("counted").hidden = false;
@@ -538,6 +480,7 @@ document.querySelectorAll('input[name="variant"]').forEach((r) => r.addEventList
 }));
 
 $("go").addEventListener("click", async () => {
+  if (!image || !$("ack").checked || !confirm("Install verified Nauclerus 0.25.0? Keep USB and power connected until Done.")) return;
   $("go").disabled = true;
   let midi;
   try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
@@ -568,7 +511,7 @@ $("go").addEventListener("click", async () => {
     log(String(e && e.stack || e));
   }
   writing = false;
-  $("go").disabled = false;
+  $("go").disabled = !image || !$("ack").checked;
 });
 </script>
 </body>

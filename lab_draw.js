@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Drum machine fork: 2026 DEADACTIVE
 // The lab pieces' traces, drawn like the FM-1's LEDs: a bright line with a glow on the plate's black.
-import { INK } from './lab_ui.js?v=53f9d0fd26';
-import { ditherPattern } from './dither.js?v=53f9d0fd26';
+import { INK } from './lab_ui.js?v=319fa1756664';
+import { ditherPattern } from './dither.js?v=319fa1756664';
 
-const LABEL = '16px "Hortator Terminus", monospace';
+const LABEL = '16px "Nauclerus Terminus", monospace';
 
 // a waveform, min / max per pixel column, of a[0 .. frames): centred; scale 1 = full scale fills the box's height
 export function wave(g, w, h, a, frames, { color = INK.led, glow = INK.glow, fill = false, scale = 1 } = {}) {

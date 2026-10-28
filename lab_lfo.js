@@ -4,8 +4,8 @@
 // their DECAY. The firmware
 // renders two bars; the lab's probes give both LFOs' outputs per audio half, drawn over the hats' waveform (whose
 // tails stretch and shrink with the DECAY), and the knob each hit gets, as lfo.c computes it, per step below.
-import { el, knob, scope, INK } from './lab_ui.js?v=53f9d0fd26';
-import * as draw from './lab_draw.js?v=53f9d0fd26';
+import { el, knob, scope, INK } from './lab_ui.js?v=319fa1756664';
+import * as draw from './lab_draw.js?v=319fa1756664';
 
 const HAT = { MTAL: 64, DECAY: 40 };                 // CHTRX: the two knobs the LFOs move, set mid-way to swing both ways
 const STEPS = 32;                                    // two bars of 16ths
@@ -104,7 +104,7 @@ export default function lfo(plate, { lab, ids, screen }) {
     g.restore();
     let pk = 0;
     for (let i = 0; i < mix.length; i++) pk = Math.max(pk, Math.abs(mix[i]));
-    draw.wave(g, w, h, mix, span, { color: '#505050', glow: null, scale: 0.9 / (pk || 1) });
+    draw.wave(g, w, h, mix, span, { color: INK.dim, glow: null, scale: 0.9 / (pk || 1) });
     trace(g, w, h, outs[1], INK.warm, 'rgba(0,0,0,0)');
     trace(g, w, h, outs[0], INK.led, INK.glow);
     playhead(g, w, h);
@@ -112,7 +112,7 @@ export default function lfo(plate, { lab, ids, screen }) {
   const stepScope = scope('per-step', (g, w, h) => {   // per step: the knob the hit got, MTAL above, DECAY below
     const row = (h - 6) / 2, cw = w / STEPS;
     g.save();
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     for (const k of [0, 1]) {
       const top = k * (row + 6), d = edit[at[lfos[k].dest]];
       g.fillStyle = INK.grid;

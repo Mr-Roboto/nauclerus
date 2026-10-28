@@ -3,16 +3,15 @@
 // The FM-1 simulator page: draws the panel (two layouts: the device's landscape, a stacked portrait for phones),
 // turns pointer and keyboard input into messages for the worklet (worklet.js runs the firmware), paints the
 // frames it sends back, and keeps the flash it writes in IndexedDB (store.js).
-import { BTN, ENC, KEYS, HeldSet, keyEvent, keyHint, contextMenuLatches } from './controls.js?v=53f9d0fd26';
-import { FlashStore, openFlashDb } from './store.js?v=53f9d0fd26';
-import { needsResume, playbackSession } from './audio.js?v=53f9d0fd26';
-import { parseReel } from './reel.js?v=53f9d0fd26';
-import { initFeatures } from './features.js?v=53f9d0fd26';
-import { initManual } from './manual.js?v=53f9d0fd26';
-import { buildMini } from './mini.js?v=53f9d0fd26';
-import { installCount, loadPageCounter } from './counter.js?v=53f9d0fd26';
-import { ditherBackground, initGlitch } from './dither.js?v=53f9d0fd26';
-import { LAYOUTS, DECO_CLASS, blend, heroPose, outline } from './layout.js?v=53f9d0fd26';
+import { BTN, ENC, KEYS, HeldSet, keyEvent, keyHint, contextMenuLatches } from './controls.js?v=319fa1756664';
+import { FlashStore, openFlashDb } from './store.js?v=319fa1756664';
+import { needsResume, playbackSession } from './audio.js?v=319fa1756664';
+import { parseReel } from './reel.js?v=319fa1756664';
+import { initFeatures } from './features.js?v=319fa1756664';
+import { initManual } from './manual.js?v=319fa1756664';
+import { installCount, loadPageCounter } from './counter.js?v=319fa1756664';
+import { ditherBackground, initGlitch } from './dither.js?v=319fa1756664';
+import { LAYOUTS, DECO_CLASS, blend, heroPose, outline } from './layout.js?v=319fa1756664';
 
 // ---- the panel's elements (built once, placed per layout)
 const device = document.getElementById('device');
@@ -201,7 +200,7 @@ function bindControls() {
   for (const [id, el] of Object.entries(els.enc)) bindEncoder(id, el);
 
   window.addEventListener('keydown', e => {
-    if (!arrived || e.target.closest?.('.help, .confirm, #power-on')) return;
+    if (!arrived || e.target.closest?.('.help, .confirm, #power-on, #manual, .plate, input, select, textarea, [contenteditable]')) return;
     if ((e.code === 'ArrowUp' || e.code === 'ArrowDown') && hovered) {
       e.preventDefault();
       turn(hovered, e.code === 'ArrowUp' ? 1 : -1);
@@ -299,7 +298,7 @@ function wake() {                                 // a tap or a key brings a sto
 }
 
 // ---- power on
-const wasmBytes = fetch('fm1sim.wasm?v=53f9d0fd26').then(r => {
+const wasmBytes = fetch('fm1sim.wasm?v=319fa1756664').then(r => {
   if (!r.ok) throw new Error(`fm1sim.wasm: HTTP ${r.status}`);
   return r.arrayBuffer();
 });
@@ -326,12 +325,12 @@ async function powerOn() {
     playbackSession(navigator);
     ctx = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
     const resumed = ctx.resume();                         // inside the tap: browsers allow sound from here on
-    await ctx.audioWorklet.addModule('worklet.js?v=53f9d0fd26');
+    await ctx.audioWorklet.addModule('worklet.js?v=319fa1756664');
     const [wasm, sectors] = await Promise.all([wasmBytes, store.load()]);
     node = new AudioWorkletNode(ctx, 'fm1', { numberOfInputs: 0, outputChannelCount: [2], processorOptions: { wasm, sectors } });
     node.port.onmessage = e => {
       const m = e.data;
-      if (m.t === 'frame') frame = m;
+      if (m.t === 'frame') {frame=m;device.dataset.playing=String(m.playing);if(device.dataset.context!==String(m.context)||device.dataset.track!==String(m.track)){device.dataset.context=String(m.context);device.dataset.track=String(m.track);window.dispatchEvent(new CustomEvent('nauclerus:context',{detail:m}));}}
       else if (m.t === 'flash') store.put(m.sectors);
       else if (m.t === 'error') note.textContent = `The firmware failed to start: ${m.message}`;
     };
@@ -396,7 +395,7 @@ function bindPage() {
 let reel = null, reelPos = -1, reelT0 = 0;
 const reelFb = new Uint16Array(240 * 240);
 if (window.DecompressionStream)
-  fetch('reel.bin.gz?v=53f9d0fd26')
+  fetch('reel.bin.gz?v=319fa1756664')
     .then(r => r.ok ? new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer() : Promise.reject())
     .then(b => { reel = parseReel(b); reelT0 = performance.now(); })
     .catch(() => { /* no reel: the screen stays dark until Switch on */ });
@@ -454,13 +453,38 @@ function placePower() {
   const tw = els.power.offsetWidth, th = els.power.offsetHeight, lw = powerLabel.offsetWidth;
   const tx = sx - tw / 2;                                                     // straight above the spot
   const right = tx + tw + 10 + lw <= st.width - 16;                            // the label right of it if it fits
-  const ty = Math.max(56, sy - 34 - th / 2), my = ty + th / 2;
+  const navBottom = stage.querySelector('.hero-nav').getBoundingClientRect().bottom - st.top;
+  const ty = Math.max(navBottom + 12, sy - 34 - th / 2), my = ty + th / 2;
   els.power.style.transform = `translate(${tx}px, ${ty}px)`;
   powerLabel.style.transform = `translate(${right ? tx + tw + 10 : tx - 10 - lw}px, ${my - powerLabel.offsetHeight / 2}px)`;
   Object.assign(powerLead.style, {                  // a vertical line from the edge up to the switch's centre (it ends
     left: `${sx}px`, top: `${my}px`, height: `${Math.max(0, sy - my)}px` });   // under the switch, which is opaque)
 }
 function queueHero() { if (!heroQueued) { heroQueued = true; requestAnimationFrame(heroFrame); } }
+
+// ---- a small FM-1 from the layout table (the install diagram)
+function buildMini(host) {                         // a small FM-1 from the layout table, scaled to its host
+  const parts = {};
+  if (!host) return parts;
+  const L = LAYOUTS.landscape, inner = document.createElement('div');
+  inner.className = 'mini';
+  const part = (cls, b, key) => {
+    const d = document.createElement('div');
+    d.className = cls;
+    d.style.cssText = `left:${b[0]}px;top:${b[1]}px;width:${b[2]}px;height:${b[3]}px`;
+    inner.append(d);
+    if (key) parts[key] = d;
+  };
+  for (const [name, b] of Object.entries(L.deco)) part(`m-${name}`, b);
+  part('m-lcd', L.lcd);
+  for (const [k, b] of Object.entries(L.ctl)) part(k.startsWith('key') ? 'm-key' : 'm-btn', b, k);
+  for (const [id, b] of Object.entries(L.enc)) part('m-enc', b, id === 'master' ? 'MASTER' : ENC[id].label);
+  host.append(inner);
+  const fitMini = () => { inner.style.transform = `scale(${host.clientWidth / L.W})`; };
+  new ResizeObserver(fitMini).observe(host);
+  fitMini();
+  return parts;
+}
 
 // ---- install: the firmware this site ships and what is new in it (version.json, written by the build)
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
@@ -481,11 +505,12 @@ installCount().then(n => {
   el.replaceChildren('Installed ', b, n === 1 ? ' time' : ' times');
   el.hidden = false;
 });
-fetch('version.json?v=53f9d0fd26').then(r => r.ok ? r.json() : Promise.reject()).then(v => {
+fetch('version.json?v=319fa1756664').then(r => r.ok ? r.json() : Promise.reject()).then(v => {
   const [y, m, d] = v.date.split('-').map(Number);
   const newer = v.since.length ? ` and ${v.since.length} newer change${v.since.length > 1 ? 's' : ''}` : '';
   document.getElementById('fw-version').textContent =
-    `Version ${v.version}${newer}, built ${d} ${MONTHS[m - 1]} ${y} from commit ${v.commit}`;
+    `Nauclerus ${v.version} · source ${v.source_digest.slice(0,12)} · built ${d} ${MONTHS[m - 1]} ${y} · ${v.installer_enabled ? "verified stable installer available" : "preview; installation disabled"}`;
+  if(v.installer_enabled){document.getElementById('release-install-link').hidden=false;document.getElementById('release-install-status').textContent='The separate installer verifies the stable package SHA-256 before enabling installation. The simulator never accesses hardware.';}
   const ul = document.getElementById('whats-new');
   for (const n of [...v.since, ...v.release.notes]) {
     const li = document.createElement('li'), span = document.createElement('span'), b = document.createElement('b');
@@ -498,7 +523,6 @@ fetch('version.json?v=53f9d0fd26').then(r => r.ok ? r.json() : Promise.reject())
 build();
 relayout();
 buildMini(document.getElementById('install-mini'));
-initManual();
 device.classList.add('waiting');
 heroFrame();
 window.addEventListener('scroll', queueHero, { passive: true });
@@ -511,10 +535,30 @@ window.addEventListener('resize', relayout);
 document.fonts?.ready.then(relayout);
 requestAnimationFrame(paint);
 initFeatures();
+initManual();
+window.addEventListener('nauclerus:navigate', async e=>{
+  if(!node)await powerOn();
+  if(poweredOff){poweredOff=false;setSwitch(true);await ctx.resume();}
+  const id=BTN.findIndex(b=>b.label===e.detail.button);
+  if(id<0||!node)return;
+  const wait=()=>new Promise(r=>setTimeout(r,65));
+  const tap=async button=>{send({t:'btn',id:button,down:true});await wait();send({t:'btn',id:button,down:false});await wait();};
+  releaseAll();
+  // Cancel a normal menu/overlay before selecting a family. No menu action is invoked.
+  if(e.detail.button!=='HOME')await tap(BTN.findIndex(b=>b.label==='HOME'));
+  await tap(id);
+  if(e.detail.button!=='GLO' && e.detail.button!=='HOME'){
+    // Firmware takes SELECT's direction once per UI frame, not a page-count delta.
+    for(let n=0;n<16;n++){send({t:'enc',id:0,steps:-1});await wait();}
+    for(let n=0;n<(e.detail.offset||0);n++){send({t:'enc',id:0,steps:1});await wait();}
+  }
+});
 // the look (dither.js): a dithered glow behind the device, a dithered fade into the footer, headings that glitch
 ditherBackground(document.getElementById('stage'), (x, y) => {
   const dx = (x - 0.5) / 0.55, dy = (y - 0.42) / 0.5;
   return Math.max(0, 1 - Math.hypot(dx, dy)) * 1.15;
-}, '#000000', '#282828');
-ditherBackground(document.getElementById('foot-band'), (x, y) => 1 - Math.abs(2 * y - 1), '#000000', '#505050');
+}, getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(), getComputedStyle(document.documentElement).getPropertyValue('--surface').trim());
+ditherBackground(document.getElementById('foot-band'), (x, y) => 1 - Math.abs(2 * y - 1), getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(), getComputedStyle(document.documentElement).getPropertyValue('--surface').trim());
 initGlitch();
+
+fetch('lab_ids.json?v=319fa1756664').then(r=>r.json()).then(v=>{document.getElementById('engine-count').textContent=`${v.models.length} models · ${v.presets.factory} factory presets · ${v.presets.user} user slots.`;});

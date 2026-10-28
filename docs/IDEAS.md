@@ -1,0 +1,116 @@
+# Ideas — parked for later
+
+Things we talked about and decided to come back to. Nothing here is designed or built yet; each one starts with
+the usual design questions before any code.
+
+## 303-style mono bass voice (parked 2026-10-06)
+
+### What it is
+
+A new sound engine, one of the engines a track can use (EDIT → MODEL). It is not a new kind of track: there are
+still 8 tracks, and a track switched to this engine plays a monophonic acid bassline.
+
+- Oscillator: saw or square, band-limited.
+- Amp envelope and a filter envelope.
+- Its own resonant low-pass filter (a 303-like ladder).
+- Accent per step: the step's existing ACC flag, used the 303 way (louder, more filter envelope, snappier
+  decay).
+- Slide per step: the next note glides and the envelopes do not retrigger.
+- A note per step: each step plays its own pitch, set in the sequencer.
+
+### Can we afford it? (answered 2026-10-06, from the measured numbers)
+
+Yes for one or two such tracks. The limit to know about: a bassline sounds most of the time, while a drum hit is
+a short burst, so its cost is paid continuously.
+
+- **CPU.** The tests' yardstick is host instructions per sample. A realistic heavy kit with every FX measures
+  1207; the limit is 1566 (stock Felucca's heaviest mix, known to run on the FM-1), so about 360 is spare.
+  The voice is estimated at 100–200 per sample while it sounds (oscillator, 4-pole filter with soft saturation
+  in integer maths, envelopes, accent, slide), about the cost of one of the heavier drum engines. One or two
+  303 tracks fit inside the realistic budget; three or more pass it; eight at once would reach the overload
+  protection. These are estimates: measure a throwaway prototype first.
+- **Project size.** A project must fit one flash sector: 3840 B usable, 2912 B used (FDR4). A note and a slide
+  flag per step fit in one byte (7 bits of note, 1 bit of slide): 64 steps × 8 tracks = +512 B, about 3424 B,
+  leaving about 400 B for later features. That means a new project format (FDR5) that converts FDR4 and older
+  records with every step at the track's NOTE and no slide.
+- **Knobs.** No new knob parameters: the engine uses the 8 engine knobs every engine already has, for example
+  `WAVE` (SAW / SQR), `CUTOF`, `RESO`, `ENVMD`, `DECAY`, `ACCNT`, `SLIDE` (glide time), `TUNE` or `DRIVE`.
+- **RAM and code space.** RAM is 43 KB of 96 KB used (plus about 2 KB more for the four project copies); code
+  space is no concern.
+
+### Sequencer changes
+
+- Step data grows by one byte (note + slide). Accent already exists.
+- Slide changes how the sequencer triggers this engine: a slid step changes the pitch of the sounding note
+  instead of starting a new hit.
+- The LFOs can target its knobs like any engine's (CUTOF with an LFO is the obvious use).
+
+### Main risk
+
+A resonant ladder filter in integer-only maths (no float, no 64-bit division on the target) that stays stable up
+to self-oscillation. Solvable, but that is where most of the testing goes. Open303 (MIT licence) is a good
+reference for the structure; it uses floating point, so this would be a port to fixed point, not a copy.
+
+### Open questions for when we return
+
+1. How notes are entered on the steps: hold a step and turn a knob (as PROB / RATCH today), record from the
+   keys, or both. How slide is set per step.
+2. The final list of the 8 knobs.
+3. Whether to measure a throwaway prototype's cost first (recommended).
+4. How the STEP grid and the footer show notes and slides.
+
+## Heavy / distorted sound (parked 2026-10-07)
+
+Today DIST is a per-track insert (RESON → DIST → SLICER → level / pan → sends; drive only, no dry / wet), and the
+send buses are chorus, delay and reverb. The user asked to park these four, for a heavier sound:
+
+- **DIST modes:** a mode knob beside the drive: SOFT (today's asymmetric soft clip), HARD CLIP (harsher), FUZZ
+  (heavy asymmetric clip), RECTIFY (octave-up rip, gated feel), WAVEFOLD (metallic, synth-like grind). Cheap: one
+  per-sample shaper per mode, same tone low-pass and make-up after it. Optionally a MIX knob (parallel drive: the
+  grit on top, the attack and low end kept).
+- **BITCRUSH / DECIMATE:** per track, fewer bits and a sample-and-hold rate reduction: industrial, digitally
+  destroyed drums. Where in the chain (before / after DIST) is a design question.
+- **Master drive:** a saturation stage on the whole mix (tape-style soft saturation, maybe a crusher option) after
+  the buses, before the master limiter / soft clip: everything glued and dirty. One or two global knobs.
+- **Transient shaper:** per track, attack and sustain gain from two envelope followers (fast / slow), before DIST
+  so a heavy kick still clicks through the distortion.
+
+Open questions for when we return: which page holds the new knobs (FX has DIST CHO DLY REV); per-track parameters
+mean a project format step (FDR8 is planned for song chain + names: combine or follow); CPU on 8 tracks (all are
+small per-sample loops; the target budget check covers them); A/B WAVs for each before the design is fixed.
+
+## Parameter locks, Elektron style (parked 2026-10-07)
+
+The user chose upstream's live motion recording for §3.5 (0.11.0) and parked step entry.
+
+### How Elektron's work
+- The trig keys are always the 16 steps (grid recording mode); the page buttons (SRC FLTR AMP FX LFO) choose what
+  the knobs edit. Hold a trig and turn a knob: that value is stored for that step only (shown inverted, "locked");
+  several trigs held lock the same value on all of them.
+- A lock applies to its trig only: the next step without a lock plays the track's value again (upstream Felucca's
+  motion holds a value until the next event instead).
+- Hold the trig and press the knob: that lock is removed; removing the trig removes all its locks.
+- Trigless locks: a step that only changes knobs, no note (e.g. a filter move under a ringing note).
+- Live recording writes locks onto the steps passed while a knob is turned.
+
+### How it could fit the FM-1
+The keys are steps only on the STEP page, and the knobs have no push. Options discussed:
+1. Hold a step on the STEP grid, tap a page button (EDIT, FX, LFO …): that page shows "STEP n", its knobs set
+   values for that step; letting go of the step returns to the grid.
+2. Hold a step and turn PRESET to step through the sound pages in place.
+3. Grid mode as a latched mode (closest to Elektron): SEQ turns it on, the keys stay steps on every page, page
+   buttons choose the knobs, hold steps + turn knobs anywhere; SEQ / HOME turns it off.
+Clearing without a knob push: step held + OCT- clears that step's locks. Open: per-step locks (Elektron) or
+hold-until-next (motion); the events could share motion's 128-place store (FDR8) with a "lock" flag.
+
+## Also parked
+
+- **FM drum engine:** Mutable Instruments Peaks' FM drum (integer maths, MIT) was the best fit found.
+- **"Make the compressor optional":** asked once, the meaning was never settled.
+- **M5:** the web editor and presets.
+- **LFO polish (deferred minors from the LFO review):**
+  - when both LFOs target the same knob, the EDIT marker shows only LFO 1;
+  - SYNC rates drift slowly against the sequencer (integer rounding);
+  - untested: a tempo change while playing, corrupt saved LFO fields, white-key select on the LFO pages.
+- **Target cost budget:** the audio ISR measures about 8800 against its 15188 budget (−42 %); lowering the
+  budget to the measured value would tighten the check; not decided yet.
