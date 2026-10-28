@@ -20,6 +20,8 @@ WebMIDI action and is enabled only after verifying the exact stable package SHA-
 Nauclerus development, modifications and remix work by **Mr. Roboto**, based on **Hortator by DEADACTIVE**,
 built on **[Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita / Hügelton Instruments**.
 
+**Hardware update (2026-10-28):** The owner reports successful installation of the published 0.25.0 firmware over RC13 on a physical FM-1; the device restarted and the new firmware runs. Physical rollback remains untested. See [identity migration](docs/IDENTITY_MIGRATION_0.25.0.md).
+
 **Nauclerus 0.25.0** promotes the accepted RC13 implementation without DSP changes; it also corrects menu-header redraw and modal-input defects. It includes magnitude-only unipolar routing, project compatibility, and the
 Graphite/Champagne/Amber web portal. The owner accepts the remaining subjective ACID
 resonance/filter-character limitation. See the [release validation record](docs/RELEASE_VALIDATION_0.25.0.md).
