@@ -1,0 +1,859 @@
+{
+  "accepted_package_sha256": "6d4af7cc05a93337d8ed2b9b51d7e25afa1b27688cac4e85155b882b766ed167",
+  "accepted_app_sha256": "fa3d0e7f901ec883ff98a6fa0fb4722ef6e4540bc67d7c6c5459fa85b5221cc0",
+  "rebuilt_rc13_app_sha256": "fa3d0e7f901ec883ff98a6fa0fb4722ef6e4540bc67d7c6c5459fa85b5221cc0",
+  "app_bytes": 358196,
+  "different_offsets": [],
+  "all_non_date_application_bytes_identical": true,
+  "reference_snapshot_sha256": "6ee83df94e3e074bed321c49f0427b1f44116c17cbaeeaa77909a66d969eb406",
+  "target_function_metrics": {
+    "body_render": {
+      "accepted_rc13": {
+        "insns": 177,
+        "loop": 156,
+        "div": 0,
+        "call": 0,
+        "cost": 156
+      },
+      "stable": {
+        "insns": 177,
+        "loop": 156,
+        "div": 0,
+        "call": 0,
+        "cost": 156
+      }
+    },
+    "snare_render": {
+      "accepted_rc13": {
+        "insns": 191,
+        "loop": 170,
+        "div": 0,
+        "call": 0,
+        "cost": 170
+      },
+      "stable": {
+        "insns": 191,
+        "loop": 170,
+        "div": 0,
+        "call": 0,
+        "cost": 170
+      }
+    },
+    "clap_render": {
+      "accepted_rc13": {
+        "insns": 112,
+        "loop": 92,
+        "div": 0,
+        "call": 1,
+        "cost": 92
+      },
+      "stable": {
+        "insns": 112,
+        "loop": 92,
+        "div": 0,
+        "call": 1,
+        "cost": 92
+      }
+    },
+    "hat_render": {
+      "accepted_rc13": {
+        "insns": 115,
+        "loop": 87,
+        "div": 0,
+        "call": 0,
+        "cost": 87
+      },
+      "stable": {
+        "insns": 115,
+        "loop": 87,
+        "div": 0,
+        "call": 0,
+        "cost": 87
+      }
+    },
+    "cymb_render": {
+      "accepted_rc13": {
+        "insns": 139,
+        "loop": 108,
+        "div": 0,
+        "call": 0,
+        "cost": 108
+      },
+      "stable": {
+        "insns": 139,
+        "loop": 108,
+        "div": 0,
+        "call": 0,
+        "cost": 108
+      }
+    },
+    "cowb_render": {
+      "accepted_rc13": {
+        "insns": 97,
+        "loop": 82,
+        "div": 0,
+        "call": 0,
+        "cost": 82
+      },
+      "stable": {
+        "insns": 97,
+        "loop": 82,
+        "div": 0,
+        "call": 0,
+        "cost": 82
+      }
+    },
+    "rim_render": {
+      "accepted_rc13": {
+        "insns": 130,
+        "loop": 113,
+        "div": 0,
+        "call": 0,
+        "cost": 113
+      },
+      "stable": {
+        "insns": 130,
+        "loop": 113,
+        "div": 0,
+        "call": 0,
+        "cost": 113
+      }
+    },
+    "smp_render": {
+      "accepted_rc13": {
+        "insns": 174,
+        "loop": 128,
+        "div": 0,
+        "call": 0,
+        "cost": 296
+      },
+      "stable": {
+        "insns": 174,
+        "loop": 128,
+        "div": 0,
+        "call": 0,
+        "cost": 296
+      }
+    },
+    "metal_make": {
+      "accepted_rc13": {
+        "insns": 30,
+        "loop": 15,
+        "div": 0,
+        "call": 0,
+        "cost": 39
+      },
+      "stable": {
+        "insns": 30,
+        "loop": 15,
+        "div": 0,
+        "call": 0,
+        "cost": 39
+      }
+    },
+    "slicer_track": {
+      "accepted_rc13": {
+        "insns": 325,
+        "loop": 266,
+        "div": 5,
+        "call": 0,
+        "cost": 675
+      },
+      "stable": {
+        "insns": 325,
+        "loop": 266,
+        "div": 5,
+        "call": 0,
+        "cost": 675
+      }
+    },
+    "fm1_alnk0_irq": {
+      "accepted_rc13": {
+        "insns": 1644,
+        "loop": 1490,
+        "div": 10,
+        "call": 66,
+        "cost": 12232
+      },
+      "stable": {
+        "insns": 1644,
+        "loop": 1490,
+        "div": 10,
+        "call": 66,
+        "cost": 12232
+      }
+    },
+    "kboom_render": {
+      "accepted_rc13": {
+        "insns": 404,
+        "loop": 360,
+        "div": 0,
+        "call": 0,
+        "cost": 360
+      },
+      "stable": {
+        "insns": 404,
+        "loop": 360,
+        "div": 0,
+        "call": 0,
+        "cost": 360
+      }
+    },
+    "kpunc_render": {
+      "accepted_rc13": {
+        "insns": 381,
+        "loop": 342,
+        "div": 0,
+        "call": 0,
+        "cost": 408
+      },
+      "stable": {
+        "insns": 381,
+        "loop": 342,
+        "div": 0,
+        "call": 0,
+        "cost": 408
+      }
+    },
+    "ssnap_render": {
+      "accepted_rc13": {
+        "insns": 280,
+        "loop": 241,
+        "div": 0,
+        "call": 0,
+        "cost": 448
+      },
+      "stable": {
+        "insns": 280,
+        "loop": 241,
+        "div": 0,
+        "call": 0,
+        "cost": 448
+      }
+    },
+    "scrak_render": {
+      "accepted_rc13": {
+        "insns": 348,
+        "loop": 308,
+        "div": 0,
+        "call": 0,
+        "cost": 308
+      },
+      "stable": {
+        "insns": 348,
+        "loop": 308,
+        "div": 0,
+        "call": 0,
+        "cost": 308
+      }
+    },
+    "hh_render": {
+      "accepted_rc13": {
+        "insns": 254,
+        "loop": 210,
+        "div": 0,
+        "call": 2,
+        "cost": 285
+      },
+      "stable": {
+        "insns": 254,
+        "loop": 210,
+        "div": 0,
+        "call": 2,
+        "cost": 285
+      }
+    },
+    "mix_part": {
+      "accepted_rc13": {
+        "insns": 385,
+        "loop": 315,
+        "div": 1,
+        "call": 9,
+        "cost": 734
+      },
+      "stable": {
+        "insns": 385,
+        "loop": 315,
+        "div": 1,
+        "call": 9,
+        "cost": 734
+      }
+    },
+    "comp_block": {
+      "accepted_rc13": {
+        "insns": 167,
+        "loop": 133,
+        "div": 0,
+        "call": 1,
+        "cost": 133
+      },
+      "stable": {
+        "insns": 167,
+        "loop": 133,
+        "div": 0,
+        "call": 1,
+        "cost": 133
+      }
+    },
+    "lfo_track": {
+      "accepted_rc13": {
+        "insns": 717,
+        "loop": 248,
+        "div": 2,
+        "call": 3,
+        "cost": 264
+      },
+      "stable": {
+        "insns": 717,
+        "loop": 248,
+        "div": 2,
+        "call": 3,
+        "cost": 264
+      }
+    },
+    "reson_block": {
+      "accepted_rc13": {
+        "insns": 534,
+        "loop": 292,
+        "div": 1,
+        "call": 0,
+        "cost": 588
+      },
+      "stable": {
+        "insns": 534,
+        "loop": 292,
+        "div": 1,
+        "call": 0,
+        "cost": 588
+      }
+    },
+    "rev_room": {
+      "accepted_rc13": {
+        "insns": 83,
+        "loop": 66,
+        "div": 0,
+        "call": 0,
+        "cost": 210
+      },
+      "stable": {
+        "insns": 83,
+        "loop": 66,
+        "div": 0,
+        "call": 0,
+        "cost": 210
+      }
+    },
+    "rev_spring": {
+      "accepted_rc13": {
+        "insns": 179,
+        "loop": 90,
+        "div": 0,
+        "call": 0,
+        "cost": 126
+      },
+      "stable": {
+        "insns": 179,
+        "loop": 90,
+        "div": 0,
+        "call": 0,
+        "cost": 126
+      }
+    },
+    "perf_begin": {
+      "accepted_rc13": {
+        "insns": 171,
+        "loop": 28,
+        "div": 0,
+        "call": 0,
+        "cost": 28
+      },
+      "stable": {
+        "insns": 171,
+        "loop": 28,
+        "div": 0,
+        "call": 0,
+        "cost": 28
+      }
+    },
+    "perf_mute": {
+      "accepted_rc13": {
+        "insns": 35,
+        "loop": 19,
+        "div": 0,
+        "call": 0,
+        "cost": 19
+      },
+      "stable": {
+        "insns": 35,
+        "loop": 19,
+        "div": 0,
+        "call": 0,
+        "cost": 19
+      }
+    },
+    "perf_pre": {
+      "accepted_rc13": {
+        "insns": 40,
+        "loop": 26,
+        "div": 0,
+        "call": 0,
+        "cost": 26
+      },
+      "stable": {
+        "insns": 40,
+        "loop": 26,
+        "div": 0,
+        "call": 0,
+        "cost": 26
+      }
+    },
+    "perf_block": {
+      "accepted_rc13": {
+        "insns": 841,
+        "loop": 793,
+        "div": 0,
+        "call": 3,
+        "cost": 793
+      },
+      "stable": {
+        "insns": 841,
+        "loop": 793,
+        "div": 0,
+        "call": 3,
+        "cost": 793
+      }
+    },
+    "perf_harm": {
+      "accepted_rc13": {
+        "insns": 186,
+        "loop": 0,
+        "div": 0,
+        "call": 0,
+        "cost": 0
+      },
+      "stable": {
+        "insns": 186,
+        "loop": 0,
+        "div": 0,
+        "call": 0,
+        "cost": 0
+      }
+    },
+    "chain_apply": {
+      "accepted_rc13": {
+        "insns": 159,
+        "loop": 117,
+        "div": 8,
+        "call": 2,
+        "cost": 202
+      },
+      "stable": {
+        "insns": 159,
+        "loop": 117,
+        "div": 8,
+        "call": 2,
+        "cost": 202
+      }
+    },
+    "memb_render": {
+      "accepted_rc13": {
+        "insns": 404,
+        "loop": 200,
+        "div": 0,
+        "call": 0,
+        "cost": 266
+      },
+      "stable": {
+        "insns": 404,
+        "loop": 200,
+        "div": 0,
+        "call": 0,
+        "cost": 266
+      }
+    },
+    "reson_modal": {
+      "accepted_rc13": {
+        "insns": 180,
+        "loop": 56,
+        "div": 0,
+        "call": 0,
+        "cost": 125
+      },
+      "stable": {
+        "insns": 180,
+        "loop": 56,
+        "div": 0,
+        "call": 0,
+        "cost": 125
+      }
+    },
+    "px_memb_block": {
+      "accepted_rc13": {
+        "insns": 219,
+        "loop": 106,
+        "div": 0,
+        "call": 1,
+        "cost": 106
+      },
+      "stable": {
+        "insns": 219,
+        "loop": 106,
+        "div": 0,
+        "call": 1,
+        "cost": 106
+      }
+    },
+    "px_modal_block_q": {
+      "accepted_rc13": {
+        "insns": 171,
+        "loop": 113,
+        "div": 0,
+        "call": 2,
+        "cost": 113
+      },
+      "stable": {
+        "insns": 171,
+        "loop": 113,
+        "div": 0,
+        "call": 2,
+        "cost": 113
+      }
+    },
+    "trk_filter": {
+      "accepted_rc13": {
+        "insns": 450,
+        "loop": 228,
+        "div": 0,
+        "call": 0,
+        "cost": 228
+      },
+      "stable": {
+        "insns": 450,
+        "loop": 228,
+        "div": 0,
+        "call": 0,
+        "cost": 228
+      }
+    },
+    "fm_render": {
+      "accepted_rc13": {
+        "insns": 143,
+        "loop": 83,
+        "div": 0,
+        "call": 0,
+        "cost": 83
+      },
+      "stable": {
+        "insns": 143,
+        "loop": 83,
+        "div": 0,
+        "call": 0,
+        "cost": 83
+      }
+    },
+    "acid_render": {
+      "accepted_rc13": {
+        "insns": 851,
+        "loop": 540,
+        "div": 0,
+        "call": 3,
+        "cost": 540
+      },
+      "stable": {
+        "insns": 851,
+        "loop": 540,
+        "div": 0,
+        "call": 3,
+        "cost": 540
+      }
+    },
+    "metro_block": {
+      "accepted_rc13": {
+        "insns": 72,
+        "loop": 42,
+        "div": 0,
+        "call": 0,
+        "cost": 42
+      },
+      "stable": {
+        "insns": 72,
+        "loop": 42,
+        "div": 0,
+        "call": 0,
+        "cost": 42
+      }
+    },
+    "ktrx_render": {
+      "accepted_rc13": {
+        "insns": 362,
+        "loop": 320,
+        "div": 0,
+        "call": 0,
+        "cost": 320
+      },
+      "stable": {
+        "insns": 362,
+        "loop": 320,
+        "div": 0,
+        "call": 0,
+        "cost": 320
+      }
+    },
+    "sdtrx_render": {
+      "accepted_rc13": {
+        "insns": 361,
+        "loop": 318,
+        "div": 0,
+        "call": 0,
+        "cost": 318
+      },
+      "stable": {
+        "insns": 361,
+        "loop": 318,
+        "div": 0,
+        "call": 0,
+        "cost": 318
+      }
+    },
+    "b2trx_render": {
+      "accepted_rc13": {
+        "insns": 203,
+        "loop": 165,
+        "div": 0,
+        "call": 0,
+        "cost": 165
+      },
+      "stable": {
+        "insns": 203,
+        "loop": 165,
+        "div": 0,
+        "call": 0,
+        "cost": 165
+      }
+    },
+    "xt_render": {
+      "accepted_rc13": {
+        "insns": 191,
+        "loop": 145,
+        "div": 0,
+        "call": 0,
+        "cost": 145
+      },
+      "stable": {
+        "insns": 191,
+        "loop": 145,
+        "div": 0,
+        "call": 0,
+        "cost": 145
+      }
+    },
+    "cltrx_render": {
+      "accepted_rc13": {
+        "insns": 136,
+        "loop": 109,
+        "div": 0,
+        "call": 0,
+        "cost": 109
+      },
+      "stable": {
+        "insns": 136,
+        "loop": 109,
+        "div": 0,
+        "call": 0,
+        "cost": 109
+      }
+    },
+    "rstrx_render": {
+      "accepted_rc13": {
+        "insns": 106,
+        "loop": 79,
+        "div": 0,
+        "call": 0,
+        "cost": 79
+      },
+      "stable": {
+        "insns": 106,
+        "loop": 79,
+        "div": 0,
+        "call": 0,
+        "cost": 79
+      }
+    },
+    "cptrx_render": {
+      "accepted_rc13": {
+        "insns": 244,
+        "loop": 209,
+        "div": 0,
+        "call": 0,
+        "cost": 209
+      },
+      "stable": {
+        "insns": 244,
+        "loop": 209,
+        "div": 0,
+        "call": 0,
+        "cost": 209
+      }
+    },
+    "matrx_render": {
+      "accepted_rc13": {
+        "insns": 313,
+        "loop": 277,
+        "div": 0,
+        "call": 0,
+        "cost": 277
+      },
+      "stable": {
+        "insns": 313,
+        "loop": 277,
+        "div": 0,
+        "call": 0,
+        "cost": 277
+      }
+    },
+    "cbtrx_render": {
+      "accepted_rc13": {
+        "insns": 562,
+        "loop": 454,
+        "div": 0,
+        "call": 0,
+        "cost": 454
+      },
+      "stable": {
+        "insns": 562,
+        "loop": 454,
+        "div": 0,
+        "call": 0,
+        "cost": 454
+      }
+    },
+    "trxm_render": {
+      "accepted_rc13": {
+        "insns": 620,
+        "loop": 253,
+        "div": 0,
+        "call": 0,
+        "cost": 253
+      },
+      "stable": {
+        "insns": 620,
+        "loop": 253,
+        "div": 0,
+        "call": 0,
+        "cost": 253
+      }
+    },
+    "bdefm_render": {
+      "accepted_rc13": {
+        "insns": 202,
+        "loop": 160,
+        "div": 0,
+        "call": 0,
+        "cost": 160
+      },
+      "stable": {
+        "insns": 202,
+        "loop": 160,
+        "div": 0,
+        "call": 0,
+        "cost": 160
+      }
+    },
+    "sdefm_render": {
+      "accepted_rc13": {
+        "insns": 242,
+        "loop": 198,
+        "div": 0,
+        "call": 0,
+        "cost": 198
+      },
+      "stable": {
+        "insns": 242,
+        "loop": 198,
+        "div": 0,
+        "call": 0,
+        "cost": 198
+      }
+    },
+    "cpefm_render": {
+      "accepted_rc13": {
+        "insns": 224,
+        "loop": 183,
+        "div": 0,
+        "call": 0,
+        "cost": 183
+      },
+      "stable": {
+        "insns": 224,
+        "loop": 183,
+        "div": 0,
+        "call": 0,
+        "cost": 183
+      }
+    },
+    "rsefm_render": {
+      "accepted_rc13": {
+        "insns": 230,
+        "loop": 193,
+        "div": 0,
+        "call": 0,
+        "cost": 193
+      },
+      "stable": {
+        "insns": 230,
+        "loop": 193,
+        "div": 0,
+        "call": 0,
+        "cost": 193
+      }
+    },
+    "cbefm_render": {
+      "accepted_rc13": {
+        "insns": 300,
+        "loop": 182,
+        "div": 0,
+        "call": 0,
+        "cost": 182
+      },
+      "stable": {
+        "insns": 300,
+        "loop": 182,
+        "div": 0,
+        "call": 0,
+        "cost": 182
+      }
+    },
+    "hhefm_render": {
+      "accepted_rc13": {
+        "insns": 283,
+        "loop": 177,
+        "div": 0,
+        "call": 0,
+        "cost": 219
+      },
+      "stable": {
+        "insns": 283,
+        "loop": 177,
+        "div": 0,
+        "call": 0,
+        "cost": 219
+      }
+    },
+    "cyefm_render": {
+      "accepted_rc13": {
+        "insns": 413,
+        "loop": 220,
+        "div": 0,
+        "call": 0,
+        "cost": 220
+      },
+      "stable": {
+        "insns": 413,
+        "loop": 220,
+        "div": 0,
+        "call": 0,
+        "cost": 220
+      }
+    }
+  }
+}

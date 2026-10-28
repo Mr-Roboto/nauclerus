@@ -1493,18 +1493,24 @@ static int fdre_keyf_round_trip(void)
 }
 /* an FDRE record from before KEYF (its steps' spare bytes 0, as every earlier firmware wrote them) loads with KEYF
  * off on every track, and plays as it did */
+static void fdre_of_live(project_ve_t *v);
+static void wipe_ram(void);
 static int fdre_old_keyf_off(void)
 {
-    project_t *p = &proj_slot[1];
+    project_ve_t legacy;
     uint32_t k, i, ok = 1, ref, h;
     memset(hflash, 0xFF, sizeof hflash);
     host_init();
     persist_boot();
     pattern_kit();
-    project_save(1);
+    fdre_of_live(&legacy);
+    for(k=0;k<NTRK;k++) for(i=0;i<NSTEP;i++) legacy.t[k].step[i].rsv=0;
+    legacy.sum=proj_hash(&legacy,sizeof legacy-4u);
+    st_save(OBJ_PROJECT0+1u,&legacy,sizeof legacy);
+    wipe_ram();persist_boot();
     for (k = 0; k < NTRK; k++)                         /* (what 0.23.2 wrote: no byte of it set) */
         for (i = 0; i < NSTEP; i++)
-            ok &= p->t[k].step[i].rsv == 0;
+            ok &= legacy.t[k].step[i].rsv == 0;
     host_init();
     ref = play_hash(1);
     host_init();
@@ -1937,7 +1943,10 @@ static int fdrf_round_trip(void)
     persist_boot();
     project_load(2);
     for (i = 0; i < sizeof proj_slot[2].rsv_mo; i++)
-        ok &= proj_slot[2].rsv_mo[i] == 0;
+        if(i < PROJ_TB_OFFSET || i >= PROJ_TB_OFFSET+PROJ_TB_BYTES)
+            ok &= proj_slot[2].rsv_mo[i] == 0;
+    ok &= !memcmp(proj_slot[2].rsv_mo+PROJ_TB_OFFSET,PROJ_TB_HEAD,sizeof PROJ_TB_HEAD);
+    ok &= tb_get_u32(proj_slot[2].rsv_mo+PROJ_TB_OFFSET+108u)==proj_hash(proj_slot[2].rsv_mo+PROJ_TB_OFFSET,108u);
     return (int)ok && bank_events_eq(&mo.b, &want) && proj_slot[2].magic == PROJ_MAGIC && proj_slot[2].lk_n == 5u &&
            sizeof(project_t) == 3840u && str_eq(ui.msg, "LOADED");
 }
@@ -2315,7 +2324,7 @@ int main(void)
     check("last project: an older record boots the power-on kit; a RAM-only save remembers nothing",
           last_project_old_record_no_flash());
     check("last project: lowcut's bits keep SPEAKER EQ, the slot and the Bluetooth bytes", last_project_bits());
-    check("FDRF: motion, locks and PLAY bits through a save and a load (the project record 3840 B, 510 B reserved 0)",
+    check("FDRF: motion, locks and PLAY bits through a save and a load (the project record 3840 B, reserved bytes zero except validated TB-3PO extension)",
           fdrf_round_trip());
     check("FDRF: an FDRE record (0.23.3) migrates: its motion as motion events, PLAY bits, every knob and step",
           fdre_migrates());

@@ -18,33 +18,37 @@ static int32_t cv_sy;            /* the screen row of canvas row 0 (cv_begin_at)
 static int32_t cv_wx, cv_wy;     /* a window (cv_begin_win): where cv_px's corner lies in the canvas drawn (else 0, 0) */
 
 #define RGB(r, g, b) ((uint16_t)((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3)))
-/* Machinedrum-style themes (spec 2026-10-19-md-ui §2): two colours, BG and INK. Stored in settings.palette bits 0..7
- * as THEME_TAG | index (index: bits 0..3, up to 16 themes); the old palette ids 0..4 (GREEN AMBER CYAN RED MONO) map
- * on load. Every colour in both polarities (owner 2026-10-23): the colour as the ground, then INV, the colour as the
- * ink on a neutral ground pushed further out (darker / lighter: the contrast up, as RED INV's black). THEMES[] is in
- * stored order: the index is what settings keep, so a theme never moves (an older Hortator reads 4.. as MD RED);
- * THEME_ORDER is the order MENU > COLOR shows (each colour, then its INV) */
+/* Two-tone themes. Saved IDs retain ORANGE=0, ORANGE INV=1, BLUE=2, BLUE INV=4.
+ * Former GREEN IDs 3/5 now select WHITE/WHITE INV. Menu order is independent.
+ * VIOLET uses WHITE LILAC lcd[4]/lcd[0] from fm1-x0x-rmx v1.1.0,
+ * firmware/src/gfx.c (a4e78f3a6e16fa310b7614e5876d07e16a0020f9), unchanged RGB values. */
 typedef struct {
     const char *name;          /* MENU > COLOR's value */
     uint16_t bg, ink;
 } theme_t;
 static const theme_t THEMES[] = {
-    {"RED", RGB(0xe0, 0x47, 0x2b), RGB(0x38, 0x10, 0x0a)},          /* 0 MD RED (default) */
-    {"RED INV", RGB(0x17, 0x06, 0x05), RGB(0xf0, 0x53, 0x2f)},      /* 1 RED ON BLACK */
+    {"ORANGE", RGB(0xe9, 0x6f, 0x25), RGB(0x32, 0x13, 0x08)},       /* 0 MD ORANGE (default) */
+    {"ORANGE INV", RGB(0x16, 0x09, 0x04), RGB(0xf4, 0x85, 0x32)},   /* 1 ORANGE ON DARK */
     {"BLUE", RGB(0x24, 0x45, 0xc8), RGB(0xea, 0xf1, 0xff)},         /* 2 WHITE ON BLUE */
-    {"GREEN", RGB(0xa3, 0xbf, 0x3c), RGB(0x1c, 0x2a, 0x08)},        /* 3 BLACK ON GREEN */
+    {"WHITE", RGB(255, 255, 255), RGB(0, 0, 0)},                     /* 3 BLACK ON WHITE */
     {"BLUE INV", RGB(0xf4, 0xf8, 0xff), RGB(0x24, 0x45, 0xc8)},     /* 4 BLUE ON WHITE */
-    {"GREEN INV", RGB(0x0c, 0x12, 0x04), RGB(0xb4, 0xd0, 0x44)},    /* 5 GREEN ON BLACK */
+    {"WHITE INV", RGB(0, 0, 0), RGB(255, 255, 255)},                 /* 5 WHITE ON BLACK */
+    {"YELLOW", RGB(255, 208, 0), RGB(23, 23, 23)},                   /* 6 DARK ON YELLOW */
+    {"YELLOW INV", RGB(23, 23, 23), RGB(255, 208, 0)},               /* 7 YELLOW ON DARK */
+    {"VIOLET", RGB(117, 36, 207), RGB(255, 255, 255)},              /* 8 WHITE ON VIOLET */
+    {"VIOLET INV", RGB(255, 255, 255), RGB(117, 36, 207)},          /* 9 VIOLET ON WHITE */
+    {"RED", RGB(216, 0, 0), RGB(255, 255, 255)},                   /* 10 WHITE ON RED */
+    {"RED INV", RGB(255, 255, 255), RGB(216, 0, 0)},               /* 11 RED ON WHITE */
 };
 #define NTHEMES (sizeof(THEMES) / sizeof(THEMES[0]))
 #define THEME_TAG 0x10u
 _Static_assert(NTHEMES <= 16u, "the theme index is 4 bits (THEME_TAG | index)");
-static const uint8_t THEME_ORDER[NTHEMES] = {0, 1, 2, 4, 3, 5};   /* RED RED INV BLUE BLUE INV GREEN GREEN INV */
+static const uint8_t THEME_ORDER[NTHEMES] = {0, 1, 2, 4, 3, 5, 6, 7, 8, 9, 10, 11};
 static uint16_t C_BG, C_INK;
 
 static uint32_t theme_index(uint32_t stored)
 {
-    static const uint8_t OLD[5] = {3, 0, 2, 0, 1};   /* GREEN AMBER CYAN RED MONO */
+    static const uint8_t OLD[5] = {3, 0, 2, 0, 1};   /* legacy GREEN -> WHITE; AMBER/CYAN/RED/MONO unchanged */
     stored &= 0xFFu;
     if (stored < 5u)
         return OLD[stored];

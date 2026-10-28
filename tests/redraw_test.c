@@ -430,8 +430,20 @@ static void lock_icon_partial(void)
     check("the padlock: an ENV tap sends no full repaint (the top bar, the keys' strip)", ui.env == 1u && e.full == 0u);
 }
 
+/* MENU/ABOUT body caching must never freeze the live transport header. */
+static void menu_transport_header(void)
+{
+    for(unsigned menu=1;menu<=2;menu++) {
+        ui_host_init();ui.menu=(uint8_t)menu;ui.force=1;frame();
+        transport_req=1;frame();frame();
+        vs_full(menu==1 ? "MENU after PLAY" : "ABOUT after PLAY");
+        transport_req=2;frame();frame();
+        vs_full(menu==1 ? "MENU after STOP" : "ABOUT after STOP");
+    }
+}
 int main(void)
 {
+    menu_transport_header();
     st_t s;
     uint32_t i;
     fr_t f;

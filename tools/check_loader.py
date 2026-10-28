@@ -12,10 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def pinned():
-    for ln in (ROOT / "tools/frozen_base.txt").read_text().splitlines():
-        if ln.startswith("LOADER_SHA256 "):
-            return ln.split()[1]
-    raise SystemExit("tools/frozen_base.txt: no LOADER_SHA256")
+    from security_baseline import load, LOADER
+    load()
+    return LOADER
 
 
 def check(data):

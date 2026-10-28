@@ -114,6 +114,10 @@ int main(int argc, char **argv)
     uint32_t c, d, ok = 1;
     char a[32], b[32];
     if (argc > 1 && !strcmp(argv[1], "measure")) {
+        if (!instr_available()) {
+            fprintf(stderr, "SKIPPED: BENCH instruction measurements (comparable host instruction counting unavailable)\n");
+            return 77;               /* no fabricated machine-readable host measurements */
+        }
         for (c = 0; c < BENCH_N; c++) {
             double best = 1e18, x;
             int k;

@@ -30,22 +30,23 @@ X.Y` builds) are separate and unchanged.
 4. `DRUM_PACKAGE=1 ./build.sh`: the package and `build/site` carry the new number; the host suite checks it
    (`tools/version.py check build`).
 
-## Publishing (github.com/DeadActive/hortator)
+## Nauclerus website preparation
 
-`tools/publish.sh [drum-vX.Y.Z]` (default: the tag of `VERSION.txt`), run here after the tag is made; nothing is
-built in the cloud:
+`tools/publish.sh --pages-only` now prepares a local site only. It does not push branches,
+create tags, create releases, upload packages or publish GitHub Pages. The former upstream
+Hortator publication operations have been removed. See [SIMULATOR.md](SIMULATOR.md).
 
-1. builds exactly the tag in its own checkout (`build/publish/src`): the simulator (`tools/build_sim.sh`, Docker) and
-   the package with the site (`DRUM_PACKAGE=1 ./build.sh`);
-2. pushes `main` and the tag to `origin`;
-3. makes the GitHub release "Hortator X.Y.Z": `hortator-X.Y.Z.fwsc`, `LICENSE`, `LICENSING.md`, `LICENSES.zip`, the
-   version's notes from `CHANGELOG.md` (run again: the files are replaced);
-4. puts that build's site (landing page with the simulator, the web installer, the editor) on the `gh-pages` branch:
-   GitHub Pages, https://deadactive.github.io/hortator/.
+The current application identity is `Nauclerus <VERSION.txt>`. Historical `DRUM-*`,
+`drum-v*` and upstream release procedures above describe inherited conventions, not
+approval to publish Nauclerus. Stable firmware publication requires a separate reviewed
+source snapshot, explicit release approval and the release-readiness checks.
 
-`BLE=1 tools/publish.sh …` publishes two versions: the same build with Bluetooth MIDI too (`FELUCCA_BLE=1`, every
-Bluetooth gate), as `hortator-X.Y.Z-bluetooth.fwsc` in the release and a choice in the web installer (the plain
-version is the default). The Bluetooth package now carries parts 2, 3 and 5 (the Bluetooth page and MIDI in, MIDI
-out, the SMC-Mixer DAW mode; part 4, MIDI learn, is not in it); the first two-version release (`BLE=1`) is the one
-that brings them.
-Locally, `DRUM_PACKAGE=1 DRUM_BUNDLE=1 ./build.sh` makes both packages and the two-version `build/site`.
+## Nauclerus identity (NAU-0250-015)
+
+`tools/version.py` declares the stable project identity FM-1_25000 and USB product
+Nauclerus. VERSION.txt independently selects the display version, currently
+Nauclerus 0.25.0. Normal builds pass this exact ID into the application and package.
+The legacy --release X.Y identity override is refused. The shared ota-FM-1_900
+loader and VID/PID remain unchanged. Do not globally replace legacy identities in
+migration fixtures or historical evidence. Public Nauclerus creator fields use
+Mr. Roboto; new Git creator metadata uses the GitHub noreply address.

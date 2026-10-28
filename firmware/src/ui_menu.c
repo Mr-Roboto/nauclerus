@@ -28,11 +28,22 @@ static uint32_t *menu_onoff(uint32_t i)            /* an ON / OFF row's setting,
            i == MI_ACCEL ? &settings.accel : 0;
 }
 
+/* SEL/SCL is ENTER only on dedicated-screen entries, never scalar actions. */
+static int menu_submenu(uint32_t item)
+{
+    return item==MI_ABOUT || item==MI_PANEL
+#if FELUCCA_BLE
+        || item==MI_BT
+#endif
+        ;
+}
+
 /* ABOUT (owner 2026-10-22): the credits under the fixed logo, one string a credit, wrapped at its spaces to the text's
  * width (a credit's further lines indented); SELECT scrolls them a row a detent (ui.about_top), clamped at both ends;
  * a thumb at the right shows where. LICENSING.md and README's Credits say the same in full. */
 static const char *const AB[] = {
     "DRUM MACHINE ON FELUCCA", FELUCCA_VERSION, "FORK: DEADACTIVE",
+    "NAUCLERUS: MR. ROBOTO - DEVELOPMENT, MODIFICATIONS + REMIX",
     "FELUCCA: LEO KUROSHITA, H\xDCGELTON INSTRUMENTS", "GITHUB.COM/HUGELTON/FELUCCA",
     "MUTABLE INSTRUMENTS, EMILIE GILLET: PLAITS + STMLIB (DRUM ALGORITHMS, MIT), GRIDS (PATTERN ENGINE, GPL-3.0+), "
     "STREAMS (COMPRESSOR, MIT)",
@@ -139,6 +150,7 @@ static void draw_menu(void)
     }
 #endif
     if (!ui.force && sig == ui.menu_sig) {
+        draw_head();                               /* transport/status changes do not change the menu items */
         if (ui.menu == 2 && fr != pf) {             /* ABOUT: the logo moves (15 fps), alone: rows 17..77, x 82..157
                                                      * (an even x: the dither keeps its phase) */
             pf = fr;
@@ -188,7 +200,9 @@ static void draw_menu(void)
             }
             i = (uint32_t)cv_keycap(12, (int32_t)MENU_HY, "OCT+", "OK", C_INK);
             i = (uint32_t)cv_keycap((int32_t)i + 8, (int32_t)MENU_HY, "OCT-", "BACK", C_INK);
-            cv_keycap((int32_t)i + 8, (int32_t)MENU_HY, "SEL", "MOVE", C_INK);
+            cv_keycap((int32_t)i + 8, (int32_t)MENU_HY,
+                      menu_submenu(ui.menu_sel) ? "SEL" : "ENC",
+                      menu_submenu(ui.menu_sel) ? "ENTER" : "MOVE", C_INK);
         }
         cv_oy = 0;
         cv_blit(0, y0);
@@ -216,7 +230,7 @@ static void menu_close(void)
 }
 
 /* the start screen (main.c fm1_main, right after lcd_init; spec 2026-10-19-md-ui §9a): the VU mark still on its
- * downbeat frame, HORTATOR under it, in the stored theme; two bands of 120 rows (the canvas holds 124) */
+ * downbeat frame, NAUCLERUS under it, in the stored theme; two bands of 120 rows (the canvas holds 124) */
 static void draw_boot_title(void)
 {
     uint32_t pass;
@@ -224,7 +238,7 @@ static void draw_boot_title(void)
         cv_begin_at(240, 120, pass * 120u, C_BG);
         cv_oy = -(int32_t)(pass * 120u);             /* (drawn in screen rows) */
         cv_vu(48, 34, 0, 0, 0);
-        md_text(120 - md_text_w(&MD_F3, 2, "HORTATOR") / 2, 168, &MD_F3, 2, "HORTATOR", C_INK);
+        md_text(120 - md_text_w(&MD_F3, 2, "NAUCLERUS") / 2, 168, &MD_F3, 2, "NAUCLERUS", C_INK);
         cv_frame(0, 0, 240, 240, C_INK);
         cv_oy = 0;
         cv_blit(0, pass * 120u);
@@ -256,6 +270,7 @@ static void menu_input(uint32_t pressed)
         int32_t t = (int32_t)ui.about_top + s, mx = (int32_t)about_max();
         ui.about_top = (uint8_t)(t < 0 ? 0 : t > mx ? mx : t);
     }
+    if (ui.menu==1u && menu_submenu(ui.menu_sel) && ((pressed>>panel.btn[B_SCL])&1u)) ok=1;
     s = panel_enc(EN_K1);
     if (s != 0 && ui.menu == 1 && ui.menu_sel == MI_COLOR) {
         settings.palette = theme_step(settings.palette, s);

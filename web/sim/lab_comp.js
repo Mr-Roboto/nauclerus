@@ -115,7 +115,7 @@ export default function comp(plate, { lab, ids, screen }) {
       g.arc(b / 4 * w + 6, 7, 4, 0, 2 * Math.PI);
       if (heard) g.fill(); else g.stroke();
     }
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     g.fillStyle = INK.dry;
     g.textBaseline = 'middle';
     g.fillText(heard ? 'kick' : 'kick, unheard', 15, 7);
@@ -138,7 +138,7 @@ export default function comp(plate, { lab, ids, screen }) {
     const y = d => 2 + Math.min(1, d / FLOOR) * (h - 18);
     beats(g, w, h);
     g.save();
-    g.font = '16px "Hortator Terminus", monospace';
+    g.font = '16px "Nauclerus Terminus", monospace';
     g.fillStyle = INK.dim;
     g.textBaseline = 'bottom';
     g.fillText(`${FLOOR} dB`, 2, h);

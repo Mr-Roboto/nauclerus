@@ -86,19 +86,12 @@ test('installer: a version choice (with or without Bluetooth), hidden unless the
 // ---- the landing page: the simulator as the hero, what it does, install
 const LANDING = readFileSync('web/sim/index.html', 'utf8');
 
-test('landing: hero (with the device and the #play end), features, install; install goes to the installer; the source is linked', () => {
-  for (const id of ['hero', 'features', 'install']) assert.match(LANDING, new RegExp(`<section[^>]*id="${id}"`), id);
-  const hero = LANDING.slice(LANDING.indexOf('id="hero"'), LANDING.indexOf('id="features"'));
-  assert.match(hero, /id="device"/, 'the device lives in the hero');
-  assert.match(hero, /id="play"/, 'the end of the hero track is #play');
-  assert.match(hero, /id="tilt"/, 'the 3D transform wrapper');
-  assert.match(LANDING, /href="webapp\/installer\/"/);
-  assert.match(LANDING, /href="#play"/);
+test('landing: Nauclerus hero, simulator, manual, release status and matching source', () => {
+  for(const id of ['hero','features','manual','release-status','play','device','tilt'])assert.match(LANDING,new RegExp('id="'+id+'"'));
+  assert.match(LANDING, /<title>Nauclerus/);
   assert.match(LANDING, /href="source\.tar\.gz"/);
-  assert.match(LANDING.match(/<title>(.*)<\/title>/)[1], /Hortator/);
-  assert.doesNotMatch(LANDING, /FM-1 Drums|FM-1 DRUMS/, 'the old name is gone');
-  assert.match(LANDING, /galley/, 'the name\'s origin is told');
-  assert.match(LANDING, /id="device"/, 'the simulator is on the page');
+  assert.match(LANDING, /https:\/\/github.com\/Mr-Roboto\/nauclerus\/releases/);
+  assert.doesNotMatch(LANDING, /deadactive.github.io/);
 });
 
 // ---- layout.js: the panel's two layouts, the morph between them, the hero's choreography (pure, no DOM)
@@ -147,30 +140,25 @@ test('hero pose: the shine never plays while the scene is blurred (a blur filter
 // the panel (Bluetooth, a separate test build, has no panel control yet)
 import { BTN, ENC } from '../web/sim/controls.js';
 
-test('features: eight chapters with a plate each; every panel hint names real controls', () => {
-  const sec = LANDING.slice(LANDING.indexOf('id="features"'), LANDING.indexOf('id="install"'));
-  const ids = [...sec.matchAll(/<article class="chapter" id="f-(\w+)"/g)].map(m => m[1]);
-  assert.deepEqual(ids, ['voices', 'reson', 'comp', 'lfo', 'seq', 'grids', 'fx', 'ble']);
-  const labels = new Set([...BTN.map(b => b.label), ...ENC.map(e => e.label)]);
-  for (const ch of sec.split('<article').slice(1)) {
-    const id = ch.match(/id="f-(\w+)"/)[1];
-    assert.match(ch, new RegExp(`<div class="plate" data-piece="${id}">`), `${id}: its plate`);
-    const where = ch.match(/<p class="where">([\s\S]*?)<\/p>/)?.[1];
-    assert.ok(where, `${id}: where it is on the panel`);
-    const keys = [...where.matchAll(/<b>([^<]+)<\/b>/g)].map(m => m[1]);
-    if (id !== 'ble') assert.ok(keys.length, `${id}: names a control`);
-    for (const k of keys) assert.ok(labels.has(k), `${id}: ${k} is not on the panel`);
+test('features: current firmware chapters and real panel controls', () => {
+  const sec=LANDING.slice(LANDING.indexOf('id="features"'),LANDING.indexOf('id="release-status"'));
+  const ids=[...sec.matchAll(/<article class="chapter" id="f-(\w+)"/g)].map(m=>m[1]);
+  assert.deepEqual(ids,['voices','reson','comp','lfo','seq','grids','fx','acid','melody','remix','events']);
+  const labels=new Set([...BTN,...ENC].map(c=>c.label));
+  for(const ch of sec.split('<article').slice(1)) {
+    const id=ch.match(/id="f-(\w+)"/)[1];
+    assert.match(ch,new RegExp('data-piece="'+id+'"'));
+    const where=ch.match(/<p class="where">([\s\S]*?)<\/p>/)[1];
+    const keys=[...where.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]);
+    assert.ok(keys.length,id);for(const key of keys)assert.ok(labels.has(key),key);
   }
-  assert.doesNotMatch(LANDING, /manual-screen|id="locator"/, 'the old sticky screen is gone');
 });
 
-test('install: the version and what is new, the connection diagram, the installer, the way back and the recovery', () => {
-  const sec = LANDING.slice(LANDING.indexOf('id="install"'), LANDING.indexOf('<footer'));
-  for (const id of ['fw-version', 'whats-new', 'cable']) assert.match(sec, new RegExp(`id="${id}"`), id);
-  assert.match(sec, /href="webapp\/installer\/"/);
-  assert.match(sec, /<details[^>]*>\s*<summary>Back to the official firmware<\/summary>/);
-  assert.match(sec, /<details[^>]*>\s*<summary>If an install fails<\/summary>/);
-  assert.match(sec, /beta/i);
+test('release status: no installation control, current identity and explicit local status', () => {
+  const sec=LANDING.slice(LANDING.indexOf('id="release-status"'),LANDING.indexOf('<footer'));
+  for(const id of ['fw-version','whats-new'])assert.match(sec,new RegExp('id="'+id+'"'));
+  assert.match(sec,/preview has no installation controls enabled/i);assert.match(sec,/id="release-install-link"[^>]*hidden/);
+  assert.doesNotMatch(sec,/requestMIDIAccess|<button/);
 });
 
 test('Controls opens its help over the hero stage, next to the button (not below the whole scroll track)', () => {
@@ -181,8 +169,8 @@ test('Controls opens its help over the hero stage, next to the button (not below
 
 test('footer: the name and its origin, the ways around the page, the credits and the licence', () => {
   const foot = LANDING.slice(LANDING.indexOf('<footer'), LANDING.indexOf('</footer>'));
-  assert.match(foot, /HORTATOR/);
-  for (const href of ['#play', 'webapp/installer/', '#install', 'source.tar.gz']) assert.ok(foot.includes(`href="${href}"`), href);
+  assert.match(foot, /NAUCLERUS/);
+  for (const href of ['#play', '#manual', '#release-status', 'source.tar.gz']) assert.ok(foot.includes(`href="${href}"`), href);
   for (const credit of ['Felucca', 'Leo Kuroshita', 'DEADACTIVE', 'Terminus', 'CC0', 'GPL-3.0', 'not affiliated',
                         'Mutable Instruments', 'Emilie Gillet', 'DaisySP', 'Electrosmith', 'Joe Landers', 'Gearmulator',
                         'Elektron', 'jl-uboot-tool', 'Fukiai'])
@@ -207,25 +195,13 @@ test('the simulator bar: the power caption, Controls and Reset in one row; the r
 // ---- web/make_site.py: the site's front page is the landing page with the simulator (when build/sim is built)
 import { existsSync, rmSync } from 'node:fs';
 
-test('make_site: the front page is the landing page with the simulator beside it; the installer stays at webapp/installer', {
-  skip: !(existsSync('build/sim/package.fwsc') && existsSync('build/sim/fm1sim.wasm')) && 'needs a build_sim --package build',
-}, () => {
-  const out = 'build/sim/site-test';
-  rmSync(out, { recursive: true, force: true });
-  const py = process.env.PYTHON || 'python3';
-  execFileSync(py, ['-c', 'import sys; sys.path.insert(0, "web"); import make_site; make_site.main(*sys.argv[1:])',
-    'build/sim/package.fwsc', 'drum-0.0.0+test', out], { stdio: 'pipe' });
-  const front = readFileSync(`${out}/index.html`, 'utf8');
-  assert.match(front, /HORTATOR/, 'the landing page, not the old redirect');
-  assert.match(front, /app\.js\?v=[0-9a-f]+/, 'the stamped build');
-  for (const f of ['fm1sim.wasm', 'app.js', 'worklet.js', 'reel.bin.gz', 'reel.json', 'version.json', 'source.tar.gz'])
-    assert.ok(existsSync(`${out}/${f}`), f);
-  for (const f of ['features.js', 'lab_voices.js', 'dither.js', 'lab_ids.json', 'features.bin.gz', 'features.json',
-    'terminus.woff', 'terminus-license.txt'])        // the pieces, the screens' clips, the typeface and its licence
-    assert.ok(existsSync(`${out}/${f}`), `${f} is published`);
-  for (const f of ['reel.bin', 'features.bin', 'reel.hash', 'package.fwsc']) assert.ok(!existsSync(`${out}/${f}`), `${f} is not published`);
-  assert.match(readFileSync(`${out}/webapp/installer/index.html`, 'utf8'), /Install Hortator/);
-  rmSync(out, { recursive: true, force: true });
+test('make_site: source-matched simulator and licenses, no device package/installer', () => {
+  const out='build/portal-site-test';
+  const py=process.env.PYTHON||'python3';
+  execFileSync(py,['-c','import sys;sys.path.insert(0,"web");import make_site;make_site.portal("build/sim",sys.argv[1])',out]);
+  for(const name of ['index.html','fm1sim.wasm','app.js','manual.js','manual.json','manual.html','version.json','source.tar.gz','source-manifest.json','LICENSE','LICENSES'])assert.ok(existsSync(out+'/'+name),name);
+  for(const name of ['webapp','firmware','package.fwsc','source','host','emcache'])assert.ok(!existsSync(out+'/'+name),name);
+  const meta=JSON.parse(readFileSync(out+'/version.json'));assert.equal(meta.installer_enabled,false);assert.equal(meta.project,'Nauclerus');
 });
 
 test('outline: the body\'s edge as wall strips, 4 sides and N per corner, following the rounded outline', () => {
@@ -281,7 +257,7 @@ test('Controls opens beside the device on wide screens: the stage gives the pane
 });
 
 test('every chapter shows the FM-1\'s own screen (a 240 x 240 LCD the firmware draws)', () => {
-  const sec = LANDING.slice(LANDING.indexOf('id="features"'), LANDING.indexOf('id="install"'));
+  const sec = LANDING.slice(LANDING.indexOf('id="features"'), LANDING.indexOf('id="release-status"'));
   for (const ch of sec.split('<article').slice(1))
     assert.match(ch, /<figure class="device-screen">\s*<canvas width="240" height="240"/, ch.match(/id="f-(\w+)"/)[1]);
 });
@@ -293,17 +269,11 @@ test('the lab\'s styles stay in its plates: the power switch\'s knob is styled b
       if (/\.knob\b/.test(part)) assert.match(part.trim(), /^(\.plate|\.power-toggle|@)/, part.trim());
 });
 
-test('the page is the screen\'s monochrome: every colour in sim.css is a grey (the firmware\'s MONO palette and the device)', () => {
-  const css = readFileSync('web/sim/sim.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/url\("data:[^"]*"\)/g, '');
-  const hues = [];
-  for (const [m, h] of css.matchAll(/#([0-9a-f]{6}|[0-9a-f]{3})\b/gi)) {
-    const v = h.length === 3 ? h.split('').map(c => c + c) : [h.slice(0, 2), h.slice(2, 4), h.slice(4, 6)];
-    if (new Set(v.map(x => x.toLowerCase())).size > 1) hues.push(m);
-  }
-  for (const [m, r, g, b] of css.matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)/g)) if (r !== g || g !== b) hues.push(m);
-  assert.deepEqual(hues, []);
-  for (const tone of ['#282828', '#505050', '#828282', '#bababa', '#e2e2e2'])   // firmware/src/gfx.c MONO
-    assert.match(css, new RegExp(tone), tone);
+test('website palette is centralized and independent of the LCD', () => {
+  const css=readFileSync('web/sim/sim.css','utf8');
+  for(const [name,color] of Object.entries({bg:'#111318',surface:'#262A30',accent:'#D49349',secondary:'#A6A8AC',text:'#ECE8E0',border:'#41454D'}))assert.ok(css.includes('--'+name+': '+color));
+  assert.match(css,/prefers-reduced-motion: reduce/);
+  assert.doesNotMatch(css,/#(?:0D191E|173C43|E96F25|6BC4B2|E4DED2|4D777D|9DC2BD|B7C8C2)\b/i);
 });
 
 import { parseBdf, buildFont, woff, WANT } from './sim_font.mjs';
@@ -342,23 +312,12 @@ const chapter = id => {
 };
 const words = html => html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#8209;/g, ' ').replace(/\s+/g, ' ');
 
-test('the engine count is the firmware\'s, in the hero and the voices chapter: 45 in three banks, MD first', () => {
-  assert.deepEqual([FW.names.length, FW.md.length, FW.trx.length, FW.efm.length, FW.modern.length, FW.classic.length],
-    [45, 21, 13, 8, 10, 14], 'the firmware changed: update the page and this line');
-  assert.deepEqual([FW.factory, FW.user, FW.mdPresets], [151, 128, 55]);
-  const hero = words(LANDING.slice(LANDING.indexOf('id="hero-copy"'), LANDING.indexOf('id="scroll-cue"')));
-  assert.match(hero, new RegExp(`\\b${FW.names.length} (drum |sound )?engines\\b`), 'the hero tells the count');
-  assert.match(hero, new RegExp(`\\b${FW.md.length}\\b[^.]*Machinedrum`), 'and the MD bank\'s');
-  const v = words(chapter('voices'));
-  for (const [n, what] of [[FW.names.length, 'engines'], [FW.md.length, 'MD'], [FW.trx.length, 'TRX'],
-    [FW.efm.length, 'EFM'], [FW.modern.length, 'MODERN'], [FW.classic.length, 'CLASSIC'], [FW.factory, 'factory presets'],
-    [FW.user, 'user']])
-    assert.match(v, new RegExp(`\\b${n}\\b[^.;:]*${what}|${what}[^.;:]*\\b${n}\\b`), `${n} ${what}`);
-  assert.ok(v.indexOf('MD') < v.indexOf('MODERN') && v.indexOf('MODERN') < v.indexOf('CLASSIC'), 'told MD, MODERN, CLASSIC');
-  assert.doesNotMatch(LANDING, /Twenty-three|23 drum models/i, 'the old count is gone');
-  const claim = 'Machinedrum is a trademark of Elektron; Hortator is not affiliated.';
-  assert.equal(words(LANDING).split(claim).length, 2, 'the trademark line, once');
-  assert.doesNotMatch(LANDING, /id="f-md"|data-piece="md"/, 'no Machinedrum chapter');
+test('engine/preset counts match current firmware and are generated for the browser', () => {
+  assert.deepEqual([FW.names.length,FW.md.length,FW.trx.length,FW.efm.length,FW.modern.length,FW.classic.length],[45,21,13,8,10,14]);
+  assert.deepEqual([FW.factory,FW.user,FW.mdPresets],[152,128,55]);
+  const v=words(chapter('voices'));assert.match(v,/152 factory presets/);assert.match(v,/45 engines/);
+  const ids=JSON.parse(readFileSync('build/sim/lab_ids.json'));assert.equal(ids.presets.factory,FW.factory);assert.equal(ids.models.length,FW.names.length);
+  assert.match(words(LANDING),/Machinedrum is a trademark of Elektron; Nauclerus is not affiliated/);
 });
 
 test('the examples lead with MD and MODERN engines: no CLASSIC model in a plate (the voices plate lists it last)', () => {
@@ -395,15 +354,7 @@ test('the first-visit demos (tests/sim_demo.c) lead with the MD bank; none plays
   assert.ok(kits.some(k => k.includes('DM_ACID')), 'a demo plays ACID');
 });
 
-test('the hero shows the install count beside the install button: hidden until the count arrives, out of the flow', () => {
-  const hero = LANDING.slice(LANDING.indexOf('id="hero-copy"'), LANDING.indexOf('id="scroll-cue"'));
-  assert.match(hero, /<span class="cta-slot"><a class="cta ghost" href="webapp\/installer\/">[^<]*<\/a><span class="install-count" id="install-count" hidden><\/span><\/span>/);
-  const css = readFileSync('web/sim/sim.css', 'utf8');
-  assert.match(css, /\.cta-slot\s*{[^}]*position: relative/);
-  assert.match(css, /\.install-count\s*{[^}]*position: absolute/, 'no layout shift when it appears');
-  const app = readFileSync('web/sim/app.js', 'utf8');
-  assert.match(app, /installCount\(\)\.then\(/, 'fetched once, not awaited by the page');
-  assert.match(app, /import \{ installCount, loadPageCounter \} from '\.\/counter\.js';/);
-  assert.match(app, /^loadPageCounter\(\);/m, 'visits counted by count.js, added only where the counter is on');
-  assert.doesNotMatch(LANDING, /gc\.zgo\.at/, 'no count.js tag in the page itself (it would load on previews)');
+test('no telemetry is enabled and no installer is advertised by the hero', () => {
+  const counter=readFileSync('web/sim/counter.js','utf8');
+  assert.match(counter,/GC_CODE = ''/);assert.doesNotMatch(LANDING,/gc\.zgo\.at/);
 });

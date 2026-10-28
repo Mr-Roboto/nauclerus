@@ -42,6 +42,9 @@ void sim_flash_reset(void)
 
 void sim_init(int fresh)                                 /* main.c's boot order */
 {
+    /* A simulated power-on clears volatile UI BSS just as CRT startup does.
+     * IndexedDB/flash and .noinit calibration/settings remain on their own path. */
+    memset(&ui,0,sizeof ui);
     if (fresh)
         sim_flash_reset();
     persist_boot();
@@ -166,3 +169,25 @@ void sim_flash_clean(void) { memset(sim_dirty, 0, sizeof sim_dirty); }
 
 #include "sim_demo.c"
 #include "sim_lab.c"
+
+/* Browser adapter inspection only; no firmware state is synthesized in JS. */
+int32_t sim_get_param(uint32_t track, uint32_t id) { return track<NTRK && id<P_COUNT ? trk[track].p[id] : -1; }
+uint32_t sim_context(void) { return ui.menu ? 100u+ui.menu : ui.home ? 200u : cur_page()->graph; }
+uint32_t sim_selected(void) { return song.sel; }
+uint32_t sim_tb_seed(uint32_t k) { return k<NTRK ? tb_live[k].cfg.seed : 0; }
+uint32_t sim_remix_state(uint32_t k) { return k<NTRK ? seq_remix_desired(k) : 0; }
+uint32_t sim_step_data(uint32_t k,uint32_t s) {
+    if(k>=NTRK || s>=NSTEP)return 0;
+    const step_t *v=&trk[k].step[s];
+    return v->on | v->acc<<1 | v->slide<<2 | v->tie<<3 | v->cond<<4 | v->rat<<10 | ((uint32_t)(uint8_t)v->nt)<<16;
+}
+/* Isolated lab demos use existing production sequencer/UI operations. */
+void lab_remix(uint32_t k,uint32_t selection,int on) { if(k<NTRK && selection<256)seq_remix_apply(k,(on?256u:0u)|selection); }
+void lab_generate(uint32_t k,int generate) { if(k<NTRK){uint8_t keep=song.sel;song.sel=(uint8_t)k;tb_manual(generate!=0);song.sel=keep;} }
+void lab_lock(uint32_t k,uint32_t step,uint32_t id,int32_t value) { if(k<NTRK && step<NSTEP && id<P_COUNT && motion_param(id))lock_set(k,step,id,value); }
+void lab_record_demo(uint32_t k) {
+    if(k>=NTRK)return;
+    motion_set_play(k,1);song.rec=(uint8_t)(1u<<k);seq_start();
+    for(uint32_t i=0;i<4;i++) { lab_knob(k,P_E2,i&1u?100:35);lab_render_mono(FS/8u); }
+    song.rec=0;seq_stop();transport_req=0;
+}

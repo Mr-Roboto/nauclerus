@@ -1,4 +1,4 @@
-# Building Felucca
+# Building Nauclerus
 
 The build makes three files in `build/`:
 
@@ -6,7 +6,7 @@ The build makes three files in `build/`:
 | --- | --- |
 | `felucca.bin` | the firmware app |
 | `loader/ota.bin` | the update loader |
-| `felucca.fwsc` | the installable package (app + loader) |
+| `nauclerus-0.25.0.fwsc` | the stable installable package (app + shared loader) |
 
 ## Prerequisites (macOS)
 
@@ -41,8 +41,11 @@ On Linux x86-64 the toolchain runs natively and Docker is not needed.
 `JIELI_TOOLCHAIN` and `AC79_SDK` override the default locations
 (`~/.jieli/toolchain`, `~/fw-AC79_AIoT_SDK`).
 
-`./build.sh --release 0.9-beta` makes a release build: the package identity becomes
-`FM-1_909` and the version string `0.9-BETA`; the package is `build/felucca-0.9-beta.fwsc`.
+`DRUM_PACKAGE=1 ./build.sh` also creates the installable package. `VERSION.txt`
+sets the semantic version; the stable application/package ID is `FM-1_25000`,
+USB product is `Nauclerus`, and the display reads `Nauclerus 0.25.0`. The legacy
+`--release X.Y` identity override is rejected. The shared loader remains
+`ota-FM-1_900`. See [identity migration](docs/IDENTITY_MIGRATION_0.25.0.md).
 
 Build options (environment, `0` or `1`; defaults in `firmware/src/felucca.c`):
 
@@ -67,8 +70,8 @@ tests/run_tests.sh
 ```
 
 Runs the host tests (flash storage, user presets, MIDI parser, update entry, update
-loader, a DSP render, the 4-track mix, project formats, the SLICER, the regression suite,
-the command-line installer) and, with Node.js, the web page tests. Run it after `./build.sh`
+loader, a DSP render, the eight-track mix, project formats, the SLICER, the regression suite,
+the command-line installer) and, with Node.js, the web page tests. Run it after `DRUM_PACKAGE=1 ./build.sh`
 (it uses `build/` and needs `AC79_SDK` set as for the build).
 
 The regression suite (`tests/regress.c`) renders every engine and preset and compares a
@@ -80,12 +83,14 @@ does the same for the cost files.
 ## Install
 
 Use the web installer in Chrome or Edge:
-<https://hugelton.github.io/Felucca/webapp/installer/>. It installs the released package.
+<https://mr-roboto.github.io/nauclerus/webapp/installer/>. It verifies the exact
+stable Nauclerus package before enabling Install. Upstream Felucca installers
+serve their own firmware, not Nauclerus.
 
 From the command line (needs `pip3 install mido python-rtmidi`):
 
 ```
-python3 tools/fm1_install.py build/felucca.fwsc
+python3 tools/fm1_install.py build/nauclerus-0.25.0.fwsc
 python3 tools/fm1_install.py --info          # identity of the connected FM-1
 ```
 
@@ -93,8 +98,9 @@ Or, to install your own build from the web installer, make a local copy of the s
 (Web MIDI needs a secure context):
 
 ```
-python3 web/make_site.py build/felucca.fwsc dev /tmp/felucca-site
-cd /tmp/felucca-site && python3 -m http.server 8000
+tools/build_sim.sh --preview
+python3 web/make_site.py build/nauclerus-0.25.0.fwsc 0.25.0 /tmp/nauclerus-site
+cd /tmp/nauclerus-site && python3 -m http.server 8000
 # open http://localhost:8000/webapp/installer/
 ```
 

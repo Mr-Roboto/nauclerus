@@ -41,7 +41,7 @@ static uint32_t lfo_dest_param(uint32_t dest)
 {
     return dest >= 1u && dest <= 8u ? P_E0 + dest - 1u : dest == 9u ? (uint32_t)P_LEVEL : dest == 10u ? (uint32_t)P_PAN
          : dest >= 12u && dest <= 16u ? P_RDECAY + dest - 12u : dest == 17u ? (uint32_t)P_FCUT
-         : dest == 18u ? (uint32_t)P_FRESO : 0xFFu;
+         : dest == 18u ? (uint32_t)P_FRESO : dest == 19u ? (uint32_t)P_AMORPH : 0xFFu;
 }
 
 static uint32_t lfo_inc(const int16_t *q)
@@ -156,17 +156,34 @@ static __attribute__((noinline)) void lfo_join(track_t *t, uint32_t mask)
     }
 }
 
+/* Source codes preserve stored 0/1 exactly: low bit selects the LFO,
+ * pairs 0/1, 2/3, 4/5 select BIP, UNI+, UNI-. No new persistent field. */
+static uint32_t lfo_source(int32_t code) { return (uint32_t)clamp(code, 0, 5) & 1u; }
+static int32_t lfo_route_amount(int32_t code, int32_t out, int32_t depth)
+{
+    uint32_t mode = (uint32_t)clamp(code, 0, 5) / 2u;
+    depth = clamp(depth, -64, 64);
+    if (!mode) return out * depth / 64; /* exact RC11 signed arithmetic/rounding */
+    if (depth < 0) depth = -depth;
+    /* Q15 endpoints: 0..32767 at depth64; product <=65534*64. A
+     * legacy negative depth is magnitude only; the mode selects direction. */
+    out = (out + 32767) * depth / 128;
+    return mode == 1u ? out : -out;
+}
+
 /* slot s of t (on) adds its modulation: R.TUN to the resonator's fine pitch, a knob to acc (its place in lpid, saved
  * the first time). Inlined per slot: its ids are constants (direct loads) */
 static inline __attribute__((always_inline)) void lfo_slot(track_t *t, uint32_t s, int32_t *acc)
 {
-    uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 18), pid, k;
-    int32_t m = t->lfo[t->p[LS_ID[s][LS_SRC]] ? 1 : 0].out * clamp(t->p[LS_ID[s][LS_DEPTH]], -64, 64) / 64;
+    uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 19), pid, k;
+    int32_t m = lfo_route_amount(t->p[LS_ID[s][LS_SRC]], t->lfo[lfo_source(t->p[LS_ID[s][LS_SRC]])].out, t->p[LS_ID[s][LS_DEPTH]]);
     const param_desc_t *d;
     if (dest == 11u) {                                /* R.TUN: the resonator's fine pitch, smooth (TUNE untouched) */
         t->rfine += m * RS_FINE / 32767;
         return;
     }
+    if (dest==19u && ((uint32_t)t->p[P_MODEL]%NMODELS!=DM_ACID || t->p[P_E6]==0))
+        return; /* ACID-specific and audibly inert on SAW; retain its manual base. */
     pid = lfo_dest_param(dest);
     if (pid == 0xFFu)
         return;
@@ -185,7 +202,7 @@ static inline __attribute__((always_inline)) void lfo_slot(track_t *t, uint32_t 
 }
 
 #define LS_ON(t, s) ((uint32_t)((t)->p[LS_ID[s][LS_DEST]] && (t)->p[LS_ID[s][LS_DEPTH]]) << (s))
-#define LS_SRC_BIT(t, s) ((t)->p[LS_ID[s][LS_SRC]] ? 2u : 1u)
+#define LS_SRC_BIT(t, s) (1u << lfo_source((t)->p[LS_ID[s][LS_SRC]]))
 /* track t: advance its LFOs by n samples (0: none) and write the knobs its DEST slots modulate, saving their set
  * values. An LFO no slot uses (DEST OFF or DEPTH 0) is not computed (its phase waits); the slots' sums are the same
  * terms, in the same order, as the per-LFO routing before slots (an older project sounds the same) */
@@ -300,8 +317,8 @@ static int lfo_live(const track_t *t, uint32_t pid, int32_t *val)
     int32_t sum = 0;
     const param_desc_t *d = track_desc(t, pid);
     for (s = 0; s < LS_N; s++) {
-        uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 18);
-        int32_t m = t->lfo[t->p[LS_ID[s][LS_SRC]] ? 1 : 0].out * clamp(t->p[LS_ID[s][LS_DEPTH]], -64, 64) / 64;
+        uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 19);
+        int32_t m = lfo_route_amount(t->p[LS_ID[s][LS_SRC]], t->lfo[lfo_source(t->p[LS_ID[s][LS_SRC]])].out, t->p[LS_ID[s][LS_DEPTH]]);
         if (!dest || !t->p[LS_ID[s][LS_DEPTH]])
             continue;
         if (pid == P_RTUNE && dest == 11u) {          /* R.TUN: TUNE + the fine offset of the last block */

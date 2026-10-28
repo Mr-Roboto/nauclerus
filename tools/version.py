@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 # Drum machine fork: 2026 DEADACTIVE
-"""The drum firmware's version: MAJOR.MINOR.PATCH in the file VERSION.txt (docs/VERSIONING.md).
+"""Nauclerus application version: MAJOR.MINOR.PATCH[-rc.N] in the file VERSION.txt (docs/VERSIONING.md).
 
   python3 tools/version.py                      print the version
   python3 tools/version.py bump patch|minor|major
@@ -17,24 +17,28 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-FORM = re.compile(r"(\d+)\.(\d+)\.(\d+)")
+# Stable project identity; semantic releases remain in VERSION.txt.
+PRODUCT = 'FM-1_25000'
+USB_PRODUCT = 'Nauclerus'
+
+FORM = re.compile(r"(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?")
 UNRELEASED = "## Unreleased"
 
 
 def read(root=ROOT):
     v = (root / "VERSION.txt").read_text().strip()
     if not FORM.fullmatch(v):
-        raise SystemExit(f"VERSION.txt: {v!r} is not MAJOR.MINOR.PATCH")
+        raise SystemExit(f"VERSION.txt: {v!r} is not MAJOR.MINOR.PATCH[-rc.N]")
     return v
 
 
 def firmware_string(v):
     """FELUCCA_VERSION: the ABOUT page and the console"""
-    return f"DRUM-{v}"
+    return f"Nauclerus {v}"
 
 
 def bumped(v, part):
-    major, minor, patch = map(int, FORM.fullmatch(v).groups())
+    major, minor, patch = map(int, FORM.fullmatch(v).groups()[:3])
     if part == "major":
         return f"{major + 1}.0.0"
     if part == "minor":
@@ -70,10 +74,17 @@ def check(build, root=ROOT):
     if page.exists():
         m = re.search(r'"version": ("[^"]*")', page.read_text(encoding="utf-8"))
         label = json.loads(m[1]) if m else None
-        if not (label and re.fullmatch(rf"drum-{re.escape(v)}\+[0-9a-f]+(-dirty)?", label)):
-            errors.append(f"{page}: installer label {label!r}, expected drum-{v}+<commit>")
+        if not (label and re.fullmatch(rf"nauclerus-{re.escape(v)}\+[0-9a-f]+(-dirty)?", label)):
+            errors.append(f"{page}: installer label {label!r}, expected nauclerus-{v}+<commit>")
     else:
-        errors.append(f"{page}: missing (DRUM_PACKAGE=1 ./build.sh writes it)")
+        # A simulator-only staging tree deliberately has no installation controls.
+        meta=build / "site" / "version.json"
+        try:
+            m=json.loads(meta.read_text())
+            if m.get("project")!="Nauclerus" or m.get("version")!=v or m.get("installer_enabled") is not False:
+                errors.append(f"{meta}: missing/mismatched simulator-only identity")
+        except (OSError,ValueError):
+            errors.append(f"{page}: missing (no matching simulator-only manifest)")
     return errors
 
 
@@ -83,6 +94,8 @@ def selftest():
         print(("  ok   " if ok else "  FAIL ") + what)
         if not ok:
             fails.append(what)
+    expect("RC identity accepted", bool(FORM.fullmatch("0.25.0-rc.1")) and firmware_string("0.25.0-rc.1") == "Nauclerus 0.25.0-rc.1")
+    expect("malformed RC refused", not FORM.fullmatch("0.25.0-rc"))
     expect("patch 0.5.0 -> 0.5.1", bumped("0.5.0", "patch") == "0.5.1")
     expect("minor 0.5.3 -> 0.6.0", bumped("0.5.3", "minor") == "0.6.0")
     expect("major 0.9.2 -> 1.0.0", bumped("0.9.2", "major") == "1.0.0")
@@ -113,15 +126,15 @@ def selftest():
         page.parent.mkdir(parents=True)
         def label(x):
             page.write_text("<script>const META = " + json.dumps({"version": x, "product": "FM-1_900"}) + ";</script>")
-        (b / "felucca.bin").write_bytes(b"\x00xDRUM-0.5.0\x00y")
-        label("drum-0.5.0+57f7e31")
+        (b / "felucca.bin").write_bytes(b"\x00xNauclerus 0.5.0\x00y")
+        label("nauclerus-0.5.0+57f7e31")
         expect("a build carrying 0.5.0 passes", check(b, r) == [])
-        (b / "felucca.bin").write_bytes(b"\x00xDRUM-0.5.01\x00y")
+        (b / "felucca.bin").write_bytes(b"\x00xNauclerus 0.5.01\x00y")
         expect("a build carrying another version fails", len(check(b, r)) == 1)
-        (b / "felucca.bin").write_bytes(b"\x00xDRUM-0.5.0\x00y")
-        label("drum-0.5.0+57f7e31-dirty")
+        (b / "felucca.bin").write_bytes(b"\x00xNauclerus 0.5.0\x00y")
+        label("nauclerus-0.5.0+57f7e31-dirty")
         expect("a -dirty label passes", check(b, r) == [])
-        label("drum-57f7e31")
+        label("nauclerus-57f7e31")
         expect("an installer label without the version fails", len(check(b, r)) == 1)
     return 1 if fails else 0
 
@@ -138,7 +151,7 @@ def main(argv):
         for e in errors:
             print("  FAIL", e)
         if not errors:
-            print(f"  ok   build carries {firmware_string(read())} (installer drum-{read()}+<commit>)")
+            print(f"  ok   build carries {firmware_string(read())} (installer nauclerus-{read()}+<commit>)")
         return 1 if errors else 0
     if not argv:
         print(read())

@@ -10,7 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FELUCCA_ID "FM-1_900"
+#ifndef FELUCCA_ID
+#define FELUCCA_ID "FM-1_900" /* retained RC13 migration fixture */
+#endif
 #define FELUCCA_OTA_DRYRUN 0
 
 static uint8_t nor[0x100000];

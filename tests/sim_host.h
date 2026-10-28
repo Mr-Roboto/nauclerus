@@ -8,6 +8,12 @@
  * simulator is the plain build). tests/sim_test.c checks this list against felucca.c. */
 #include <stdint.h>
 #include <stddef.h>
+/* System headers precede the embedded-attribute shim (glibc fortify needs its attributes). */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <unistd.h>
 #define __attribute__(x)
 #define memset felucca_memset
 #define memcpy felucca_memcpy
@@ -122,6 +128,7 @@ static void sim_mark(uint32_t off, uint32_t n)
 
 #include "../firmware/src/gfx.c"
 #include "../firmware/src/core.h"
+#include "../firmware/src/remix.c"
 #include "../firmware/src/dsp.c"
 #include "../firmware/src/comp.c"
 #include "../firmware/src/eng_sample.c"

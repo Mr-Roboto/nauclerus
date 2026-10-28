@@ -6,7 +6,9 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#ifdef __APPLE__
 #include <libproc.h>
+#endif
 #include <sys/resource.h>
 #define __attribute__(x)
 #define memset felucca_memset
@@ -23,6 +25,7 @@ static void fm1_irq_off(void) {}                    /* (the main loop's guard: n
 static uint32_t host_irq_on;                         /* fm1_irq_on calls (boot_test: none before main.c's) */
 static void fm1_irq_on(void) { host_irq_on++; }
 #include "../firmware/src/core.h"
+#include "../firmware/src/remix.c"
 #include "../firmware/src/dsp.c"
 #include "../firmware/src/comp.c"
 #include "../firmware/src/eng_sample.c"
@@ -46,6 +49,8 @@ static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 static void host_reset_fx(void)                     /* FX buses, master, slicer, metal: as at power-on */
 {
     uint32_t k;
+    seq_remix_defaults();
+    tb_defaults_all();
     memset(dly_buf, 0, sizeof dly_buf);
     memset(cho_buf, 0, sizeof cho_buf);
     memset(rev_comb, 0, sizeof rev_comb);
@@ -154,8 +159,18 @@ static uint32_t hit_age(const track_t *t)          /* changes on every hit of t 
 
 static uint64_t instr_now(void)
 {
+#ifdef __APPLE__
     struct rusage_info_v4 ri;
     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
         return ri.ri_instructions;
-    return 0;
+#endif
+    return 0;                       /* unavailable, never a measured instruction count */
+}
+
+/* The recorded budgets use macOS retired instructions. Linux counters are not
+ * assumed comparable; callers must report unavailable measurements as SKIPPED. */
+static int instr_available(void) { return instr_now() != 0; }
+static void instr_skip(const char *what)
+{
+    printf("SKIPPED: %s (comparable host instruction counting unavailable)\n", what);
 }

@@ -3,10 +3,10 @@
  * Drum machine fork: 2026 DEADACTIVE */
 /* Drum UI pages: a family per page button (pressing it again steps through its pages), and what
  * the four knobs edit on each page. */
-enum { FAM_HOME, FAM_SND, FAM_LAY, FAM_FX, FAM_SEQ, FAM_GLO, FAM_SAVE, FAM_GRIDS, FAM_LFO, FAM_MIX, FAM_COUNT };
+enum { FAM_HOME, FAM_SND, FAM_LAY, FAM_FX, FAM_SEQ, FAM_GLO, FAM_SAVE, FAM_GRIDS, FAM_LFO, FAM_MIX, FAM_TB3PO, FAM_COUNT };
 enum { SC_TRACK, SC_GLOBAL, SC_GRID, SC_MIX };   /* knobs edit: the selected track, song.g, the STEP grid, the mixer */
 enum { GR_NONE, GR_MODEL, GR_FX, GR_SLCR, GR_GRID, GR_STEPS, GR_SLOTS, GR_MIX, GR_GRIDS, GR_COMP, GR_LFO, GR_RESON, GR_MOTION, GR_SONG, GR_FILTER,
-       GR_LDEST };
+       GR_LDEST, GR_REMIX, GR_TB3PO };
 
 #define SND_SLOT 0xC0u                            /* EDIT page ids: SND_SLOT + n = the track's n-th sound knob */
 
@@ -37,6 +37,7 @@ static const page_t PAGES[] = {
     {"COMP", FAM_HOME, SC_GLOBAL, GR_COMP, {G_CATK, G_CKNEE, G_CMKUP, G_CGHOST}},   /* HOME 3/3 */
     {"STEP", FAM_SEQ, SC_GRID, GR_GRID, {0xFF, 0xFF, 0xFF, 0xFF}},   /* KNOB 1: bank */
     {"PATTERN", FAM_SEQ, SC_TRACK, GR_STEPS, {P_SLEN, P_SDIV, P_SSWING, P_SRC}},
+    {"REMIX", FAM_SEQ, SC_TRACK, GR_REMIX, {0xFF, 0xFF, 0xFF, 0xFF}},
     {"MOTION", FAM_SEQ, SC_TRACK, GR_MOTION, {0xFF, 0xFF, 0xFF, 0xFF}},   /* PLAY EVENT - CLEAR (motion.c) */
     {"SONG", FAM_SEQ, SC_GLOBAL, GR_SONG, {0xFF, 0xFF, 0xFF, 0xFF}},   /* ROW SLOT REPS LOOP (song.c) */
     {"GLOBAL", FAM_GLO, SC_GLOBAL, GR_NONE, {G_BPM, G_SWING, G_CLOCK, G_DRCH}},
@@ -47,6 +48,8 @@ static const page_t PAGES[] = {
     {"TOOLS", FAM_SAVE, SC_GLOBAL, GR_NONE, {G_CLRSEQ, G_INITSND, G_CLRALL, G_INITALL}},   /* track; all */
     {"GRIDS", FAM_GRIDS, SC_GLOBAL, GR_GRIDS, {G_GMODE, G_GX, G_GY, G_GCHAOS}},   /* EUCLID: MODE LEN K S H */
     {"GRIDS", FAM_GRIDS, SC_GLOBAL, GR_GRIDS, {G_GFILL1, G_GFILL2, G_GFILL3, 0xFF}},
+    {"GENERATE", FAM_TB3PO, SC_TRACK, GR_TB3PO, {0,1,2,3}},
+    {"SCALE", FAM_TB3PO, SC_TRACK, GR_TB3PO, {4,5,6,7}},
     /* LFO: both LFOs on every page, LFO 1 on KNOB 1-2, LFO 2 on KNOB 3-4; then DEST, the track's 4 slots: KNOB 1 the
      * slot (song.lslot), 2-4 its SRC DEST DEPTH (page_id; lfo.c LS_ID) */
     {"LFO", FAM_LFO, SC_TRACK, GR_LFO, {P_LFO1 + LF_WAVE, P_LFO1 + LF_RATE, P_LFO2 + LF_WAVE, P_LFO2 + LF_RATE}},
@@ -60,7 +63,7 @@ static const page_t PAGES[] = {
 
 /* the button (and LED) of each family; the LAYER pages are EDIT's (OCT+ from SOUND), the COMP pages (HOME 2/3, 3/3)
  * and TRACKS (HOME's TRACKS mode) HOME's; ENV and SCL are free */
-static const uint8_t FAM_BTN[FAM_COUNT] = {B_HOME, B_EDIT, B_EDIT, B_FX, B_SEQ, B_GLO, B_SAVE, B_ARP, B_LFO, B_HOME};
+static const uint8_t FAM_BTN[FAM_COUNT] = {B_HOME, B_EDIT, B_EDIT, B_FX, B_SEQ, B_GLO, B_SAVE, B_ARP, B_LFO, B_HOME, B_ARP};
 
 /* the EDIT list of track t: MODEL, its model's TUNE DECAY TONE and 4th knob, its extra knobs, then LVL PAN NOTE
  * CHOKE PRIO (at most 16: 14); returns how many */
@@ -68,6 +71,17 @@ static uint32_t snd_list(const track_t *t, uint8_t *ids)
 {
     const dmodel_t *m = &DMODELS[(uint32_t)t->p[P_MODEL] % NMODELS];
     uint32_t n = 0, k;
+    if ((uint32_t)t->p[P_MODEL] % NMODELS == DM_ACID) {
+        static const uint8_t acid_ids[] = {
+            P_MODEL, P_E6, P_E2, P_E3,          /* MODEL WAVE CUTOF RESO */
+            P_E0, P_E1, P_E4, P_LEVEL,         /* TUNE DECAY ENVMD LEVEL */
+            P_E7, P_E5, P_PAN, P_AMORPH,       /* GATE ACCNT PAN MORPH */
+            P_CHOKE, P_PRIO, P_NOTE            /* CHOKE PRIO NOTE; slot 16 is empty */
+        };
+        for (k = 0; k < sizeof acid_ids; k++)
+            ids[k] = acid_ids[k];
+        return sizeof acid_ids;
+    }
     ids[n++] = P_MODEL;
     for (k = 0; k < 8u; k++)
         if (k < 4u || (m->edit[k].label && m->edit[k].label[0] != '-'))
@@ -86,6 +100,7 @@ static uint32_t snd_list(const track_t *t, uint8_t *ids)
 static uint32_t page_id(const page_t *pg, uint32_t slot)
 {
     uint32_t id = pg->id[slot & 3u];
+    if (pg->graph == GR_TB3PO) return 0xFFu;
     if (id >= SND_SLOT && id < SND_SLOT + 16u) {
         uint8_t ids[16];
         uint32_t n = snd_list(TSEL, ids);

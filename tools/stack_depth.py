@@ -219,7 +219,8 @@ def main(argv):
             ub, _, us, _ = report(argv[2])
             print(f"stack: upstream Felucca: main {ub} B, interrupts {us} B")
         except StackError as e:
-            print("info  upstream not analysed: " + str(e))
+            print("FAIL  baseline stack not analysed: " + str(e))
+            return 1
     ok = mb <= LIMIT * USER_STACK and sb <= LIMIT * SYS_STACK
     print("stack: within 75 % of both stacks" if ok else "FAIL  stack: over 75 % of a stack")
     return 0 if ok else 1

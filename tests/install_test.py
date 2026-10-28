@@ -182,7 +182,7 @@ def wire():
 
 def port_names():
     """the default port filter: the FM-1 under each firmware's USB name, as each OS names its MIDI port"""
-    mine = ["Hortator", "Hortator Port 1", "Hortator MIDI 1", "Hortator 1", "Hortator:Hortator MIDI 1 20:0",
+    mine = ["Nauclerus", "Nauclerus MIDI 1", "NAUCLERUS", "Hortator", "Hortator Port 1", "Hortator MIDI 1", "Hortator 1", "Hortator:Hortator MIDI 1 20:0",
             "HORTATOR", "Felucca", "Felucca Port 1", "Felucca MIDI 1", "Felucca Update", "Felucca Update MIDI 1", "FM-1"]
     ok(all(I.PORT_RE.search(n) for n in mine), "port filter: Hortator / Felucca / Felucca Update in each OS's naming")
     ok(not any(I.PORT_RE.search(n) for n in ["IAC Driver Bus 1", "Network Session 1", "Launchpad X"]),
@@ -210,6 +210,18 @@ def installs():
     rc, out, err = cli([p, "--yes"], dev)
     ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2 and "done: the FM-1 runs FM-1_900" in out,
        "install: running Hortator -> loader -> Hortator")
+
+    for before,port,after,after_port in [
+        ('FM-1_900','Hortator','FM-1_25000','Nauclerus'),
+        ('FM-1_25000','Nauclerus','FM-1_25000','Nauclerus'),
+        ('FM-1_25000','Nauclerus','FM-1_900','Hortator'),
+        ('FM-1_900','Hortator','FM-1_25000','Hortator'),
+    ]:
+        raw_m=package(after);img_m=I.logical_image(raw_m);path_m=pkgfile('migration.fwsc',raw_m)
+        dev_m=FakeFM1(img_m,identity=before,name=port,after_write=after,after_name=after_port)
+        rc_m,out_m,err_m=cli([path_m,'--yes'],dev_m)
+        ok(rc_m==0 and dev_m.bad==0 and dev_m.upgrades==2 and ('done: the FM-1 runs '+after) in out_m,
+           f'migration/rollback {before} ({port}) -> shared loader -> {after} ({after_port})')
 
     dev = FakeFM1(image)
     rc, out, err = cli([p], dev, answer=False)

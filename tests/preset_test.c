@@ -88,20 +88,20 @@ static void test_defaults_are_first_presets(void)
         }
     }
     check("every model's default knobs = its first preset's (MATRX, CLTRX: no preset)", ok);
-    ok = PRE_NFACT == 151u && PRE_BANK_START[PB_MD] == 0u && PRE_BANK_START[PB_MODERN] == 55u &&
-         PRE_BANK_START[PB_CLASSIC] == 95u && PRE_BANK_START[PB_USER] == PRE_NFACT &&
+    ok = PRE_NFACT == 152u && PRE_BANK_START[PB_MD] == 0u && PRE_BANK_START[PB_MODERN] == 55u &&
+         PRE_BANK_START[PB_CLASSIC] == 96u && PRE_BANK_START[PB_USER] == PRE_NFACT &&
          PRE_BANK_START[PB_N] == PRE_NFACT + PRE_NUSER;          /* (fix 8: MACHINEDRUM, MODERN, CLASSIC) */
     for (i = 0; i < PRE_NFACT; i++)
-        ok &= preset_get(i, &p) && preset_bank_of(i) == (i < 55u ? (uint32_t)PB_MD : i < 95u ? (uint32_t)PB_MODERN
+        ok &= preset_get(i, &p) && preset_bank_of(i) == (i < 55u ? (uint32_t)PB_MD : i < 96u ? (uint32_t)PB_MODERN
                                                                                               : (uint32_t)PB_CLASSIC);
     ok &= preset_bank_of(user_id(0)) == PB_USER && preset_bank_of(user_id(127)) == PB_USER &&
           !preset_get(user_id(128), &p) && !preset_get(PRE_NONE, &p);
-    check("banks: MACHINEDRUM 55, MODERN 40, CLASSIC 56, then USER 128; a bad id: none", ok);
+    check("banks: MACHINEDRUM 55, MODERN 41, CLASSIC 56, then USER 128; a bad id: none", ok);
     for (i = 0, ok = 1; i < PRE_NFACT; i++) {
         uint32_t len = (uint32_t)strnlen(PRE_FACTORY[i].name, sizeof PRE_FACTORY[i].name);
         p = PRE_FACTORY[i];
         ok &= p.model < NMODELS && len >= 1u && len <= 8u && bank_of_model(p.model) == preset_bank_of(i) &&
-              ++n[p.model] <= 4u;
+              ++n[p.model] <= (p.model == DM_ACID ? 5u : 4u);
         for (j = 0; j < 8u; j++)
             ok &= p.k[j] >= DMODELS[p.model].edit[j].min && p.k[j] <= DMODELS[p.model].edit[j].max;
         for (j = 0; j < i; j++) {
@@ -114,7 +114,7 @@ static void test_defaults_are_first_presets(void)
         }
     }
     check("every preset: a name of 1..8 characters, unique; its knobs in its model's ranges; in its voice's bank; "
-          "<= 4 per voice", ok);
+          "<= 4 per voice, ACID 5 including FASTSLOW", ok);
     ok = preset_get(0, &p) && p.model == DM_KTRX && !strcmp(p.name, "SUBTHUMP") &&
          preset_get(preset_first_of(DM_CPEFM), &p) && !strcmp(p.name, "BUZZCLAP") && p.k[0] == 24 &&
          preset_get(PRE_BANK_START[PB_CLASSIC], &p) && p.model == DM_K808 && !strcmp(p.name, "ROUNDBD") &&
@@ -216,10 +216,10 @@ static void test_step_order_and_wrap(void)
           preset_step(t, user_id(7), -1) == user_id(5));
     drum_set_model(&trk[1], DM_ACID);
     drum_set_model(&trk[2], DM_ACID);
-    id = preset_first_of(DM_ACID);                     /* ACID's 4 presets: id .. id + 3 */
-    check("ACID on 2 other tracks: its presets skipped", preset_step(t, id - 1u, 1) == id + 4u &&
-          preset_step(t, id + 4u, -1) == id - 1u && PRE_FACTORY[id + 3u].model == DM_ACID &&
-          PRE_FACTORY[id + 4u].model != DM_ACID);
+    id = preset_first_of(DM_ACID);                     /* ACID's 5 presets including FASTSLOW: id .. id + 4 */
+    check("ACID on 2 other tracks: its presets skipped", preset_step(t, id - 1u, 1) == id + 5u &&
+          preset_step(t, id + 5u, -1) == id - 1u && PRE_FACTORY[id + 4u].model == DM_ACID &&
+          PRE_FACTORY[id + 5u].model != DM_ACID);
     check("... not by one of the two ACID tracks", preset_step(&trk[1], id - 1u, 1) == id);
     for (id = preset_step(t, PRE_NONE, 1); n < 400u; n++)
         id = preset_step(t, id, 1);
@@ -610,7 +610,7 @@ static void test_bank_order_old_refs(void)
             break;
         }
     }
-    check("every 0.22.0 factory preset's uid: the same preset (name, voice) in the new banks", ok && PRE022_N == PRE_NFACT);
+    check("every 0.22.0 factory preset's uid: the same preset (name, voice) in the new banks", ok && PRE022_N + 1u == PRE_NFACT);
     check("(the reorder moved MODERN's and CLASSIC's ids: 96 of them; MACHINEDRUM's 55 stay)", moved == 96u);
     fresh();
     for (k = 0; k < NTRK; k++)                       /* a 0.22.0 project: the presets of every bank, one edited */

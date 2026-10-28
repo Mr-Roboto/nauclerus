@@ -17,6 +17,7 @@
 #include "lcd.c"
 #include "gfx.c"
 #include "core.h"
+#include "remix.c"          /* Phase 1: pure lookup only; no playback callers */
 #include "dsp.c"
 #include "comp.c"           /* Streams compressor (M3) */
 #include "eng_sample.c"      /* ADPCM decoder + user sample slots */
@@ -36,7 +37,7 @@
 #define FELUCCA_OTA_DRYRUN 0     /* 1 = stage, ask "success", then undo: no record, no reset */
 #endif
 #ifndef FELUCCA_ID
-#define FELUCCA_ID "FM-1_900"    /* package identity (build.py: the .fwsc marker string) */
+#define FELUCCA_ID "FM-1_25000"    /* package identity (build.py: the .fwsc marker string) */
 #endif
 #ifndef FELUCCA_CDC
 #define FELUCCA_CDC 1            /* USB CDC-ACM serial console */

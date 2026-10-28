@@ -2,23 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 # Drum machine fork: 2026 DEADACTIVE
-"""Make the site (GitHub Pages):
+"""Stage the Nauclerus static portal without releasing or installing firmware.
 
-  index.html                  the Hortator landing page with the simulator, when tools/build_sim.sh has built
-                              build/sim (docs/SIMULATOR.md; + its scripts, fm1sim.wasm, the reel, version.json,
-                              source.tar.gz); a redirect to the installer otherwise
-  firmware/felucca-VER.fwsc   the package (+ LICENSE, LICENSING.md, LICENSES/: the package holds
-                              JieLi SDK files under Apache-2.0, see LICENSING.md)
-  firmware/felucca-VER-ble.fwsc  with a second package (the Bluetooth build, FELUCCA_BLE=1): the installer offers
-                              both, the plain one first (2026-10-09)
-  webapp/installer/index.html index_pkg.html with fm1pkg.js, fm1ota.js, sim/counter.js and the metadata inlined
-  webapp/editor/index.html    editor.html with sim/counter.js's visit count (+ fukiai.ttf, FUKIAI-LICENSE.txt)
-  src/                        not touched
-
-  web/make_site.py build/felucca-X.Y.fwsc X.Y OUT_DIR [build/felucca-ble-X.Y.fwsc]
-
-The package identity (FM-1_9xx) is read from the package; the device reports it
-after the install.
+Call portal(build/sim, destination) after tools/build_sim.sh. The legacy
+main(package, version, destination, optional_ble) signature is retained for the
+firmware builder, but it only stages the independently built portal. No package
+or installer is copied. Missing or mismatched simulator inputs fail closed.
 """
 import json
 import re
@@ -55,90 +44,74 @@ def checked(pkg):
     """the package's bytes and identity, or a stop: only fm1pkg_make.py packages of a Felucca identity"""
     raw = Path(pkg).read_bytes()
     product = product_of(raw)
-    if not re.fullmatch(r"FM-1_9\d\d", product):
-        raise SystemExit(f"{pkg}: identity {product!r} is not a Felucca package (FM-1_9xx)")
+    sys.path.insert(0, str(HERE.parent/"tools"))
+    import version
+    if product != version.PRODUCT:
+        raise SystemExit(f"{pkg}: identity {product!r} is not the approved Nauclerus package identity")
     if b"FELUCCA-LOADER-1" not in raw:              # Felucca loader marker: never publish a package with vendor files
         raise SystemExit(f"{pkg}: no Felucca loader in it; the site ships only fm1pkg_make.py packages "
                          "(a package patched from an official one carries vendor files)")
     return raw, product
 
 
+def portal(built, dest):
+    """Stage only the source-matched Nauclerus portal. No installer/device package."""
+    import hashlib
+    built, dest = Path(built), Path(dest)
+    meta=json.loads((built/'version.json').read_text())
+    if meta.get('project')!='Nauclerus' or meta.get('installer_enabled') is not False:
+        raise ValueError('not an installation-disabled Nauclerus portal')
+    for key,name in [('wasm_sha256','fm1sim.wasm'),('source_archive_sha256','source.tar.gz')]:
+        if hashlib.sha256((built/name).read_bytes()).hexdigest()!=meta[key]:
+            raise ValueError('stale/mismatched '+name)
+    # Refuse stale staging rather than leaving an old firmware/installer behind.
+    dest.mkdir(parents=True,exist_ok=True)
+    forbidden=[dest/'firmware',dest/'webapp',*dest.glob('*.fwsc')]
+    if any(p.exists() for p in forbidden):raise ValueError('destination contains an old installer/package; choose an empty staging directory')
+    files=[]
+    for p in built.iterdir():
+        if p.is_file() and (p.suffix in {'.html','.css','.js','.json','.wasm','.woff','.txt','.md','.gz'} or p.name in {'LICENSE','.nojekyll'}):
+            shutil.copy2(p,dest/p.name);files.append(p.name)
+    for name in ['LICENSES','docs']:
+        shutil.copytree(built/name,dest/name,dirs_exist_ok=True)
+    (dest/'deployment.json').write_text(json.dumps({'target':'https://mr-roboto.github.io/nauclerus/','branch':'gh-pages','published':False,'installer_enabled':False,'source_digest':meta['source_digest'],'files':files},indent=2)+'\n')
+    return dest
+
+def install_site(pkg, version, out):
+    """Stage one verified Nauclerus package. Browser rechecks hash before enabling Install."""
+    import hashlib
+    pkg,out=Path(pkg),Path(out)
+    from importlib.util import spec_from_file_location,module_from_spec
+    spec=spec_from_file_location('candidate_integrity',HERE.parent/'tools/check_package_integrity.py')
+    ci=module_from_spec(spec);spec.loader.exec_module(ci)
+    logical,product=ci.unpack(pkg.read_bytes())
+    ci.validate(logical,(pkg.parent/'felucca.bin').read_bytes(),(pkg.parent/'loader/ota.bin').read_bytes())
+    name='nauclerus-'+(HERE.parent/'VERSION.txt').read_text().strip()+'.fwsc'
+    if pkg.name!=name:raise ValueError('not the exact current Nauclerus artifact')
+    raw=pkg.read_bytes()
+    info={'version':version,'product':product,'pkg':'../../firmware/'+name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+    target=out/'webapp/installer';target.mkdir(parents=True,exist_ok=True)
+    fw=out/'firmware';fw.mkdir(exist_ok=True)
+    if any(p.name!=name for p in fw.glob('*.fwsc')):raise ValueError('stale or unrelated package in staging')
+    shutil.copy2(pkg,fw/name)
+    html=(HERE/'index_nauclerus.html').read_text()
+    libs='\n'.join(strip_module((HERE/f).read_text()) for f in LIB)
+    html=html.replace('/*LIB*/',libs).replace('/*META*/',json.dumps(info))
+    (target/'index.html').write_text(html)
+    (out/'firmware.json').write_text(json.dumps(info,indent=2)+'\n')
+    vpath=out/'version.json'
+    if vpath.exists():
+        v=json.loads(vpath.read_text());v['installer_enabled']=True;v['publication_status']='stable-release-prepared';v['firmware']=info
+        vpath.write_text(json.dumps(v,indent=2)+'\n')
+    return info
+
+
 def main(pkg, version, out, ble_pkg=None):
-    pkg, out = Path(pkg), Path(out)
-    raw, product = checked(pkg)
-    if ble_pkg is not None and checked(ble_pkg)[1] != product:
-        raise SystemExit(f"{ble_pkg}: identity {checked(ble_pkg)[1]} is not {product}'s")
-    html = (HERE / "index_pkg.html").read_text(encoding="utf-8")
-    lib = "\n".join(strip_module((HERE / f).read_text(encoding="utf-8")) for f in LIB)
-    name = f"felucca-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
-    info = {"version": version, "product": product, "pkg": "../../firmware/" + name}
-    ble_name = name.replace(".fwsc", "-ble.fwsc")
-    if ble_pkg is not None:                         # the installer's choice: the plain version first, the default
-        info["variants"] = [{"id": "std", "version": version, "pkg": info["pkg"]},
-                            {"id": "ble", "version": version + "+ble", "pkg": "../../firmware/" + ble_name}]
-    meta = json.dumps(info)
-    for mark in ("/*LIB*/", "/*META*/"):
-        if html.count(mark) != 1:
-            raise SystemExit(f"index_pkg.html must contain {mark} once; update make_site.py")
-    html = html.replace("/*LIB*/", lib).replace("/*META*/", meta)
-    inst, ed, fw = out / "webapp" / "installer", out / "webapp" / "editor", out / "firmware"
-    for d in (inst, ed, fw):
-        d.mkdir(parents=True, exist_ok=True)
-    for old in fw.glob("felucca-*.fwsc"):          # the current package(s) only
-        old.unlink()
-    (inst / "index.html").write_text(html, encoding="utf-8")
-    shutil.copy(pkg, fw / name)
-    if ble_pkg is not None:
-        shutil.copy(ble_pkg, fw / ble_name)
-    lic = HERE.parent / "LICENSES"                  # (upstream 1.0) the package holds JieLi SDK files (Apache-2.0):
-    (fw / "LICENSES").mkdir(exist_ok=True)          # their licence travels next to it, with the others we ship
-    names = sorted(f.name for f in lic.glob("*.txt"))
-    for n in names:
-        shutil.copy(lic / n, fw / "LICENSES" / n)
-    (fw / "LICENSES" / "index.html").write_text(    # Pages lists no folders
-        '<!doctype html><meta charset="utf-8"><title>Licences</title><h1>Licence texts</h1><ul>'
-        + "".join(f'<li><a href="{n}">{n}</a></li>' for n in names)
-        + '</ul><p><a href="../LICENSING.md">LICENSING.md</a> · <a href="../LICENSE">LICENSE (GPL-3.0)</a></p>\n',
-        encoding="utf-8")
-    for doc in ("LICENSE", "LICENSING.md"):
-        shutil.copy(HERE.parent / doc, fw / doc)
-    (ed / "index.html").write_text(editor_html(), encoding="utf-8")
-    for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
-        if (HERE / f).exists():
-            shutil.copy(HERE / f, ed / f)
-    landing = sim_page(out)
-    if not landing:
-        (out / "index.html").write_text(
-            '<!doctype html><meta charset="utf-8"><title>Hortator</title>'
-            '<meta http-equiv="refresh" content="0; url=webapp/installer/">'
-            '<a href="webapp/installer/">Hortator installer</a>\n', encoding="utf-8")
-    print(f"site: {out}: {landing or 'index.html (redirect)'}, webapp/installer ({len(html)} B), webapp/editor, "
-          f"firmware/{name} ({len(raw)} B, {product})" + (f" + {ble_name}" if ble_pkg is not None else ""))
-
-
-SIM = HERE.parent / "build" / "sim"
-SIM_PUBLISHED = (".html", ".js", ".css", ".wasm", ".gz", ".json",   # not reel.bin / reel.hash / package.fwsc / logs
-                 ".woff", ".txt")                                    # the typeface (terminus.woff) and its licence
-
-
-def sim_page(out):
-    """the landing page with the simulator at the site's root, from build/sim (tools/build_sim.sh); '' when not built"""
-    if not (SIM / "fm1sim.wasm").exists():
-        return ""
-    files = [f for f in SIM.iterdir() if f.is_file() and f.suffix in SIM_PUBLISHED]
-    for f in files:
-        shutil.copy(f, out / f.name)
-    try:                                           # the page shows the version it was built from: say if it is not this tree's
-        built = json.loads((SIM / "version.json").read_text(encoding="utf-8"))["commit"]
-        here = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=HERE, capture_output=True, text=True).stdout.strip()
-        if here and not here.startswith(built) and not built.startswith(here):
-            print(f"site: warning: build/sim was built from {built}, this tree is {here}: run tools/build_sim.sh first")
-    except (OSError, KeyError, ValueError):
-        pass
-    return f"index.html (landing page + simulator, {len(files)} files)"
+    if ble_pkg is not None:raise ValueError('No unverified Bluetooth artifact may accompany this release')
+    dest=portal(HERE.parent/'build/sim',Path(out))
+    return install_site(pkg,version,dest)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) not in (4, 5):
-        sys.exit(__doc__)
+    if len(sys.argv) not in (4,5):sys.exit(__doc__)
     main(*sys.argv[1:5])

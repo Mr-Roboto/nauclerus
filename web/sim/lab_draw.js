@@ -4,7 +4,7 @@
 import { INK } from './lab_ui.js';
 import { ditherPattern } from './dither.js';
 
-const LABEL = '16px "Hortator Terminus", monospace';
+const LABEL = '16px "Nauclerus Terminus", monospace';
 
 // a waveform, min / max per pixel column, of a[0 .. frames): centred; scale 1 = full scale fills the box's height
 export function wave(g, w, h, a, frames, { color = INK.led, glow = INK.glow, fill = false, scale = 1 } = {}) {

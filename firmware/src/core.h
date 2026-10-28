@@ -60,6 +60,7 @@ enum {                          /* per-track parameters */
     P_RKEY,                      /* RESON KEYF (reson.c): how far the ring follows the hit's note from C4, 0..127 = 0..100 %.
                                   * Past the project's parameter block (FDRE fills its sector): stored in the steps' spare
                                   * byte (project.c) */
+    P_AMORPH,                    /* ACID-only Morph; optional tagged step-spare-byte extension */
     P_COUNT
 };
 #define P_NSTORED P_RKEY         /* the parameters in a project's block (FDRE: P_MODEL .. P_LS4DEPTH) */

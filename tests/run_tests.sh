@@ -47,6 +47,8 @@ run "drum suite (models, mix, sequencer, UI, guards)" sh tests/run_drum_tests.sh
 run "target cost of the render loops" python3 tests/target_budget.py build/felucca.dis tests/target_budget.txt
 run "Mac recovery tool against a simulated FM-1 in boot mode (docs/RECOVERY.md)" python3 tests/fm1_uboot_test.py
 run "update loader = the pinned one (tools/frozen_base.txt)" python3 tools/check_loader.py build
+run "compiled boot-guard placement and source boundary" python3 tools/check_untouched.py --build build
+run "complete RC package integrity and corruption fixtures" python3 tools/check_package_integrity.py
 run "loader pin self-test (a changed loader is caught)" python3 tools/check_loader.py --selftest build
 run "storage erase: IRQs off before the audio is silenced (st_save)" python3 tools/check_erase_order.py build/felucca.dis
 run "erase-order self-test (the old order is caught)" python3 tools/check_erase_order.py --selftest
@@ -55,12 +57,15 @@ run "version tool self-test (bump, the build check)" python3 tools/version.py --
 run "TRS MIDI input on in the built app (FELUCCA_UART, console lines)" python3 tools/check_trs.py build
 run "USB audio input on in the built app (FELUCCA_UAC, console lines)" python3 tools/check_uac.py build
 if [ -f build/upstream/build/felucca.dis ]; then
+    run "required security reference receipt" python3 tools/security_reference.py --verify build/upstream
+    run "security reference negative cache fixtures" python3 tests/security_reference_test.py
     run "frozen code in the binary = upstream's (H2)" python3 tools/compare_upstream.py build build/upstream/build
     run "H2 self-test (changed effects are caught)" python3 tools/compare_upstream.py --selftest build build/upstream/build
     run "worst-case stack (H3)" python3 tools/stack_depth.py build --compare build/upstream/build
 else
     echo "== H2/H3 SKIPPED: no upstream build (sh tools/upstream_build.sh)"
     UPSKIP=" (H2/H3 SKIPPED: no upstream build)"
+    fail=1   # Release validation cannot succeed without the required reference.
 fi
 run "H3 self-test (an unknown stack form is caught)" python3 tools/stack_depth.py --selftest
 run "installer CLI (fm1_install.py) against a simulated FM-1" python3 tests/install_test.py

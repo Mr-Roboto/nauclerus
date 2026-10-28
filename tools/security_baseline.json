@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "status": "ADOPTED_LOCAL_USER_AUTHORIZATION",
+  "name": "nauclerus-security-base-1",
+  "commit": "2690e74aba6fb99eeb547010e65e52cc2da395e9",
+  "tree": "3b0583347cc1e91e7870b0051fe4256e0066055d",
+  "loader_sha256": "cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d",
+  "tag_object": "07462232c82f044bb5a50cf46d16a9ed2a333260",
+  "approval": "Explicit user authorization: Security Baseline Adoption and First Release Candidate, 2026-10-27; unsigned local owner attestation, not a cryptographic signature.",
+  "files": {
+    "firmware/app.ld": {
+      "sha256": "6a9f41205e482fbdf2d24dc418416e45a3a8e1781d3e594279d751335af8942a",
+      "mode": "100644",
+      "blob": "3e142e0708461ab9860ee1d73a62bf6fa23ab53d"
+    },
+    "firmware/crt0.S": {
+      "sha256": "2212471c4a70e94022ba24ef65a4b208fadd5f7e33f80745c5f5e8b9f4aa840c",
+      "mode": "100644",
+      "blob": "5176548c94e58be9dd6f09327a5309686281d6b2"
+    },
+    "firmware/hal/fm1_adc.h": {
+      "sha256": "1917870bd802de9134d33335efbcf886b296705dff06688925fd7325589c0c1a",
+      "mode": "100644",
+      "blob": "19b253640c2aebe24dfb6acc37fe53d5596e54b4"
+    },
+    "firmware/hal/fm1_audio.h": {
+      "sha256": "22351440699748546e932098e3016c618d6137dd0ae34557e08a107641d4e62e",
+      "mode": "100644",
+      "blob": "02e2cc32dd1cd9f00aad1e92fc87cb45771bc40a"
+    },
+    "firmware/hal/fm1_ble_hal.h": {
+      "sha256": "87550a810247ae528e3d904f4d81c0e1d7fd5712298d599aa363ac0ca3f2ab8f",
+      "mode": "100644",
+      "blob": "a75b2de0b6fb99cf56e3760847496243788c38ec"
+    },
+    "firmware/hal/fm1_cc.h": {
+      "sha256": "46c533a0926ba9298ae36705f857ed609a61b95511ba7f0d1800857b4760dd73",
+      "mode": "100644",
+      "blob": "948e81dfbb32b15cd4c1bdfed9d44d1e290a5f0c"
+    },
+    "firmware/hal/fm1_ctx.S": {
+      "sha256": "150e2c285da9c9ab0e9120f9fc70f389c42085576a3d0dce8f35583983b9fdff",
+      "mode": "100644",
+      "blob": "dc29b2a6f98c622f53431a7fa19bfe590d9350d9"
+    },
+    "firmware/hal/fm1_ctx.h": {
+      "sha256": "8e7cd702ed3184d812ba009750ac169255a2805e0b7e49b47b89b9fda1f2eec2",
+      "mode": "100644",
+      "blob": "f40059a58e8b34d07541913d83ab59bc07f1c027"
+    },
+    "firmware/hal/fm1_flash.h": {
+      "sha256": "ee9700389d8bf842606b7210e52e125c085a44fbb5d30301cf189d823c4d5e90",
+      "mode": "100644",
+      "blob": "18ec13e1db7e6b747a5f8d57859eccc20e48218b"
+    },
+    "firmware/hal/fm1_gpio.h": {
+      "sha256": "5e3937e32a3b4b9b9ae622c5b42c8819ec8a16f2d76dbddec91654703c77a216",
+      "mode": "100644",
+      "blob": "cb7db8cc0cacf9878d997cfb00d6fe38780f5e63"
+    },
+    "firmware/hal/fm1_guard.h": {
+      "sha256": "dda2ebdd3024aab7700f8ef00cc55de23c0b369be1d889741d2058eb5c33ce74",
+      "mode": "100644",
+      "blob": "8231e314aedfb122936d89d4aab481cca28004a1"
+    },
+    "firmware/hal/fm1_input.h": {
+      "sha256": "31c0db0642a21b3b49875b942b4bae46a84086aaed9e965ec087a726326ae512",
+      "mode": "100644",
+      "blob": "16723ee841bee689a4912b697947f80a6a5b9f05"
+    },
+    "firmware/hal/fm1_irq.h": {
+      "sha256": "017b80db3e4da85fb110762d079f03c2ec9648e20e25d4e40f2458952ca940a0",
+      "mode": "100644",
+      "blob": "bf5f011698e97414ea84d3e4523416a539c55cc4"
+    },
+    "firmware/hal/fm1_isr.S": {
+      "sha256": "5e45c960577354184efa3bf984a1c14bffb0c5967cbdb643e1f4c9cc196105c5",
+      "mode": "100644",
+      "blob": "7bf35833e90f8f2429e614eedfc2348b914f5def"
+    },
+    "firmware/hal/fm1_lcd_hw.h": {
+      "sha256": "4fc3318a703fd55200153442acac4eb33ef56ff8e2eb82ba18ed0a3b9e655c1e",
+      "mode": "100644",
+      "blob": "72e0f2db0ac1767f88fd1488144710d27bb4fe6b"
+    },
+    "firmware/hal/fm1_sys.h": {
+      "sha256": "5d56781274406b0a1bf816c66d86c0b0b23b49757cc6f5644df566127827a9a7",
+      "mode": "100644",
+      "blob": "f1bccda83f1572b5e107f9109e28a6066c4943b9"
+    },
+    "firmware/hal/fm1_time.h": {
+      "sha256": "e83c725eae2ec5a163771ca2b8f1c0779354456f2e20a32febc7b6755758a97d",
+      "mode": "100644",
+      "blob": "d62920d5a72ed30e4876ea39af87db0a86ce98aa"
+    },
+    "firmware/hal/fm1_timer.h": {
+      "sha256": "1ec236ce4a75a5b94b9c16999dcdf7d71e4e0c5e0d2f14dbfb87bbaf025e1004",
+      "mode": "100644",
+      "blob": "c20e10fee980481b6292782e755f95ddcee40e10"
+    },
+    "firmware/hal/fm1_uart.h": {
+      "sha256": "0df7266a58996c688a4279c6b7edbaa7921e18805c8a65f1ff156680b03fcff6",
+      "mode": "100644",
+      "blob": "2323e0f0844719d921468a09b862bf3c9b11ccdf"
+    },
+    "firmware/hal/fm1_usb.h": {
+      "sha256": "12b9b31bde0dbb15fa15379a215eaec11e882bd33c18f4b250fa9e3a47c202f0",
+      "mode": "100644",
+      "blob": "9950dddf5a90d869e85a284ca22f6b15f79464b2"
+    },
+    "firmware/hal/fm1_vec.S": {
+      "sha256": "8f9e787871332f522157d561dc3cfe8906ed0abf160139ed5819cfdeab66f01a",
+      "mode": "100644",
+      "blob": "a0a76430bfd8d8c047a92fe7a64af85e2ea3cf46"
+    },
+    "firmware/hal/fm1_xip.h": {
+      "sha256": "dcba6ddb9cd2403e1d97c4db49d836110ef2805d2369db7ed323e3fbe26c56ed",
+      "mode": "100644",
+      "blob": "45830c04bb8463ee27d40ccda2d5317757723872"
+    },
+    "firmware/loader/crt0_ldr.S": {
+      "sha256": "bd4149b97520d1dcc271f730c5a046b0dbf97909e48e968e0ba18304ffc37841",
+      "mode": "100644",
+      "blob": "3d8876630b66d30451525cf8f09a9eb89705d3d9"
+    },
+    "firmware/loader/ldr_core.c": {
+      "sha256": "b686100b8e633498b9188c43eee349381b3fb7d7ef63ca0564003c9ac19655a5",
+      "mode": "100644",
+      "blob": "755afcf48ac42c080346c9b5f6645bcdbd7f74ce"
+    },
+    "firmware/loader/loader.c": {
+      "sha256": "313d0b916510434dc7f662ca24ae96afcdd1c06662754acbfbc924a3cf5b2434",
+      "mode": "100644",
+      "blob": "45bc43c79586bda9f8ec15bba0113d23adb2a780"
+    },
+    "firmware/loader/loader.ld": {
+      "sha256": "4acae8c9a16cf9a70f53a546f9175b5a86d2bc5cb6bce39513a2ff3c4fdba4ae",
+      "mode": "100644",
+      "blob": "acadd26f556107d8e43125bc929278db2e31cca3"
+    },
+    "firmware/src/core.h": {
+      "sha256": "a784cea0f0090860b233f3db9cc4d9221fe2304f1b563f179285d727729731e5",
+      "mode": "100644",
+      "blob": "b3cfddbfb7e71a5b4f49d3a63c85acf74e0927c0",
+      "contract": "boot-tail",
+      "tail": "#define RING_PUBLISH() __asm__ volatile(\"\" ::: \"memory\")   /* slot store before the index update */\nstatic volatile uint32_t fm1_ms;  /* milliseconds since boot (TIMER4-based, TIMER5 ISR in main.c) */\n/* boot-loop guard (main.c): two boots in a row that die in the first 30 s -> UBOOT */\n#define BOOTGUARD_MAGIC 0x42475244u\nstruct { uint32_t magic, failed, pending; } bootguard __attribute__((section(\".noinit\")));\n",
+      "sha256_reference_only": true
+    },
+    "firmware/src/libc.c": {
+      "sha256": "344b09afe33da826feefeb1ea2a1a7c50732f91c133fee30174819645edc131a",
+      "mode": "100644",
+      "blob": "3a5637f4ca09eeced805d309be17f92ead99b0f7"
+    },
+    "firmware/src/main.c": {
+      "sha256": "4a138bc1f12c0f2147183e3716dd548df5e9d7c01b165b7a3d401288d54764eb",
+      "mode": "100644",
+      "blob": "7c998c636a80429a688dbce90d0480d2f70a79d1"
+    },
+    "firmware/src/ota.c": {
+      "sha256": "655616db0ccd424b512a3a32530ed12c22cacea95df4855d688fdeae1a8bd980",
+      "mode": "100644",
+      "blob": "45ce4d45897bd91cb69f81a32bd2f0afea895ec6"
+    },
+    "firmware/src/storage.c": {
+      "sha256": "236fa939667fa3588f79c1228c7908abf377723348b7eccd55783a37cd50dba0",
+      "mode": "100644",
+      "blob": "8d41163aa9c3320c26495d6858c72a98585631f5"
+    },
+    "firmware/src/usb.c": {
+      "sha256": "da4d6637bf58c60df30ed13f46b21241f09d908d50ca6c75bce26dc426c2d8d2",
+      "mode": "100644",
+      "blob": "9c87ba973f49d851f0c13482295de095b68700c8"
+    },
+    "firmware/src/usb_app.c": {
+      "sha256": "02dd5da862e386d418ab2f41cd44f7d33512fa4e6e9c73b21da20f0d7377c910",
+      "mode": "100644",
+      "blob": "7b424b1050dcee2547846e5a49de7244ffa4ed2b"
+    }
+  },
+  "historical_missing": {
+    "name": "frozen-base-10",
+    "commit": "731386008fae060ae885f44b4765d172ecfae4b3"
+  },
+  "manifest_sha256": "b55fc9404167b9098314a2af508bbf40f2d36fc8fc5a7f82ad020f6bccfe8738"
+}

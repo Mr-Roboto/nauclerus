@@ -315,9 +315,9 @@ static void test_ends(void)
     fresh();
     learn_toggle();
     knob(1, 1);
-    hold(B_HOME);
+    tap(B_GLO);
     check("the menu opens: LEARN off", ui.menu && !ui.ml.on && !ml_arm);
-    hold(B_HOME);
+    tap(B_GLO);
     learn_toggle();
     tap(B_SEQ);                                      /* STEP */
     hold(B_REC);
@@ -420,6 +420,8 @@ static void test_pages(void)
     tap(B_HOME);
     if (!mix_mode())
         tap(B_HOME);
+    check("HOME escapes MIDI LEARN", !ui.ml.on);
+    learn_toggle();
     knob(1, 1);
     check("HOME's TRACKS mode: LEVEL", mix_mode() && ui.ml.pick && ui.ml.id == P_LEVEL && ui.ml.trk == 2u);
     knob(3, 1);
@@ -1151,9 +1153,9 @@ static void test_act_stuck(void)
     act_map();
     send_cc(22, 127);
     check("(R1/16 held by CC22)", perf_held == PF_BIT(PF_R16));
-    hold(B_HOME);
+    tap(B_GLO);
     check("the menu opens: the MIDI-held effect ends", ui.menu && !perf_mh && !perf_held);
-    hold(B_HOME);
+    tap(B_GLO);
     frames(2);
     check("the menu closed: it does not come back (the controller still down)", !ui.menu && !perf_held);
     send_cc(22, 0);

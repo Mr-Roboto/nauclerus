@@ -142,6 +142,47 @@ static int preset_ok(const track_t *t, uint32_t id, preset_t *p)
     return preset_get(id, p) && !(p->model == DM_ACID && acid_tracks(t) >= ACID_MAXTRK);
 }
 
+/* Every real ACID request shares one conservative physical-track owner.
+ * A rejected request restores the actual parameter; it is never queued or
+ * silently rendered as another wave. Preview tracks do not claim audio slots. */
+static int acid_morph_free(const track_t *t)
+{
+    uint32_t k;
+    for (k=0;k<NTRK;k++)
+        if (&trk[k]!=t && (uint32_t)trk[k].p[P_MODEL]%NMODELS==DM_ACID && ((trk[k].p[P_E6]==3 && acid_wave_last[k]==3u) || (trk[k].v[0].active &&
+             ((trk[k].v[0].k[2]&3u)==3u || ((trk[k].v[0].k[2]>>8) && ((trk[k].v[0].k[2]>>2)&3u)==3u)))))
+            return 0;
+    return 1;
+}
+static uint32_t acid_wave_guard(track_t *t)
+{
+    uint32_t k, wave=(uint32_t)clamp(t->p[P_E6],0,3);
+    for (k=0;k<NTRK && t!=&trk[k];k++);
+    if (k==NTRK) return wave;
+    if (wave==3u && !acid_morph_free(t)) {
+        wave=acid_wave_last[k]<3u ? acid_wave_last[k] : 1u;
+        acid_wave_conflict=1;
+    }
+    t->p[P_E6]=(int16_t)wave;
+    acid_wave_last[k]=(uint8_t)wave;
+    return wave;
+}
+static void acid_wave_resolve(void)
+{
+    uint32_t k, owner=0;
+    for (k=0;k<NTRK;k++) {
+        track_t *t=&trk[k];
+        if ((uint32_t)t->p[P_MODEL]%NMODELS!=DM_ACID) continue;
+        if (t->p[P_E6]==3 && owner++) t->p[P_E6]=0; /* first physical track wins */
+        /* Loads/rows commit together: an outgoing Morph must relinquish its
+         * DSP slot even if it was midway through a waveform crossfade. */
+        if (t->p[P_E6]!=3 && t->v[0].active &&
+            ((t->v[0].k[2]&3u)==3u || ((t->v[0].k[2]>>8) && ((t->v[0].k[2]>>2)&3u)==3u)))
+            drum_cut(t);
+        acid_wave_last[k]=(uint8_t)clamp(t->p[P_E6],0,3);
+    }
+}
+
 /* the voice of p on t: MODEL and the knobs (inside the model's ranges), the reference id, not edited. Another voice
  * cuts the old one first (as a MODEL change); the same voice is a knob turn */
 static void preset_apply(track_t *t, const preset_t *p, uint32_t id)
@@ -154,6 +195,13 @@ static void preset_apply(track_t *t, const preset_t *p, uint32_t id)
     t->model = (uint8_t)t->p[P_MODEL];
     for (i = 0; i < 8u; i++)
         t->p[P_E0 + i] = (int16_t)clamp(p->k[i], m->edit[i].min, m->edit[i].max);
+    if (p->model==DM_ACID) {
+        /* Eight-knob presets have no PWM field. The former fixed square
+         * starts at 50%; the legacy fixed pulse (id 2) at nearest 25%. */
+        if (p->k[6]==1) t->p[P_AMORPH]=64;
+        else if (p->k[6]==2) t->p[P_AMORPH]=28;
+        acid_wave_guard(t);
+    }
     t->pre = (uint16_t)id;
     t->pre_ed = 0;
 }
@@ -175,7 +223,7 @@ static int preset_load(track_t *t, uint32_t id)
 /* t's voice put back as it was (the PRESETS list's audition ended, ui_preset.c): MODEL, the 8 SOUND knobs k, the
  * reference pre and its edited mark ed, as they were (no clamp); the audio IRQ off, another voice cut first, motion's
  * base follows, as preset_load */
-static void preset_put(track_t *t, uint32_t model, const int16_t *k, uint32_t pre, uint32_t ed)
+static void preset_put(track_t *t, uint32_t model, const int16_t *k, uint32_t pre, uint32_t ed, int16_t morph)
 {
     uint32_t i;
     fm1_irq_off();
@@ -185,6 +233,8 @@ static void preset_put(track_t *t, uint32_t model, const int16_t *k, uint32_t pr
     t->model = (uint8_t)t->p[P_MODEL];
     for (i = 0; i < 8u; i++)
         t->p[P_E0 + i] = k[i];
+    t->p[P_AMORPH]=morph;
+    if (model%NMODELS==DM_ACID) acid_wave_guard(t);
     t->pre = (uint16_t)pre;
     t->pre_ed = (uint8_t)ed;
     motion_rebase((uint32_t)(t - trk));

@@ -1,0 +1,50 @@
+{
+  "rc11": {
+    "archive_sha256": "6818c5b025add1daf3f6f4a5ff993aac84d3ff6373734de751b3adef1e30f96e",
+    "version": "0.25.0-rc.11",
+    "audio_sources": {
+      "firmware/src/dm_acid.c": "49dfdb557095f423414a4456d8bd355b673fb2d8d69633b5a0715454d3876b35",
+      "firmware/src/acid_wave.c": "291cdc7cd4ea8a20df9c8fc2ae68f6f6d500a23d126a63a69a7757bc05b9718a",
+      "firmware/src/preset_bank.h": "cd1077e6cad1d2f9918ac9f13bc378489caf82aa1bbddbf6e0f02cab3219d3b5",
+      "firmware/src/presets.c": "9f3d923f1d69249bffe7427bb59bd968e412d561f86c3b58e99dac7074a1a678",
+      "firmware/src/drum_core.c": "81521002e2fea39d231cc5c0c0d9814bcbd7b0fe92a4e16248adea706d60e363",
+      "tests/drum_host.h": "3f2a1560c96626f7499a169126dbc61c3c5fe98149851db2d4b4eeee45161bb9",
+      "tests/drum_test.c": "f8d20f7f45965a943840d6f51d60ab8cbfa3751a2c465ecee449e87f32fa63dc"
+    },
+    "render_log": "K808 2e7d1aa0\nK909 6e5fb565\nS808 450f815c\nS909 2df61422\nC808 6d46956b\nC909 2a37b81e\nHATC 98b2f413\nHATO 7b562d68\nCYMB d57129a0\nCOWB a8b43cb2\nTOM 4f9fa3d9\nCONGA 20d7af90\nRIM cc901f7f\nCLAVE ff90a155\nSAMPL 43bc2fe4\nBOOM bff2e6dc\nPUNCH 41ed42d4\nSNAP 63c973b3\nCRACK 7d1f9030\nMETAL 4f1654d7\nHISS f281c265\nSKIN 28909e64\nFM 61323d35\nACID 5d5973a5 knobs -12 50 80 30 60 64 1 40 level 104 morph 64\nBDTRX f474d2c0\nSDTRX 820bad6f\nTMTRX a96d5086\nCGTRX 332dfac3\nCPTRX 9c474600\nRSTRX b86de3f8\nCBTRX 7e0f34b6\nCHTRX 691f6686\nOHTRX 6d0a6e02\nCYTRX f16be671\nSHTRX 35a315f2\nCLTRX e35c5925\nB2TRX ad1ab257\nBDEFM 5d8a0441\nSDEFM 2c0da8dd\nTMEFM ba869b61\nCPEFM b3e3e8d2\nRSEFM cca3ab0c\nCBEFM b7390326\nHHEFM 3bea0b5d\nCYEFM a2326d2a\n",
+    "pcm_sha256": "594c827e2f06f2775d0931450c46b05be6627ac6d8639b0398a422b0aad9ef96",
+    "package_sha256": "15bb1cef7dab970232ab3c47935dbcdeb2b90c66224ccd9309fccabe82baf528"
+  },
+  "rc12": {
+    "archive_sha256": "e9be9ca4713f3e6adb90e471b2fada1731e82c16fbe3462c2bc9ff1ac420ae50",
+    "version": "0.25.0-rc.12",
+    "audio_sources": {
+      "firmware/src/dm_acid.c": "49dfdb557095f423414a4456d8bd355b673fb2d8d69633b5a0715454d3876b35",
+      "firmware/src/acid_wave.c": "291cdc7cd4ea8a20df9c8fc2ae68f6f6d500a23d126a63a69a7757bc05b9718a",
+      "firmware/src/preset_bank.h": "cd1077e6cad1d2f9918ac9f13bc378489caf82aa1bbddbf6e0f02cab3219d3b5",
+      "firmware/src/presets.c": "9f3d923f1d69249bffe7427bb59bd968e412d561f86c3b58e99dac7074a1a678",
+      "firmware/src/drum_core.c": "81521002e2fea39d231cc5c0c0d9814bcbd7b0fe92a4e16248adea706d60e363",
+      "tests/drum_host.h": "3f2a1560c96626f7499a169126dbc61c3c5fe98149851db2d4b4eeee45161bb9",
+      "tests/drum_test.c": "f8d20f7f45965a943840d6f51d60ab8cbfa3751a2c465ecee449e87f32fa63dc"
+    },
+    "render_log": "K808 2e7d1aa0\nK909 6e5fb565\nS808 450f815c\nS909 2df61422\nC808 6d46956b\nC909 2a37b81e\nHATC 98b2f413\nHATO 7b562d68\nCYMB d57129a0\nCOWB a8b43cb2\nTOM 4f9fa3d9\nCONGA 20d7af90\nRIM cc901f7f\nCLAVE ff90a155\nSAMPL 43bc2fe4\nBOOM bff2e6dc\nPUNCH 41ed42d4\nSNAP 63c973b3\nCRACK 7d1f9030\nMETAL 4f1654d7\nHISS f281c265\nSKIN 28909e64\nFM 61323d35\nACID 5d5973a5 knobs -12 50 80 30 60 64 1 40 level 104 morph 64\nBDTRX f474d2c0\nSDTRX 820bad6f\nTMTRX a96d5086\nCGTRX 332dfac3\nCPTRX 9c474600\nRSTRX b86de3f8\nCBTRX 7e0f34b6\nCHTRX 691f6686\nOHTRX 6d0a6e02\nCYTRX f16be671\nSHTRX 35a315f2\nCLTRX e35c5925\nB2TRX ad1ab257\nBDEFM 5d8a0441\nSDEFM 2c0da8dd\nTMEFM ba869b61\nCPEFM b3e3e8d2\nRSEFM cca3ab0c\nCBEFM b7390326\nHHEFM 3bea0b5d\nCYEFM a2326d2a\n",
+    "pcm_sha256": "594c827e2f06f2775d0931450c46b05be6627ac6d8639b0398a422b0aad9ef96",
+    "package_sha256": "567c03b4249bde7fbfd2a452f51bb1230e27e1441648f82deef8e5effcbb6c42"
+  },
+  "rc13": {
+    "archive_sha256": "6ee83df94e3e074bed321c49f0427b1f44116c17cbaeeaa77909a66d969eb406",
+    "version": "0.25.0-rc.13",
+    "audio_sources": {
+      "firmware/src/dm_acid.c": "49dfdb557095f423414a4456d8bd355b673fb2d8d69633b5a0715454d3876b35",
+      "firmware/src/acid_wave.c": "291cdc7cd4ea8a20df9c8fc2ae68f6f6d500a23d126a63a69a7757bc05b9718a",
+      "firmware/src/preset_bank.h": "cd1077e6cad1d2f9918ac9f13bc378489caf82aa1bbddbf6e0f02cab3219d3b5",
+      "firmware/src/presets.c": "9f3d923f1d69249bffe7427bb59bd968e412d561f86c3b58e99dac7074a1a678",
+      "firmware/src/drum_core.c": "81521002e2fea39d231cc5c0c0d9814bcbd7b0fe92a4e16248adea706d60e363",
+      "tests/drum_host.h": "3f2a1560c96626f7499a169126dbc61c3c5fe98149851db2d4b4eeee45161bb9",
+      "tests/drum_test.c": "f8d20f7f45965a943840d6f51d60ab8cbfa3751a2c465ecee449e87f32fa63dc"
+    },
+    "render_log": "K808 2e7d1aa0\nK909 6e5fb565\nS808 450f815c\nS909 2df61422\nC808 6d46956b\nC909 2a37b81e\nHATC 98b2f413\nHATO 7b562d68\nCYMB d57129a0\nCOWB a8b43cb2\nTOM 4f9fa3d9\nCONGA 20d7af90\nRIM cc901f7f\nCLAVE ff90a155\nSAMPL 43bc2fe4\nBOOM bff2e6dc\nPUNCH 41ed42d4\nSNAP 63c973b3\nCRACK 7d1f9030\nMETAL 4f1654d7\nHISS f281c265\nSKIN 28909e64\nFM 61323d35\nACID 5d5973a5 knobs -12 50 80 30 60 64 1 40 level 104 morph 64\nBDTRX f474d2c0\nSDTRX 820bad6f\nTMTRX a96d5086\nCGTRX 332dfac3\nCPTRX 9c474600\nRSTRX b86de3f8\nCBTRX 7e0f34b6\nCHTRX 691f6686\nOHTRX 6d0a6e02\nCYTRX f16be671\nSHTRX 35a315f2\nCLTRX e35c5925\nB2TRX ad1ab257\nBDEFM 5d8a0441\nSDEFM 2c0da8dd\nTMEFM ba869b61\nCPEFM b3e3e8d2\nRSEFM cca3ab0c\nCBEFM b7390326\nHHEFM 3bea0b5d\nCYEFM a2326d2a\n",
+    "pcm_sha256": "594c827e2f06f2775d0931450c46b05be6627ac6d8639b0398a422b0aad9ef96",
+    "package_sha256": "6d4af7cc05a93337d8ed2b9b51d7e25afa1b27688cac4e85155b882b766ed167"
+  }
+}

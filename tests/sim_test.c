@@ -320,11 +320,11 @@ static void test_calibration_menu(void)
     run(FS);
     check("fm1_ms follows the audio clock", fm1_ms - ms0 >= 990u && fm1_ms - ms0 <= 1010u);
     before = panel;
-    sim_btn(B_HOME, 1);                              /* HOME held: the menu */
-    run(FS * 8u / 10u);
-    sim_btn(B_HOME, 0);
+    sim_btn(B_GLO, 1);                               /* Current Nauclerus: GLO short opens MENU. */
+    run(2048);
+    sim_btn(B_GLO, 0);
     run(4096);
-    check("HOME held opens the menu", ui.menu == 1u);
+    check("GLO short opens the menu", ui.menu == 1u);
     for (i = 0; i < 20u && ui.menu_sel != MI_PANEL; i++) {
         sim_enc(EN_SELECT, 1);
         run(2048);
@@ -338,8 +338,8 @@ static void test_calibration_menu(void)
     run(FS);
     alarm(0);
     check("calibration times out and comes back, the panel table kept", !memcmp(&panel, &before, sizeof panel));
-    sim_btn(B_HOME, 1);                              /* HOME held again: leave the menu */
-    run(FS * 8u / 10u);
+    sim_btn(B_HOME, 1);                              /* HOME short escapes to real HOME. */
+    run(2048);
     sim_btn(B_HOME, 0);
     run(4096);
     tap(B_PLAY);

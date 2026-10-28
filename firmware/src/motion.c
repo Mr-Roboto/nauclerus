@@ -5,9 +5,9 @@
  * Recording (ui_input.c motion_capture): the selected track armed (song.rec) and playing, a turn of one of its sound
  * knobs (motion_param) stores the knob's value at the nearest step of that track (the one playing, or the next past
  * its half); the same knob and step again: replaced. Not recording, while motion plays: the turn is the new base.
- * Playback (seq.c seq_tick, motion_step): a track with PLAY on entering step s sets the knobs its events at s name
- * (clamped to the knob's range); a value holds until that knob's next event; step 0, STOP and PLAY off put the base
- * back (every knob as set, taken at PLAY). In a block an LFO on a knob holds its modulated copy in t->p and the
+ * Playback (seq.c seq_tick, motion_step): a track with PLAY on sets the knobs named by its source step's events
+ * (clamped to the knob's range); a value holds until that knob's next event. Chronological step 0, STOP and PLAY off
+ * put the base back (every knob as set, taken at PLAY). In a block an LFO holds its modulated copy in t->p and the
  * value it returns to in t->lsave (lfo.c): motion reads and writes the latter (motion_slot).
  * Store: the lock bank (lockbank.c): 1024 events (motion and parameter locks) shared by the 8 tracks (upstream: 64
  * for 4; FDR8..FDRE: 128), sorted, saved as the project's lock bank (FDRF, project.c). The main loop writes with the
@@ -98,6 +98,19 @@ static int lock_release(uint32_t k)
     return held != 0;
 }
 
+/* SRC changes adopt the current magnitude and its restoration copies atomically
+ * with the existing parameter update. Recorded bank bytes remain untouched. */
+static void motion_lfo_mode_changed(track_t *t, uint32_t id)
+{
+    uint32_t f, k = (uint32_t)(t - trk), depth;
+    int s = lfo_slot_of(id, &f);
+    if (s < 0 || f != LS_SRC) return;
+    depth = LS_ID[s][LS_DEPTH];
+    t->p[depth] = (int16_t)lfo_depth_value(t, depth, t->p[depth]);
+    mo.base[k][depth] = (int16_t)lfo_depth_value(t, depth, mo.base[k][depth]);
+    mo.under[k][depth] = (int16_t)lfo_depth_value(t, depth, mo.under[k][depth]);
+}
+
 /* ---- the ISR (seq.c) */
 static void motion_begin(void)                    /* seq_start: the base of every track */
 {
@@ -117,11 +130,13 @@ static void motion_end(void)                      /* seq_stop: the patch back */
     }
     mo.base_ok = 0;
 }
-/* t enters step s: the last step's locks snap back; with PLAY on, at step 0 the base back; then the knobs its
- * events at s name (motion events with PLAY on; locks when the step is on), found by a binary search (lockbank.c) */
-static __attribute__((noinline)) void motion_step(track_t *t, uint32_t s)
+/* Each chronological event releases the previous locks. Only the chronological
+ * loop start restores Motion's base; source zero can recur anywhere. Event lookup
+ * and ON eligibility use the same source mapper as notes (including bypasses). */
+static __attribute__((noinline)) void motion_step(track_t *t, uint32_t chronological)
 {
-    uint32_t k = (uint32_t)(t - trk), i, at = k << 6 | s, moved, play;
+    uint32_t source = seq_source_step(t, chronological);
+    uint32_t k = (uint32_t)(t - trk), i, at = k << 6 | source, moved, play;
     const lk_bank_t *m = mo.src ? mo.src : &mo.b;
     int on;
     moved = (uint32_t)lock_release(k);
@@ -129,15 +144,15 @@ static __attribute__((noinline)) void motion_step(track_t *t, uint32_t s)
     if (play) {
         if (!((mo.base_ok >> k) & 1u))
             motion_take_base(k);
-        if (!s) {
+        if (!chronological) {
             moved |= mo.act[k][0] | mo.act[k][1] | mo.act[k][2];
             motion_restore(k);
         }
     }
-    i = lk_seek(m, k, s);
+    i = lk_seek(m, k, source);
     if (i >= m->count || (uint32_t)(m->key[i] >> 7) != at)
         goto done;                                  /* (most steps: no event) */
-    on = seq_steps(t)[s].on;
+    on = seq_steps(t)[source].on;
     for (; i < m->count && (uint32_t)(m->key[i] >> 7) == at; i++) {   /* the step's events: motion before lock */
         uint32_t id = m->key[i] & 127u;
         int lock = lk_is_lock(m, i);
@@ -153,7 +168,7 @@ static __attribute__((noinline)) void motion_step(track_t *t, uint32_t s)
         } else {
             motion_mark(k, id);
         }
-        *slot = (int16_t)clamp(m->val[i], d->min, d->max);
+        *slot = (int16_t)clamp(lfo_depth_value(t, id, m->val[i]), d->min, d->max);
         moved = 1;
     }
 done:

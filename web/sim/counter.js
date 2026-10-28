@@ -9,7 +9,7 @@
 
 // the GoatCounter site code (CODE.goatcounter.com); '' = the counter is off: no count.js, no ping, no count shown.
 // The site's settings must allow "adding visitor counts on your website" for the count to be readable.
-export const GC_CODE = 'deadactive';
+export const GC_CODE = ''; // No Nauclerus analytics service is configured.
 const GC_EVENT = 'install';                          // the event's path (its name in the dashboard)
 const LOCAL = /^(localhost|127\.\d+\.\d+\.\d+|\[::1\]|0\.0\.0\.0|.*\.local)$/;
 

@@ -507,6 +507,8 @@ static uint32_t vg_sig(const track_t *t)             /* what the hit is of: MODE
     uint32_t h = 2166136261u, i;
     for (i = P_MODEL; i <= P_E7; i++)
         h = (h ^ (uint32_t)(uint16_t)t->p[i]) * 16777619u;
+    if ((uint32_t)t->p[P_MODEL] % NMODELS == DM_ACID)
+        h = (h ^ (uint32_t)t->p[P_AMORPH]) * 16777619u;
     if ((uint32_t)t->p[P_MODEL] % NMODELS == DM_SMPL)
         h = (h ^ smp_user_gen) * 16777619u;
     return h | 1u;
@@ -1419,7 +1421,7 @@ static void lfo_route_text(const track_t *t, uint32_t l, char *b, uint32_t n)
 {
     uint32_t s, cnt = 0, first = 0;
     for (s = 0; s < LS_N; s++)
-        if (t->p[LS_ID[s][LS_DEST]] && t->p[LS_ID[s][LS_DEPTH]] && (t->p[LS_ID[s][LS_SRC]] ? 1u : 0u) == l && !cnt++)
+        if (t->p[LS_ID[s][LS_DEST]] && t->p[LS_ID[s][LS_DEPTH]] && lfo_source(t->p[LS_ID[s][LS_SRC]]) == l && !cnt++)
             first = s;
     str_cpy(b, "> ", n);
     if (cnt == 1u)
@@ -1489,7 +1491,7 @@ static int32_t lfo_slot_now(const track_t *t, uint32_t s)
 {
     if (!t->p[LS_ID[s][LS_DEST]] || !t->p[LS_ID[s][LS_DEPTH]])
         return 0;
-    return lfo_out(t, t->p[LS_ID[s][LS_SRC]] ? 1u : 0u) * clamp(t->p[LS_ID[s][LS_DEPTH]], -64, 64) / 64;
+    return lfo_route_amount(t->p[LS_ID[s][LS_SRC]], lfo_out(t, lfo_source(t->p[LS_ID[s][LS_SRC]])), t->p[LS_ID[s][LS_DEPTH]]);
 }
 
 /* LFO DEST: the 4 slots as rows ("3  LFO2  > DECAY  -40%" and a meter of the slot's modulation now, from its middle);
@@ -1508,11 +1510,12 @@ static void graph_ldest(void)
         b[0] = (char)('1' + s);
         b[1] = 0;
         md_text(8, y, &MD_F3, 2, b, pen);
-        md_text(28, y, &MD_F3, 2, N_LSRC[t->p[LS_ID[s][LS_SRC]] ? 1 : 0], pen);
+        md_text(28, y, &MD_F3, 2, N_LSRC[clamp(t->p[LS_ID[s][LS_SRC]], 0, 5)], pen);
         str_cpy(b, "> ", sizeof b);
         str_cpy(b + 2, lfo_dest_label(t, t->p[LS_ID[s][LS_DEST]]), sizeof b - 2u);
         md_text(76, y, &MD_F3, 2, b, pen);
-        param_format(&TP[P_LS3DEPTH], t->p[LS_ID[s][LS_DEPTH]], v, &u);
+        param_format(track_desc(t, LS_ID[s][LS_DEPTH]),
+                     lfo_depth_value(t, LS_ID[s][LS_DEPTH], t->p[LS_ID[s][LS_DEPTH]]), v, &u);
         str_cpy(v + str_len(v), u, sizeof v - str_len(v));
         md_text(186 - md_text_w(&MD_F3, 2, v), y, &MD_F3, 2, v, pen);
         cv_rect(214, y, 1, 11, pen);                  /* the meter's middle; the modulation from it */
@@ -1645,7 +1648,7 @@ static uint32_t graph_signature(void)
         }
         h = str_hash(h, chain.name);
     }
-    if (pg->graph == GR_STEPS || pg->graph == GR_GRID)
+    if (pg->graph == GR_STEPS || pg->graph == GR_GRID || pg->graph == GR_TB3PO)
         h ^= steps_hash(t) + (song.playing ? view_idx(t) + 1u : 0u) * 31u;
         h ^= (held_step() + 1u) * 977u;
     if (pg->graph == GR_GRID)                         /* step record's cursor, the key sounding, KEYS (the roll's view
@@ -1658,6 +1661,11 @@ static uint32_t graph_signature(void)
                                                                           * rendered hit done */
         preset_name_of(preset_of(t), nb);             /* the preset's line (its user slot may change) */
         h = str_hash(h ^ t->pre_ed * 7919u, nb);
+    }
+    if (pg->graph == GR_TB3PO) {
+        const tb_state_t *g=tb_effective(song.sel);
+        for (i=0;i<8u;i++) h=(h^tb_cfg_value(&g->cfg,i))*16777619u;
+        h^=g->stale*7919u+tb_pending_valid[song.sel]*65537u;
     }
     if (pg->graph == GR_GRIDS) {
         for (i = G_GMODE; i <= G_GLEN3; i++)
@@ -1845,6 +1853,75 @@ static void perf_columns(void)
 
 /* MOTION: the selected track's LEN steps, 16 a row; a step holding events lit (grey with PLAY OFF), the
  * playhead outlined */
+/* REMIX is static between edits/commits: no playhead-driven redraw. The 16 bars
+ * and their numeric labels are source positions in one chronological block. */
+static void graph_remix(void)
+{
+    uint32_t k = song.sel, scope = seq_remix_scope(k), bit = 1u << scope, selection, code, wait, state, busy, sig, nw, wi, i;
+    char b[32], v[8];
+    remix_draft_sync();
+    selection = ui.remix.selection[scope];
+    fm1_irq_off();
+    code = seq_remix_config[scope]; wait = seq_remix_pending[scope];
+    state = seq_remix_effective(k); busy = (uint32_t)chain_busy();
+    fm1_irq_on();
+    sig = selection + ui.remix.on * 257u + ui.remix.dirty * 65537u + k * 104729u;
+    sig = (sig ^ code) * 16777619u;
+    sig = (sig ^ wait) * 16777619u;
+    sig = (sig ^ state ^ busy * 7u ^ (uint32_t)TSEL->p[P_SRC] * 13u) * 16777619u;
+    for (nw = rg_plan(&ui.graph_sig, sig, 0, Y_GRAPH, 240, H_GRAPH), wi = 0; wi < nw; wi++) {
+        rg_win(wi, Y_GRAPH, C_BG); cv_oy = 0;
+        if (scope == REMIX_DRUM) str_cpy(b, "GLOBAL DRUM ", sizeof b);
+        else { str_cpy(b, "BASS T1 ", sizeof b); b[6] = (char)('1' + k); }
+        if (chain.running) code = state;
+        remix_code_text(v, (code & 255u) + 1u);
+        str_cpy(b + str_len(b), v, sizeof b - str_len(b));
+        str_cpy(b + str_len(b), code & 256u ? " ON" : " OFF", sizeof b - str_len(b));
+        md_text(7, 2, &MD_F3, 2, b, C_INK);
+        str_cpy(b, ui.remix.dirty & bit ? "DRAFT " : "SELECTED ", sizeof b);
+        remix_code_text(v, selection + 1u); str_cpy(b + str_len(b), v, sizeof b - str_len(b));
+        str_cpy(b + str_len(b), ui.remix.on & bit ? " ON" : " OFF", sizeof b - str_len(b));
+        md_text(7, 18, &MD_F3, 2, b, C_INK);
+        if (busy) {
+            str_cpy(b, "SONG ", sizeof b);
+            remix_code_text(v, state & 256u ? (state & 255u) + 1u : 0u);
+            str_cpy(b + 5, v, sizeof b - 5);
+            str_cpy(b + str_len(b), " / STOP TO EDIT", sizeof b - str_len(b));
+        } else if (wait) {
+            str_cpy(b, "QUEUED ", sizeof b); remix_code_text(b + 7, (wait & 255u) + 1u);
+            str_cpy(b + str_len(b), wait & 256u ? " ON" : " OFF", sizeof b - str_len(b));
+        } else {
+            str_cpy(b, ui.remix.dirty & bit ? "SET / OCT+ CONFIRM" : "READY", sizeof b);
+        }
+        md_text(7, 34, &MD_F3, 2, b, C_INK);
+        for (i = 0; i < 16u; i++) {
+            int32_t x = 8 + (int32_t)i * 14;
+            uint32_t source = (uint32_t)remix_lookup(selection >> 4, selection & 15u, i) + 1u;
+            if (ui.remix.on & bit) cv_rect(x, 78 - (int32_t)source * 2, 10, (int32_t)source * 2, C_INK);
+            else cv_dither(x, 78 - (int32_t)source * 2, 10, (int32_t)source * 2, C_INK);
+            /* Stagger the 2x source labels so adjacent two-digit values stay distinct. */
+            fmt_int(v, (int32_t)source); md_text(x, i & 1u ? 96 : 83, &MD_F3, 2, v, C_INK);
+        }
+        cv_hdot(7, 231, 80, C_INK);
+        md_text(7, 110, &MD_F3, 2, TSEL->p[P_SRC] ? "GRIDS BYPASS" :
+                !(ui.remix.on & bit) ? "OFF - PREVIEW ONLY" : !selection ? "A1 IDENTITY" : "CHRONO 1-16 > SOURCE", C_INK);
+        cv_rect(0, 0, 1, H_GRAPH, C_INK); cv_rect(239, 0, 1, H_GRAPH, C_INK);
+        cv_blit(0, Y_GRAPH);
+    }
+}
+static void remix_columns(void)
+{
+    uint32_t k = seq_remix_scope(song.sel), bit = 1u << k;
+    char b[8];
+    remix_draft_sync();
+    b[0] = (char)('A' + (ui.remix.selection[k] >> 4)); b[1] = 0;
+    draw_column(0, "BANK", b, "", HOT(0u), -1);
+    fmt_int(b, (int32_t)(ui.remix.selection[k] & 15u) + 1);
+    draw_column(1, "PATTERN", b, "", HOT(1u), -1);
+    draw_column(2, "REMIX", ui.remix.on & bit ? "ON" : "OFF", "", HOT(2u), -1);
+    draw_column(3, "SET", "GO", "", HOT(3u), -1);
+}
+
 static void graph_motion(void)
 {
     const track_t *t = TSEL;
@@ -2007,6 +2084,12 @@ static uint32_t graph_paint(int whole)
         graph_model(t, c);
         top = 1;                                      /* (the preset's line in the band above) */
         break;
+    case GR_TB3PO:
+        graph_steps(t, c);
+        md_text(6, 106, &MD_F3, 2, chain_busy() ? "SONG - STOP TO EDIT" :
+                tb_pending_valid[song.sel] ? "QUEUED - NEXT STEP" :
+                tb_effective(song.sel)->stale ? "NEW LINE * / MUTATE" : "OCT+ NEW / OCT- MUTATE", c);
+        break;
     case GR_STEPS:
         graph_steps(t, c);
         break;
@@ -2084,6 +2167,11 @@ static void draw_graph(void)
         return;
     if (ui.layer) {                                     /* PERFORM: the map */
         graph_perf();
+        ui.graph_top = 1;
+        return;
+    }
+    if (!ui.home && pg->graph == GR_REMIX) {
+        graph_remix();
         ui.graph_top = 1;
         return;
     }
@@ -2593,6 +2681,24 @@ static void draw_home_strip(void)
     draw_home_lev((int)lev);
 }
 
+static void tb_columns(void)
+{
+    static const char *const labels[8]={"DENS","ACCENT","SLIDE","OCTS","ROOT","SCALE","OCTAVE","MUTATE"};
+    static const char *const roots[12]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
+    const tb3po_cfg_t *g=&tb_effective(song.sel)->cfg;
+    uint32_t c;
+    for (c=0;c<4u;c++) {
+        uint32_t id=cur_page()->id[c], v=tb_cfg_value(g,id);
+        char b[12];const char *value=b,*unit="";
+        fmt_int(b,(int32_t)v);
+        if (id<3u) unit="%";
+        else if (id==4u) value=roots[v];
+        else if (id==5u) value=TB3PO_SCALE_NAMES[v];
+        else if (id==7u) { if (!v) value="OFF";else unit="BAR"; }
+        draw_column(c,labels[id],value,unit,HOT(c),-1);
+    }
+}
+
 static void draw_columns(void)
 {
     uint32_t c;
@@ -2601,6 +2707,14 @@ static void draw_columns(void)
     const page_t *pg = cur_page();
     if (ui.layer) {                                     /* PERFORM: the macros */
         perf_columns();
+        return;
+    }
+    if (!ui.home && pg->graph == GR_TB3PO) {
+        tb_columns();
+        return;
+    }
+    if (!ui.home && pg->graph == GR_REMIX) {
+        remix_columns();
         return;
     }
     if (!ui.home && pg->graph == GR_MOTION) {          /* MOTION: PLAY EVENT - CLEAR */
@@ -2676,6 +2790,10 @@ static void draw_columns(void)
     for (c = 0; c < 4u; c++) {
         int16_t *vp;
         const param_desc_t *d = page_desc(pg, c, &vp);
+        if (pg->fam == FAM_GRIDS && pg->id[0] == G_GFILL1 && c == 3u) {
+            draw_column(c, "ASSIGN", "3 TRACKS", "", HOT(c), -1);
+            continue;
+        }
         if (pg->graph == GR_LDEST && c == 0u) {        /* LFO DEST: KNOB 1 the slot */
             fmt_int(val, (int32_t)(song.lslot & 3u) + 1);
             draw_column(0, "SLOT", val, "/4", HOT(0u), -1);
@@ -2694,6 +2812,11 @@ static void draw_columns(void)
             draw_column(c, "NAME", "EDIT", "", CV_NORM, -1);
             continue;
         }
+        if (pg->scope==SC_TRACK && page_id(pg,c)==P_AMORPH && TSEL->p[P_E6]==0) {
+            fmt_int(val,*vp);
+            draw_column(c,"MORPH",val,"",CV_DIM,-1);
+            continue;
+        }
         int lk = 0;
         int16_t sv = pg->scope == SC_TRACK ? lock_shown(lock_id(c), *vp, &lk) : *vp;   /* (a step held in STEPS: the
                                                                                           * knob's lock there) */
@@ -2701,7 +2824,7 @@ static void draw_columns(void)
             fmt_int(val, (int32_t)(song.cpu_q8 * 100u / 256u));
             unit = "%";
         } else {
-            param_format(d, sv, val, &unit);
+            param_format(d, pg->scope == SC_TRACK ? lfo_depth_value(TSEL, page_id(pg,c), sv) : sv, val, &unit);
         }
         {
             int32_t mv, mod = -1;

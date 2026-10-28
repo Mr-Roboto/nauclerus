@@ -106,6 +106,18 @@ static uint32_t grids_step(void)
     return bits;
 }
 
+/* Caller holds the audio IRQ off while stopped. Evaluate the real generator
+ * from its normal PLAY seed, then restore every live RNG/phase/chaos byte. */
+static void grids_snapshot(uint8_t out[64])
+{
+    uint8_t keep[sizeof grids];
+    uint32_t i;
+    memcpy(keep, &grids, sizeof grids);
+    grids_start();
+    for (i = 0; i < 64u; i++) out[i] = (uint8_t)grids_step();
+    memcpy(&grids, keep, sizeof grids);
+}
+
 /* the pattern as drawn (no chaos): bit 0 hit, bit 1 accent. MAP: step i of 32; EUCLID: position i of LEN */
 static uint32_t grids_preview(uint32_t ch, uint32_t i)
 {

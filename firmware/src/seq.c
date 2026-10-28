@@ -6,6 +6,7 @@
  * matches; an armed track records hits into the nearest step while playing. Runs in the audio ISR
  * before each block (events_block). Grids (grids.c) runs on its own 1/32 clock and plays the tracks whose SRC
  * is one of its channels. KEYS (seq_mode 3): the keys play the selected track chromatically (keys_on). */
+#include "tb3po_adapter.c"
 static volatile uint8_t transport_req;   /* 1 start, 2 stop (from the UI) */
 static volatile uint8_t panic_req;       /* bit per track: cut its voices */
 static uint32_t kb_prev;
@@ -136,6 +137,110 @@ static int step_plays(track_t *t, const step_t *s, uint32_t len)
 }
 
 static const step_t *seq_steps(const track_t *t);   /* song.c: a song's row, else the track's own */
+static int chain_busy(void);
+static uint32_t seq_remix_effective(uint32_t k);   /* song.c: active slot's prepared state, else live snapshot */
+
+/* Config scopes 0..7 retain each physical track's Bass setting; 8 is shared
+ * Drum. Low byte is A1..P16 (0..255), bit 8 ON. OFF retains the selection. */
+#define REMIX_DRUM NTRK
+#define REMIX_SCOPES (NTRK + 1u)
+static volatile uint16_t seq_remix_config[REMIX_SCOPES];
+static volatile uint16_t seq_remix_pending[REMIX_SCOPES]; /* bit 9 valid + state */
+static volatile uint16_t seq_remix[NTRK];         /* each track latches at its own chronological boundary */
+static uint8_t seq_remix_owner[NTRK];
+static volatile uint32_t seq_remix_epoch;
+static uint32_t seq_remix_scope(uint32_t k)
+{
+    return (uint32_t)trk[k].p[P_MODEL] % NMODELS == DM_ACID ? k : REMIX_DRUM;
+}
+static uint16_t seq_remix_state(uint32_t code)    /* legacy v1 logical code -> retained state */
+{
+    return (uint16_t)(code && code <= 256u ? 256u | (code - 1u) : 0u);
+}
+static uint32_t seq_remix_desired(uint32_t k)
+{
+    uint32_t scope = seq_remix_scope(k), wait = seq_remix_pending[scope];
+    return wait ? wait & 511u : seq_remix_config[scope];
+}
+static void seq_remix_reset(void)
+{
+    uint32_t k;
+    for (k = 0; k < NTRK; k++) {
+        seq_remix[k] = 0;
+        seq_remix_owner[k] = 255;
+    }
+}
+static void seq_remix_forget(void)
+{
+    uint32_t k;
+    seq_remix_reset();
+    for (k = 0; k < REMIX_SCOPES; k++) seq_remix_pending[k] = 0;
+    seq_remix_epoch++;
+}
+static void seq_remix_flush(void)
+{
+    uint32_t k;
+    for (k = 0; k < REMIX_SCOPES; k++)
+        if (seq_remix_pending[k]) {
+            seq_remix_config[k] = seq_remix_pending[k] & 511u;
+            seq_remix_pending[k] = 0;
+        }
+}
+static void seq_remix_defaults(void)
+{
+    uint32_t k;
+    for (k = 0; k < REMIX_SCOPES; k++) seq_remix_config[k] = 0;
+    seq_remix_forget();
+}
+static void seq_remix_sync(void)
+{
+    uint32_t k;
+    for (k = 0; k < NTRK; k++) {
+        seq_remix_owner[k] = (uint8_t)seq_remix_scope(k);
+        seq_remix[k] = seq_remix_config[seq_remix_owner[k]];
+    }
+}
+/* Main-loop edit, shared by confirm and direct enable; no flash I/O. */
+static int seq_remix_apply(uint32_t k, uint32_t state)
+{
+    uint32_t scope;
+    if (k >= NTRK || state > 511u) return 0;
+    fm1_irq_off();
+    if (chain_busy()) { fm1_irq_on(); return 0; }
+    scope = seq_remix_scope(k);
+    if (song.playing || transport_req == 1u)
+        seq_remix_pending[scope] = state == seq_remix_config[scope] ? 0u : (uint16_t)(512u | state);
+    else {
+        seq_remix_config[scope] = (uint16_t)state;
+        seq_remix_pending[scope] = 0;
+    }
+    fm1_irq_on();
+    return 1;
+}
+
+#if defined(DRUM_REMIX_TEST) && defined(DRUM_HOST)
+/* Test-only activation, called between sequencer advances after START. */
+static int seq_remix_test_set(uint32_t k, uint32_t bank, uint32_t pattern, uint32_t on)
+{
+    if (k >= NTRK || bank >= REMIX_BANKS || pattern >= REMIX_PATTERNS || on > 1u)
+        return 0;
+    seq_remix_config[seq_remix_scope(k)] = (uint16_t)((on ? 256u : 0u) | bank << 4 | pattern);
+    seq_remix_sync();
+    return 1;
+}
+#endif
+
+/* Notes and Motion/lock playback share this source coordinate. Timing, loop
+ * restoration and recording remain chronological. */
+static uint32_t seq_source_step(const track_t *t, uint32_t chronological)
+{
+    uint32_t state = seq_remix_effective(trk_index(t));
+    int source;
+    if (!(state & 256u) || t->p[P_SRC])
+        return chronological;
+    source = remix_source_step(state >> 4 & 15u, state & 15u, chronological);
+    return source < 0 ? chronological : (uint32_t)source;
+}
 
 /* ACID's GATE knob: 10..100 % of len (samples) */
 static uint32_t acid_gate_len(const track_t *t, uint32_t len)
@@ -173,7 +278,7 @@ static __attribute__((noinline)) void acid_gates_close(void)
 static const step_t *seq_next(const track_t *t)
 {
     uint32_t len = t->p[P_SLEN] > 0 ? (uint32_t)t->p[P_SLEN] : 1u;
-    return &seq_steps(t)[(t->seq_idx + 1u) % len];
+    return &seq_steps(t)[seq_source_step(t, (t->seq_idx + 1u) % len)];
 }
 
 /* the gate of the ACID note just started (hit rat_k of the step's rat_n): GATE of a hit's length, held into the next
@@ -241,7 +346,7 @@ static __attribute__((noinline)) void acid_step(track_t *t, const step_t *s, con
  * now (rat_due plays the others). A track following Grids plays nothing from its steps; a drum's TIE step nothing. */
 static void step_fire(track_t *t, uint32_t len_s)
 {
-    const step_t *s = &seq_steps(t)[t->seq_idx];
+    const step_t *s = &seq_steps(t)[seq_source_step(t, t->seq_idx)];
     uint32_t len = t->p[P_SLEN] > 0 ? (uint32_t)t->p[P_SLEN] : 1u;
     if (trk_model(t)->gate) {
         acid_step(t, s, seq_next(t), len_s);
@@ -516,13 +621,99 @@ static void midi_block(void)
 #include "lockbank.c"               /* the lock bank: motion events and parameter locks, sorted (spec 2026-10-24) */
 #include "motion.c"                 /* knob moves per step (upstream 1.0's motion recording) */
 static void seq_stop(void);
+static void tb_song_wraps(uint32_t advance);
 #include "song.c"                   /* SONG: rows of the four slots (upstream 1.0's song chain) */
 #include "midi_learn.c"             /* MIDI LEARN: a learned CC sets its parameter, a CC / note its action (upstream
                                      * 1.5's, adapted) */
 
+static void seq_remix_latch(track_t *t)
+{
+    uint32_t k = trk_index(t), scope = seq_remix_scope(k), state, old;
+    if (chain_busy()) return;
+    if (seq_remix_pending[scope]) {
+        seq_remix_config[scope] = seq_remix_pending[scope] & 511u;
+        seq_remix_pending[scope] = 0;
+    }
+    state = seq_remix_config[scope]; old = seq_remix[k];
+    /* OFF (any retained selection) and A1 ON are musically identical. */
+    if (((state & 256u) && (state & 255u) ? state : 0u) !=
+        ((old & 256u) && (old & 255u) ? old : 0u)) {
+        if (!t->p[P_SRC]) {
+            acid_gate_off(t);
+            t->slide_in = 0;
+            t->rat_n = t->rat_k = 0;
+        }
+    }
+    seq_remix[k] = (uint16_t)state;
+    seq_remix_owner[k] = (uint8_t)scope;
+}
+
+/* Same wrap-local counter and random stream as X0X-RMX auto_mutate().
+ * Song mutations use prepared RAM copies, never checksum-covered saved steps. */
+static tb_state_t *tb_effective(uint32_t k)
+{
+    return chain.running ? &tb_song[chain.slot][k] : &tb_live[k];
+}
+static void tb_complete_pattern(track_t *t)
+{
+    uint32_t k=(uint32_t)(t-trk);
+    tb_state_t *g=tb_effective(k);
+    if ((uint32_t)t->p[P_MODEL]%NMODELS!=DM_ACID) return;
+    g->bars++;
+    if (g->cfg.mutate_bars && g->bars%g->cfg.mutate_bars==0) {
+        tb_mutate_steps(chain.running ? tb_song_steps[chain.slot][k] : t->step,t,g,&g->rng);
+        if (chain.running) chain.src[chain.slot].timing[k][3]=0;
+        t->p[P_SRC]=0;
+    }
+}
+static void tb_song_wraps(uint32_t advance)
+{
+    uint32_t k;
+    /* The outgoing row is replaced before seq_tick sees its final wrap. Count
+     * only patterns that actually end by the transition sample, in that slot. */
+    for (k=0;k<NTRK;k++) {
+        track_t *t=&trk[k];
+        uint32_t len=(uint32_t)clamp(t->p[P_SLEN],1,NSTEP);
+        if (t->seq_pos<0x7FFFFFFFu && t->seq_idx+1u==len &&
+            t->seq_pos+advance>=step_samples(t,div_period((uint32_t)t->p[P_SDIV],t->seq_rem),t->seq_cnt))
+            tb_complete_pattern(t);
+    }
+}
+static void tb_boundary(track_t *t)
+{
+    uint32_t k = (uint32_t)(t - trk);
+    if ((uint32_t)t->p[P_MODEL] % NMODELS != DM_ACID) return;
+    if (!chain.running && tb_pending_valid[k]) {
+        acid_gate_off(t);
+        t->slide_in = 0;
+        memcpy(t->step, tb_pending[k], sizeof t->step);
+        t->p[P_SRC] = 0;
+        tb_pending_valid[k] = 0;
+        return;
+    }
+    if (!t->seq_idx && t->seq_cnt) tb_complete_pattern(t);
+}
+static void tb_flush_pending(void)
+{
+    uint32_t k;
+    for (k = 0; k < NTRK; k++) if (tb_pending_valid[k]) {
+        if ((uint32_t)trk[k].p[P_MODEL] % NMODELS == DM_ACID) {
+            memcpy(trk[k].step, tb_pending[k], sizeof trk[k].step);
+            trk[k].p[P_SRC] = 0;
+        }
+        tb_pending_valid[k] = 0;
+    }
+}
+
 static void seq_start(void)
 {
     uint32_t i;
+    for (i = 0; i < NTRK; i++) {
+        uint32_t slot;
+        tb_reset_runtime(&tb_live[i]);
+        for (slot = 0; slot < 4u; slot++) tb_reset_runtime(&tb_song[slot][i]);
+    }
+    seq_remix_sync();                              /* configuration survives transport; rebuild runtime */
     acid_gates_close();                             /* (PLAY while playing: nothing slides into step 0) */
     for (i = 0; i < NTRK; i++) {                    /* every track from its step 0, together */
         track_t *t = &trk[i];
@@ -549,6 +740,9 @@ static void seq_start(void)
 
 static void seq_stop(void)
 {
+    tb_flush_pending();
+    seq_remix_flush();
+    seq_remix_reset();
     song.playing = 0;
     acid_gates_close();                             /* ACID: no note drones on */
     motion_end();                                   /* motion.c: the patch back */
@@ -584,6 +778,8 @@ static void seq_tick(track_t *t, uint32_t n)
         t->seq_cnt++;                               /* the step: steps since PLAY mod LEN, so a LEN change keeps
                                                      * the track on the shared clock (and LEN back = in sync) */
         t->seq_idx = (uint16_t)(t->seq_cnt % (len ? len : 1u));
+        tb_boundary(t);
+        seq_remix_latch(t);
         motion_step(t, t->seq_idx);                 /* motion.c: its knobs at this step (before the hit) */
         if (t->rskip && t->rskip_idx == t->seq_idx) {
             t->rskip = 0;

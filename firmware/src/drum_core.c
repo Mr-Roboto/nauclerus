@@ -292,9 +292,13 @@ static uint32_t acid_tracks(const track_t *except)   /* tracks with MODEL ACID, 
     return n;
 }
 
+static void tb_defaults_all(void);
+static void seq_remix_defaults(void);              /* seq.c: new/default projects have no Remix */
 static void drum_tracks_init(void)
 {
     uint32_t i, k;
+    seq_remix_defaults();
+    tb_defaults_all();
     for (i = 0; i < G_COUNT; i++)
         song.g[i] = GP[i].def;
     for (k = 0; k < NTRK; k++) {

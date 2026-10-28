@@ -67,7 +67,7 @@ static void pl_restore(void)
     if (!ui.pr.pv)
         return;
     ui.pr.pv = 0;
-    preset_put(&trk[ui.pr.pv_trk % NTRK], ui.pr.sv_model, ui.pr.sv_k, ui.pr.sv_pre, ui.pr.sv_ed);
+    preset_put(&trk[ui.pr.pv_trk % NTRK], ui.pr.sv_model, ui.pr.sv_k, ui.pr.sv_pre, ui.pr.sv_ed, ui.pr.sv_amorph);
 }
 
 /* the preset under the cursor on the selected track for now: MODEL and the 8 knobs as a load (presets.c preset_apply:
@@ -93,6 +93,7 @@ static void pl_audition(uint32_t hit, uint32_t key)
         ui.pr.sv_model = (uint8_t)t->p[P_MODEL];
         for (i = 0; i < 8u; i++)
             ui.pr.sv_k[i] = motion_rest(k, P_E0 + i);   /* (motion's base, a lock's value under it) */
+        ui.pr.sv_amorph=motion_rest(k,P_AMORPH);
         ui.pr.sv_pre = t->pre;
         ui.pr.sv_ed = t->pre_ed;
     }
