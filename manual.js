@@ -3,8 +3,8 @@
 // The manual's panel map: a small FM-1 (mini.js) beside the list of its controls. Pointing at a control, or at its
 // line in the list (hover, tap, focus), lights both and shows the line under the FM-1. The list is the content; the
 // drawing is a picture of it (aria-hidden).
-import { KEYS, BTN, ENC } from './controls.js?v=319fa1756664';
-import { buildMini } from './mini.js?v=319fa1756664';
+import { KEYS, BTN, ENC } from './controls.js?v=885112ac6477';
+import { buildMini } from './mini.js?v=885112ac6477';
 
 const GROUPS = {                                   // data-ctl names for several parts at once
   white: KEYS.filter(k => !k.black).map(k => `key:${k.n}`),
@@ -32,7 +32,7 @@ export async function initManual() {
   if(!host||!list)return;
   list.innerHTML='<h3>Buttons, encoders and keys</h3><ul>'+Object.keys(basic).map(k=>`<li data-ctl="${k}"><b>${k}</b> <span></span></li>`).join('')+'</ul>';
   let topics,ids;
-  try{[topics,ids]=await Promise.all([fetch('manual.json?v=319fa1756664').then(r=>{if(!r.ok)throw Error('Manual unavailable');return r.json();}),fetch('lab_ids.json?v=319fa1756664').then(r=>r.json())]);}
+  try{[topics,ids]=await Promise.all([fetch('manual.json?v=885112ac6477').then(r=>{if(!r.ok)throw Error('Manual unavailable');return r.json();}),fetch('lab_ids.json?v=885112ac6477').then(r=>r.json())]);}
   catch(error){document.getElementById('manual-topics').textContent=error.message;return;}
   const nav=document.getElementById('manual-nav'), body=document.getElementById('manual-topics');body.replaceChildren();
   const page={ 'acid-sound-engine':['EDIT',0], 'tb-3po-melody-generator':['ARP',0], 'orb-remix':['SEQ',2], 'steps-probability-and-ratchets':['SEQ',0], 'motion-and-parameter-locks':['SEQ',3], 'two-lfos-and-four-routing-slots':['LFO',3], 'grids-and-write':['ARP',0], 'projects-and-song':['SAVE',0], 'color-themes':['GLO',0], 'engines-presets':['EDIT',0], 'perform':['FX',0] };

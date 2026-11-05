@@ -2,7 +2,7 @@
  * Drum machine fork: 2026 DEADACTIVE */
 /* Nauclerus portal palette is independent of the firmware LCD. The instrument
  * retains hardware greys, real RGB565 LCD pixels and Terminus type. */
-@font-face { font-family: "Nauclerus Terminus"; src: url("terminus.woff?v=319fa1756664") format("woff"); font-display: swap; }
+@font-face { font-family: "Nauclerus Terminus"; src: url("terminus.woff?v=885112ac6477") format("woff"); font-display: swap; }
 :root {
   --bg: #111318; --surface: #262A30; --text: #ECE8E0;
   --secondary: #A6A8AC; --accent: #D49349; --border: #41454D;

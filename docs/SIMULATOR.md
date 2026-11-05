@@ -1,6 +1,10 @@
 # Nauclerus browser portal and interactive manual
 
-Intended publication URLs (prepared locally; public deployment is not part of this task):
+The Nauclerus 1.0.0 portal accompanies the stable firmware release. Its installer
+verifies the exact release package before enabling installation. The firmware
+artifact is reused without rebuilding; website preparation is independent.
+
+Publication URLs:
 
 - Portal: https://mr-roboto.github.io/nauclerus/
 - Live firmware panel: https://mr-roboto.github.io/nauclerus/#play
@@ -72,7 +76,9 @@ live page or be selected manually. “Try this on the live panel” links naviga
 simulator; destructive/generation operations still require explicit user input.
 
 IndexedDB stores flash sectors in the `nauclerus-sim` database on the current origin.
-Use the firmware's PROJECT SAVE to save edits, just as on the device. Reload/power-on
+Use the firmware's PROJECT SAVE to save edits, just as on the device: two activations
+within approximately 1.5 seconds, including for an empty slot. Save an empty slot
+before turning K2 clockwise to open NAME. Reload/power-on
 restores the last saved project. Clearing site data or confirming “Reset to demos” erases
 browser saves. Storage failures are reported instead of pretending to save. Older
 Hortator `fm1-sim` data is left untouched and is not automatically imported; this avoids
@@ -100,6 +106,12 @@ manual/panel controls, feature labs and IndexedDB reloads. No device is contacte
 
 ## Simulation limits and publication
 
+LCD colors use the shared firmware RGB565 renderer, not a JavaScript palette.
+The 1.0.0 source has fourteen themes, carried forward from 0.25.1, including updated VIOLET
+(#905BA8/white), VIOLET INV (white/#905BA8), PINK (#D397CA/black) and PINK INV
+(black/#D397CA). Historical 0.25.0 simulator artifacts have twelve themes and the
+earlier VIOLET color. The 1.0.0 portal uses the current fourteen-theme renderer.
+
 No hardware USB/TRS MIDI, USB audio device, Bluetooth radio, physical calibration,
 update/recovery or hardware CPU-headroom claim is made. This is Web Audio, not an FM-1
 USB device. Browser speed and browser storage are not hardware performance/reliability
@@ -113,6 +125,18 @@ It verifies package SHA-256 and size in the browser before enabling installation
 requires explicit acknowledgement/confirmation, and supports both legacy and
 Nauclerus port names. No obsolete Hortator download is offered as Nauclerus.
 A package is never automatically published with a preview.
+
+For release staging, after a matching simulator build and package review:
+
+```sh
+python3 web/make_site.py build/nauclerus-1.0.0.fwsc 1.0.0 /tmp/nauclerus-release-site
+```
+
+Choose an empty destination. Preview metadata keeps `installer_enabled: false`.
+Verified release staging updates `firmware.json`, `version.json` and
+`deployment.json` with installer availability and the selected package metadata;
+`deployment.json` also records the selected version and keeps `published: false`.
+`stable-release-prepared` describes local staging, not completed public deployment.
 
 Before a separately authorized deployment, review `build/pages`, test it under
 `/nauclerus/`, and append a deployment commit to the existing `gh-pages` history in an

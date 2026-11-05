@@ -3,15 +3,15 @@
 // The FM-1 simulator page: draws the panel (two layouts: the device's landscape, a stacked portrait for phones),
 // turns pointer and keyboard input into messages for the worklet (worklet.js runs the firmware), paints the
 // frames it sends back, and keeps the flash it writes in IndexedDB (store.js).
-import { BTN, ENC, KEYS, HeldSet, keyEvent, keyHint, contextMenuLatches } from './controls.js?v=319fa1756664';
-import { FlashStore, openFlashDb } from './store.js?v=319fa1756664';
-import { needsResume, playbackSession } from './audio.js?v=319fa1756664';
-import { parseReel } from './reel.js?v=319fa1756664';
-import { initFeatures } from './features.js?v=319fa1756664';
-import { initManual } from './manual.js?v=319fa1756664';
-import { installCount, loadPageCounter } from './counter.js?v=319fa1756664';
-import { ditherBackground, initGlitch } from './dither.js?v=319fa1756664';
-import { LAYOUTS, DECO_CLASS, blend, heroPose, outline } from './layout.js?v=319fa1756664';
+import { BTN, ENC, KEYS, HeldSet, keyEvent, keyHint, contextMenuLatches } from './controls.js?v=885112ac6477';
+import { FlashStore, openFlashDb } from './store.js?v=885112ac6477';
+import { needsResume, playbackSession } from './audio.js?v=885112ac6477';
+import { parseReel } from './reel.js?v=885112ac6477';
+import { initFeatures } from './features.js?v=885112ac6477';
+import { initManual } from './manual.js?v=885112ac6477';
+import { installCount, loadPageCounter } from './counter.js?v=885112ac6477';
+import { ditherBackground, initGlitch } from './dither.js?v=885112ac6477';
+import { LAYOUTS, DECO_CLASS, blend, heroPose, outline } from './layout.js?v=885112ac6477';
 
 // ---- the panel's elements (built once, placed per layout)
 const device = document.getElementById('device');
@@ -298,7 +298,7 @@ function wake() {                                 // a tap or a key brings a sto
 }
 
 // ---- power on
-const wasmBytes = fetch('fm1sim.wasm?v=319fa1756664').then(r => {
+const wasmBytes = fetch('fm1sim.wasm?v=885112ac6477').then(r => {
   if (!r.ok) throw new Error(`fm1sim.wasm: HTTP ${r.status}`);
   return r.arrayBuffer();
 });
@@ -325,7 +325,7 @@ async function powerOn() {
     playbackSession(navigator);
     ctx = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
     const resumed = ctx.resume();                         // inside the tap: browsers allow sound from here on
-    await ctx.audioWorklet.addModule('worklet.js?v=319fa1756664');
+    await ctx.audioWorklet.addModule('worklet.js?v=885112ac6477');
     const [wasm, sectors] = await Promise.all([wasmBytes, store.load()]);
     node = new AudioWorkletNode(ctx, 'fm1', { numberOfInputs: 0, outputChannelCount: [2], processorOptions: { wasm, sectors } });
     node.port.onmessage = e => {
@@ -395,7 +395,7 @@ function bindPage() {
 let reel = null, reelPos = -1, reelT0 = 0;
 const reelFb = new Uint16Array(240 * 240);
 if (window.DecompressionStream)
-  fetch('reel.bin.gz?v=319fa1756664')
+  fetch('reel.bin.gz?v=885112ac6477')
     .then(r => r.ok ? new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer() : Promise.reject())
     .then(b => { reel = parseReel(b); reelT0 = performance.now(); })
     .catch(() => { /* no reel: the screen stays dark until Switch on */ });
@@ -505,7 +505,7 @@ installCount().then(n => {
   el.replaceChildren('Installed ', b, n === 1 ? ' time' : ' times');
   el.hidden = false;
 });
-fetch('version.json?v=319fa1756664').then(r => r.ok ? r.json() : Promise.reject()).then(v => {
+fetch('version.json?v=885112ac6477').then(r => r.ok ? r.json() : Promise.reject()).then(v => {
   const [y, m, d] = v.date.split('-').map(Number);
   const newer = v.since.length ? ` and ${v.since.length} newer change${v.since.length > 1 ? 's' : ''}` : '';
   document.getElementById('fw-version').textContent =
@@ -561,4 +561,4 @@ ditherBackground(document.getElementById('stage'), (x, y) => {
 ditherBackground(document.getElementById('foot-band'), (x, y) => 1 - Math.abs(2 * y - 1), getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(), getComputedStyle(document.documentElement).getPropertyValue('--surface').trim());
 initGlitch();
 
-fetch('lab_ids.json?v=319fa1756664').then(r=>r.json()).then(v=>{document.getElementById('engine-count').textContent=`${v.models.length} models · ${v.presets.factory} factory presets · ${v.presets.user} user slots.`;});
+fetch('lab_ids.json?v=885112ac6477').then(r=>r.json()).then(v=>{document.getElementById('engine-count').textContent=`${v.models.length} models · ${v.presets.factory} factory presets · ${v.presets.user} user slots.`;});

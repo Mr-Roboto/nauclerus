@@ -1,147 +1,49 @@
 {
   "creator": "Mr. Roboto",
   "product": "FM-1_25000",
-  "usb_product": "Nauclerus",
+  "usb_product": "Nauclerus FM-1",
   "project": "Nauclerus",
-  "version": "0.25.0",
-  "identity": "Nauclerus 0.25.0",
-  "source_digest": "319fa175666442f1dda3c352658c51565e58930d160efc2f6b49e07db704769f",
-  "source_archive_sha256": "1bedf7fb61f1563c30b1b924fc44602344329d0d6a8aae7e8c95728c99fabdae",
-  "wasm_sha256": "0a3854e027766519be3dc7ffd25f25f46693d8f28b3875edc8005eef244a14e4",
-  "commit": "8c7fdcc869c6c2c30cba100277b7bd3e50958da4",
+  "version": "1.0.0",
+  "identity": "Nauclerus 1.0.0",
+  "source_digest": "885112ac647770457de56e979856e230d42dac52af46758a4181ee3adee739bf",
+  "source_archive_sha256": "d7e6a101e62124fcf95271f99142ee49e027694ced3aafb8d858bb7747af8141",
+  "wasm_sha256": "8cc22057449875a6f3d0abe4fa7993fbe848507a844bcbd1e8e4b7570c292874",
+  "commit": "d2860962f2441bb3b2e2cd457c87bae07995cbac",
   "dirty_snapshot": false,
-  "date": "2026-10-28",
+  "date": "2026-11-05",
   "installer_enabled": true,
   "publication_status": "stable-release",
   "canonical": "https://mr-roboto.github.io/nauclerus/",
   "since": [
     {
-      "title": "Stable release of the accepted RC13",
-      "text": "Stable release of the accepted RC13 implementation; no additional DSP changes."
+      "title": "USB-MIDI discovery",
+      "text": "Nauclerus FM-1 USB product, FM-Tangram discovery and unique numbered Web MIDI port pairing."
     },
     {
-      "title": "Fix cached MENU/ABOUT transport headers, same-frame",
-      "text": "Fix cached MENU/ABOUT transport headers, same-frame modal MIDI Learn/effect cancellation and REMIX held-step accents."
+      "title": "Flash-chip compatibility",
+      "text": "Puya P25Q80 and UC25HQ80 supported; firmware identity, update loader and project formats preserved."
     },
     {
-      "title": "Correct obsolete release test references using",
-      "text": "Correct obsolete release test references using independent accepted-firmware evidence; retain integrity guards and test tolerances."
-    },
-    {
-      "title": "Four-slot BIP / magnitude-only UNI+ /",
-      "text": "Four-slot BIP / magnitude-only UNI+ / UNI\u2212 routing; compatibility and source IDs preserved."
-    },
-    {
-      "title": "Source-matched WASM simulator and interactive manual",
-      "text": "Source-matched WASM simulator and interactive manual with Graphite/Champagne/Amber styling."
-    },
-    {
-      "title": "Web installer requires exact stable package",
-      "text": "Web installer requires exact stable package SHA-256, acknowledgement and explicit confirmation."
-    },
-    {
-      "title": "ACID default-render golden updated only after",
-      "text": "ACID default-render golden updated only after byte-identical RC11/RC12/RC13 comparison; all other goldens and thresholds unchanged."
-    },
-    {
-      "title": "All four LFO routing slots use",
-      "text": "All four LFO routing slots use unsigned 0\u2013100% DEPTH for UNI+/UNI\u2212."
-    },
-    {
-      "title": "Four LFO DEST slots now independently",
-      "text": "Four LFO DEST slots now independently select L1BI/L2BI, L1U+/L2U+ or L1U-/L2U-."
-    },
-    {
-      "title": "Existing parameter IDs/FDRF size remain unchanged.",
-      "text": "Existing parameter IDs/FDRF size remain unchanged. Old projects and default slots"
-    },
-    {
-      "title": "Owner's explicit 2026-10-28 declaration resolves the",
-      "text": "Owner's explicit 2026-10-28 declaration resolves the ORB provenance record: independent"
-    },
-    {
-      "title": "ACID/filter/oscillator DSP, all accepted RC11 sound/UI",
-      "text": "ACID/filter/oscillator DSP, all accepted RC11 sound/UI behavior outside the routing"
-    },
-    {
-      "title": "ORB Remix: all 256 canonical mappings",
-      "text": "ORB Remix: all 256 canonical mappings from X0X-RMX v1.1.0, identity A1 and independent 16-step block"
-    },
-    {
-      "title": "REMIX page between PATTERN and MOTION:",
-      "text": "REMIX page between PATTERN and MOTION: K1/K2 draft Bank/Pattern, K4 SET or OCT+ confirm;"
-    },
-    {
-      "title": "Compact validated project extensions for Remix",
-      "text": "Compact validated project extensions for Remix and per-track TB-3PO settings/seeds. Existing FDRF"
-    },
-    {
-      "title": "TB-3PO port of the actual pinned",
-      "text": "TB-3PO port of the actual pinned X0X-RMX generator:22 scales, deterministic motif/phrase generation,"
-    },
-    {
-      "title": "ACID: SAW, variable 5\u201395% PULSE and",
-      "text": "ACID: SAW, variable 5\u201395% PULSE and the Sharkfin/Trapezoid/Notch-Trapezoid MORPH family; smoothed"
-    },
-    {
-      "title": "FASTSLOW, UID 152, first ACID preset",
-      "text": "FASTSLOW, UID 152, first ACID preset in MODERN: TUNE \u221212, DECAY 50, CUTOF 80, RESO 30, ENVMD 60,"
-    },
-    {
-      "title": "Final four-page ACID EDIT layout preserves",
-      "text": "Final four-page ACID EDIT layout preserves all 15 controls, including GATE and additional MORPH,"
-    },
-    {
-      "title": "LFO destination A.MOR appended without renumbering",
-      "text": "LFO destination A.MOR appended without renumbering existing destinations. Either/both LFOs and"
-    },
-    {
-      "title": "ACID resonance-feedback high-pass improves measured bass",
-      "text": "ACID resonance-feedback high-pass improves measured bass retention without raising global gain."
-    },
-    {
-      "title": "Grids WRITE: stopped OCT+ captures a",
-      "text": "Grids WRITE: stopped OCT+ captures a deterministic 64-position two-bar MAP/EUCLID snapshot into"
-    },
-    {
-      "title": "HOME/GLO: short GLO opens/closes MENU, held",
-      "text": "HOME/GLO: short GLO opens/closes MENU, held GLO keeps MUTE; held HOME enters Settings and exits"
-    },
-    {
-      "title": "MENU SEL/SCL ENTER for dedicated screens,",
-      "text": "MENU SEL/SCL ENTER for dedicated screens, retaining OCT+ ENTER, OCT\u2212 BACK and SELECT navigation."
-    },
-    {
-      "title": "Twelve device color themes: ORANGE/INV, BLUE/INV,",
-      "text": "Twelve device color themes: ORANGE/INV, BLUE/INV, WHITE/INV, YELLOW/INV, VIOLET/INV, RED/INV."
-    },
-    {
-      "title": "Mr. Roboto's development/modifications/remix credit adde",
-      "text": "Mr. Roboto's development/modifications/remix credit added to ABOUT; original attribution preserved."
-    },
-    {
-      "title": "Linux host harness portability retained with",
-      "text": "Linux host harness portability retained with unavailable instruction counters explicitly skipped;"
-    },
-    {
-      "title": "Independently adopted Nauclerus security baseline with",
-      "text": "Independently adopted Nauclerus security baseline with immutable pins and fail-closed source/reference"
-    },
-    {
-      "title": "RC11 acceptance: owner reports 10/11 physical",
-      "text": "RC11 acceptance: owner reports 10/11 physical checks PASS; the remaining subjective resonance concern"
+      "title": "0.25.1 corrections retained",
+      "text": "Grids WRITE preserves LEN, ACID TRIANGLE and fourteen color themes."
     }
   ],
   "release": {
-    "version": "0.25.0",
-    "notes": []
+    "version": "1.0.0",
+    "tag": "v1.0.0",
+    "url": "https://github.com/Mr-Roboto/nauclerus/releases/tag/v1.0.0",
+    "notes": [
+      "Nauclerus FM-1 USB product, FM-Tangram discovery and unique numbered Web MIDI port pairing.",
+      "Puya P25Q80 and UC25HQ80 supported; firmware identity, update loader and project formats preserved.",
+      "Grids WRITE preserves LEN, ACID TRIANGLE and fourteen color themes."
+    ]
   },
   "compiler": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.69 ()",
   "firmware": {
-    "version": "nauclerus-0.25.0+8c7fdcc",
+    "version": "1.0.0",
     "product": "FM-1_25000",
-    "pkg": "../../firmware/nauclerus-0.25.0.fwsc",
+    "pkg": "../../firmware/nauclerus-1.0.0.fwsc",
     "bytes": 609649,
-    "sha256": "b496e081fd78c05eaa3cd368caf384285ec7b708477c5ff638f373e6a3c2a870"
+    "sha256": "72e923840964a892a25dadb3db6b91576734fca1e1e73b86ec1a2aa007f478e0"
   }
 }

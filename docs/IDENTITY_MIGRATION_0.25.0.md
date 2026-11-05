@@ -28,3 +28,9 @@ logic changes. The sole frozen-source difference is the specifically approved
 USB product declaration; its old independent baseline remains pinned. H2 permits
 only the required compiled identity literal/copy bound, not a protocol exemption.
 Historical RC13 identity/hash records remain unchanged.
+
+## Physical update confirmation — 2026-10-28
+
+The owner reports that the physical M-VAVE FM-1 was successfully updated from the previously installed Nauclerus RC13 (`FM-1_900`) to the published Nauclerus 0.25.0 (`FM-1_25000`) using the Nauclerus web installer. The device restarted and the new firmware is running on hardware. **Physical migration: owner-confirmed PASS.**
+
+This is an owner-reported real-device outcome, not an automated test or independent inspection. A physical rollback to RC13 or stock firmware has **not** been reported or verified. Historical pre-release statements above remain accurate for the release-check phase.

@@ -1,7 +1,7 @@
 {
-  "version": "nauclerus-0.25.0+8c7fdcc",
+  "version": "1.0.0",
   "product": "FM-1_25000",
-  "pkg": "../../firmware/nauclerus-0.25.0.fwsc",
+  "pkg": "../../firmware/nauclerus-1.0.0.fwsc",
   "bytes": 609649,
-  "sha256": "b496e081fd78c05eaa3cd368caf384285ec7b708477c5ff638f373e6a3c2a870"
+  "sha256": "72e923840964a892a25dadb3db6b91576734fca1e1e73b86ec1a2aa007f478e0"
 }

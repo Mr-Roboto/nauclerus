@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Nauclerus demonstrations: configure the existing isolated production-firmware lab.
 // All oscillation, routing, generation, recording, locks and mapping run in WASM.
-import { el } from './lab_ui.js?v=319fa1756664';
+import { el } from './lab_ui.js?v=885112ac6477';
 export default function nauclerus(plate,{lab,ids,screen}) {
   const kind=plate.dataset.piece,{P,LF,DM,fs}=ids;
   const box=el('div','nau-lab'), controls=el('div','lab-controls'), canvas=el('canvas'), readout=el('p','readout');canvas.width=720;canvas.height=150;box.append(controls,canvas,readout);plate.append(box);

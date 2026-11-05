@@ -1,5 +1,5 @@
 {
-  "source_digest": "319fa175666442f1dda3c352658c51565e58930d160efc2f6b49e07db704769f",
+  "source_digest": "885112ac647770457de56e979856e230d42dac52af46758a4181ee3adee739bf",
   "files": [
     {
       "path": ".github/FUNDING.yml",
@@ -13,13 +13,13 @@
     },
     {
       "path": "BUILDING.md",
-      "sha256": "b4c38f0b9374022ba4d0e4510806521ccc1133a0ecea075203d9fdba6f9bf9f9",
-      "bytes": 4156
+      "sha256": "1d3f5f7f9f50c4df1902553f1dd3ae7db14fd992c3aac19d7a8330e66b4deefd",
+      "bytes": 5083
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "36a2a5dbcaf799b0bfcd98ad473755dc5bbed4f6d4d4d051564dcb0cdde94b51",
-      "bytes": 53975
+      "sha256": "cb74c59ecc48728d2024ca2fe967d257f18c3acef22c464b2e48471e6d4187ed",
+      "bytes": 56520
     },
     {
       "path": "LICENSE",
@@ -63,13 +63,13 @@
     },
     {
       "path": "README.md",
-      "sha256": "e42bd150c7c820acba01a2f22ee7a239277054a66398cbc654d7a1c22ff2cc45",
-      "bytes": 38722
+      "sha256": "d5e6c1109f7352d665b3373a79804e8c4f7c22a0e11a35746916b5b2dc00e3be",
+      "bytes": 40224
     },
     {
       "path": "VERSION.txt",
-      "sha256": "4b67cac8ce2a6e82a4e11ba210c84b4adfc72db7f4629785f7d3d09d6147795d",
-      "bytes": 7
+      "sha256": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
+      "bytes": 6
     },
     {
       "path": "assets/fonts/Terminus-LICENSE.txt",
@@ -278,8 +278,8 @@
     },
     {
       "path": "docs/IDENTITY_MIGRATION_0.25.0.md",
-      "sha256": "eeea1aff3d7da260ebaef3ba8ab4c27e6176bf7244be823e8a56107b69760a1c",
-      "bytes": 1778
+      "sha256": "9aeb7dd609e631793fca3368ce24dba7e812b1c4a0a49687c790c72be5441932",
+      "bytes": 2421
     },
     {
       "path": "docs/NAUCLERUS_SECURITY_BASELINE_ADOPTION.md",
@@ -315,6 +315,11 @@
       "path": "docs/RELEASE_NOTES_0.25.0.md",
       "sha256": "45d60b7523d4d96d22bede61ebca564490acd9c4cf80ce66c775f83b71b069f3",
       "bytes": 4537
+    },
+    {
+      "path": "docs/RELEASE_NOTES_1.0.0.md",
+      "sha256": "ec414e9181a72bdfd49e46a9c9224f0befa0424895a92803ca2140472b472888",
+      "bytes": 4580
     },
     {
       "path": "docs/RELEASE_READINESS_0.25.0.md",
@@ -373,8 +378,8 @@
     },
     {
       "path": "docs/SIMULATOR.md",
-      "sha256": "ea6e5a4a1c6c5e64b846c1191f764cb5f07899c202d7846a4e9c2469d04acb7e",
-      "bytes": 7191
+      "sha256": "724e4eca460ff20fb867ca374472b60e1c30f8a90eac0a995b772eedd35e40b7",
+      "bytes": 8477
     },
     {
       "path": "docs/UPSTREAM_1.0.2.md",
@@ -383,13 +388,13 @@
     },
     {
       "path": "docs/USER_GUIDE.md",
-      "sha256": "d61292b018af00ff19c80a0ca1c3411ebf7b6326b9d63e4fb187b95aefcaea88",
-      "bytes": 25313
+      "sha256": "7fde87d62c64de597153930a09e8e7dd2b921d64760615e9a939ec12de5cbf99",
+      "bytes": 26484
     },
     {
       "path": "docs/VERSIONING.md",
-      "sha256": "a85f39ab0b1a0005d5f310632b979b16ecd3120c441d2153c698a9c9ce2f0eea",
-      "bytes": 3123
+      "sha256": "545242d67ec79893a22ba4239c89f92a7b2fd341fe5f2eebb4e9c881ef2ec96b",
+      "bytes": 3988
     },
     {
       "path": "docs/bench/2026-10-08-baseline.md",
@@ -903,8 +908,8 @@
     },
     {
       "path": "firmware/src/acid_wave.c",
-      "sha256": "291cdc7cd4ea8a20df9c8fc2ae68f6f6d500a23d126a63a69a7757bc05b9718a",
-      "bytes": 6551
+      "sha256": "2088430e5a194ea0b1652170acbd97806b00a8b8c887ff899084d8de143d580e",
+      "bytes": 6527
     },
     {
       "path": "firmware/src/audio.c",
@@ -1038,8 +1043,8 @@
     },
     {
       "path": "firmware/src/dm_acid.c",
-      "sha256": "49dfdb557095f423414a4456d8bd355b673fb2d8d69633b5a0715454d3876b35",
-      "bytes": 14229
+      "sha256": "5828175b97529e62a9dc57bc503dd6c002294f4a3cc21164e51a800c9e8fa2bb",
+      "bytes": 14267
     },
     {
       "path": "firmware/src/dm_b2trx.c",
@@ -1188,8 +1193,8 @@
     },
     {
       "path": "firmware/src/gfx.c",
-      "sha256": "7b7189d77534865a414d12119985b936b393e8886722366964bacf5499e48ccc",
-      "bytes": 19241
+      "sha256": "ac57c0b5409aec99af40d639c3224c12dad5de538208298cc969c3a605b0c763",
+      "bytes": 19350
     },
     {
       "path": "firmware/src/grids.c",
@@ -1293,13 +1298,13 @@
     },
     {
       "path": "firmware/src/presets.c",
-      "sha256": "9f3d923f1d69249bffe7427bb59bd968e412d561f86c3b58e99dac7074a1a678",
-      "bytes": 12156
+      "sha256": "0a4b4228739ef9e97cd907f28813d8a6e566f3a261957080ec3ef4fa5865171a",
+      "bytes": 12033
     },
     {
       "path": "firmware/src/project.c",
-      "sha256": "543e61b17c884db6037ab5e7482db6032685bd972a0037ccf7d804b91266ecfa",
-      "bytes": 58131
+      "sha256": "b4cfc3515dfcca1a6b6c4b28c6f3fde8c0cef2ad3582c24db7ff8ea703eb8f5b",
+      "bytes": 58355
     },
     {
       "path": "firmware/src/remix.c",
@@ -1373,13 +1378,13 @@
     },
     {
       "path": "firmware/src/ui_draw.c",
-      "sha256": "cbd05d75e99711e3149c41665faef15c6f85471141fe6e7d936043f122d6ce83",
-      "bytes": 131242
+      "sha256": "6a2a6ece56c0249e34b9f9356648af243e9a0572d14114dc2e17e5d4af36370e",
+      "bytes": 131264
     },
     {
       "path": "firmware/src/ui_input.c",
-      "sha256": "b393414fdb32bd183942c8b71ede99874787588675a93fbe0f20ecfda42757c7",
-      "bytes": 73506
+      "sha256": "45f263d8002f6eafcb1cb191348a08f1c3a30862b89a9559a2bc469de2a41aa4",
+      "bytes": 73521
     },
     {
       "path": "firmware/src/ui_learn.c",
@@ -1388,7 +1393,7 @@
     },
     {
       "path": "firmware/src/ui_menu.c",
-      "sha256": "8407b9e1e94fdc04569272d602cc2790d937fb18fa427167fe1bce59d6590d9a",
+      "sha256": "75bdbe85b9e12f554530e85c181ddfa32a132c2f7b4ce1dcd32b7fbcc5949678",
       "bytes": 15641
     },
     {
@@ -1408,8 +1413,8 @@
     },
     {
       "path": "firmware/src/usb_app.c",
-      "sha256": "fcf2cc3724df6ce76a9bc8cd3079cf64788c799513e470132b7031ba3f02dc49",
-      "bytes": 39661
+      "sha256": "70643d3e35b26d40f80faff4c5fa828ea9b1aa40301ce12cfe410c12fda22def",
+      "bytes": 39732
     },
     {
       "path": "tests/accel_test.c",
@@ -2113,7 +2118,7 @@
     },
     {
       "path": "tools/check_package_integrity.py",
-      "sha256": "09eda211d315102aa08fd7b83c826ecb92a5934fb21743c8a5c02859acea4192",
+      "sha256": "fb214bf1ebff59d8df5845d752c3b84031c76113ea1e8084b708707c275fd9a0",
       "bytes": 8451
     },
     {
@@ -2163,8 +2168,8 @@
     },
     {
       "path": "tools/fm1_install.py",
-      "sha256": "3ea05bf1cdd5e94f7a518fa322256296af79ae73612f6e3d2411f1aa0333e338",
-      "bytes": 17656
+      "sha256": "e86fdb51385b78681edaccdd044ff1544a9568ad55fc4bba9179828bfb77ac7c",
+      "bytes": 17667
     },
     {
       "path": "tools/fm1_sample_upload.py",
@@ -2273,8 +2278,8 @@
     },
     {
       "path": "tools/security_baseline.py",
-      "sha256": "391e1bebfc0e8dad3caff3e4ac769a97821345127f69d3d8dc89474f8dcac648",
-      "bytes": 7732
+      "sha256": "f069628f083e0488a99d1d9f102e053cd0cdc5de865d341804065222ac7e6609",
+      "bytes": 7802
     },
     {
       "path": "tools/security_build_inputs.json",
@@ -2298,8 +2303,8 @@
     },
     {
       "path": "tools/theme_sheet.py",
-      "sha256": "b25ab1b7fb85e0bfe2db15781603810b355f6faef3d801de279e4bde083825dc",
-      "bytes": 1930
+      "sha256": "5dd5e1546f1f7045039e60e2c80264dda550154f660187b02dfa1427d99e8028",
+      "bytes": 1984
     },
     {
       "path": "tools/upstream_build.sh",
@@ -2308,8 +2313,8 @@
     },
     {
       "path": "tools/version.py",
-      "sha256": "302151beb2fd059679eae3e70ac7a8a435bdad052b333a53ba3506b598937f1b",
-      "bytes": 6932
+      "sha256": "eff4f3d9589b38065d9b8b027589b6b58717d4b90758441c516cb84eba53093c",
+      "bytes": 6937
     },
     {
       "path": "web/EDITOR_PROTOCOL.md",
@@ -2328,8 +2333,8 @@
     },
     {
       "path": "web/fm1ota.js",
-      "sha256": "e539c3defb12fbab73dd30ec6c78176ce15fec24ae97a0d1c87045060ba8846d",
-      "bytes": 9377
+      "sha256": "43e25113629870f117ec2a7e9e22399e89d5d4415d0b947b203f2f9de27077f6",
+      "bytes": 9859
     },
     {
       "path": "web/fm1pkg.js",
@@ -2343,8 +2348,8 @@
     },
     {
       "path": "web/index_nauclerus.html",
-      "sha256": "59ab8a5f88684a7a7b3f3df8242cca9f55de9caada0e8a168da324b5eff53789",
-      "bytes": 10300
+      "sha256": "314339313c44651d9405791b303c37857652fc393e4594f14d32fd3b222dd31b",
+      "bytes": 10263
     },
     {
       "path": "web/index_pkg.html",
@@ -2353,8 +2358,8 @@
     },
     {
       "path": "web/make_site.py",
-      "sha256": "9154093f78bb3213e28028de63be53c1fc24b4052a2839b26688ae34526ff4d6",
-      "bytes": 6098
+      "sha256": "80bcbe933ff4a1f56537bdbefc550ba9a92674b56e6ec104e401117fd828bdae",
+      "bytes": 6636
     },
     {
       "path": "web/package.json",
@@ -2398,8 +2403,8 @@
     },
     {
       "path": "web/sim/index.html",
-      "sha256": "0fe1e6e4041a8313fc2a960c534d617208c9c029cb7d1f77a3a0e8e9285f3c83",
-      "bytes": 17482
+      "sha256": "6abef125cfd09751d29760b866e7e6a7cbcdd99889cd305b222b1ee63cf6db5b",
+      "bytes": 17566
     },
     {
       "path": "web/sim/lab.js",

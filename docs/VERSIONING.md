@@ -41,11 +41,24 @@ The current application identity is `Nauclerus <VERSION.txt>`. Historical `DRUM-
 approval to publish Nauclerus. Stable firmware publication requires a separate reviewed
 source snapshot, explicit release approval and the release-readiness checks.
 
-## Nauclerus identity (NAU-0250-015)
+## Nauclerus stable releases
+
+For the explicitly authorized 1.0.0 release, keep VERSION.txt at 1.0.0 and reuse
+the verified package; do not rebuild firmware or rerun full suites for publication.
+Commit the reviewed compatibility and documentation changes on the development
+branch, push it, then merge into main while retaining both histories and existing
+stable documentation. Tag the integrated commit v1.0.0 and create a non-prerelease
+GitHub release with the exact package, matching source, licenses and checksums.
+Stage the portal and hash-verified installer through web/make_site.py; append a
+deployment commit to gh-pages without rewriting history. Verify the completed
+Pages build, release/download URLs and downloaded package hashes before reporting
+publication complete. Historical releases and their artifacts remain unchanged.
+
+## Nauclerus identity (NAU-0250-015, NAU-100-02)
 
 `tools/version.py` declares the stable project identity FM-1_25000 and USB product
-Nauclerus. VERSION.txt independently selects the display version, currently
-Nauclerus 0.25.0. Normal builds pass this exact ID into the application and package.
+`Nauclerus FM-1`. VERSION.txt independently selects the display version, currently
+Nauclerus 1.0.0 Stable. Normal builds pass this exact ID into the application and package.
 The legacy --release X.Y identity override is refused. The shared ota-FM-1_900
 loader and VID/PID remain unchanged. Do not globally replace legacy identities in
 migration fixtures or historical evidence. Public Nauclerus creator fields use
