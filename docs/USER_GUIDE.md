@@ -1,10 +1,11 @@
-# Nauclerus 0.25.0 user guide
+# Nauclerus 1.0.0 user guide
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Release artifacts and validation are recorded in [release readiness](RELEASE_READINESS_0.25.0.md).
+Candidate artifacts, validation scope and limitations are recorded in the
+[1.0.0 release notes](RELEASE_NOTES_1.0.0.md).
 
-This guide describes **Nauclerus 0.25.0**, the accepted RC13 implementation. Earlier phase documents describe historical development contracts;
+This guide describes **Nauclerus 1.0.0**, including the corrections carried forward from 0.25.1. Earlier phase documents describe historical development contracts;
 this guide takes precedence for current controls.
 
 ## Panel navigation
@@ -89,7 +90,7 @@ use SAW/PULSE/TRIANGLE independently. Extreme narrow PWM naturally changes harmo
 its bass fundamental is not identical to a 50% pulse.
 
 WAVE selection follows numerical order: 0 SAW, 1 PULSE, 2 TRIANGLE, 3 MORPH.
-In 0.25.1 development, TRIANGLE replaces the legacy fixed-width PULSE at ID 2;
+Carried forward from 0.25.1, TRIANGLE replaces the legacy fixed-width PULSE at ID 2;
 existing saved WAVE 2 values now select TRIANGLE without a storage-format change.
 WAVE 1 presets still initialize MORPH to 64 (50% pulse width); TRIANGLE presets
 do not reset MORPH. Projects retain saved PWM amounts. MORPH remains ID 3.
@@ -326,7 +327,11 @@ One clockwise K4 movement on page 2 assigns T1/T2/T3 SRC to G-KCK/G-SNR/G-HAT.
 Anticlockwise does nothing. It does not change models, steps or sounds, so choose
 appropriate drum models yourself. T4–T8 are untouched. Song editing restrictions apply.
 
-On either GRIDS page, stopped, **OCT+ WRITE** overwrites all non-ACID tracks currently
+Set each track's LEN on TRACKS, not GRIDS. In EUCL mode the GRIDS length controls
+set the generator channels' lengths; they do not set track LEN. Live Grids sources
+bypass ORB Remix until converted to ordinary STEP patterns.
+
+Stop playback, then press **OCT+ WRITE** on either GRIDS page. This overwrites all non-ACID tracks currently
 sourced from a Grids channel using a deterministic 64-position 1/32 snapshot of that
 channel. Each target retains its existing LEN (1–64): trigger/accent fields are
 written only to steps 0 through LEN−1 with ordinary drum defaults, and all unused
@@ -348,6 +353,9 @@ SAVE > PROJECT: K1 SLOT A–D, K2 NAME, K3 LOAD, K4 SAVE. OCT−/OCT+ are altern
 LOAD/SAVE inputs through the same handlers. GO actions use a first activation to
 arm (`AGAIN: LOAD/SAVE`) and a second within approximately 1.5s to act. Shortcuts do
 not bypass this safeguard. Stop transport for SAVE/LOAD (`STOP TO SAVE/LOAD`).
+SAVE also requires both activations for an empty slot; the first only arms it.
+Turn K2 clockwise to open NAME for an occupied slot. An empty slot shows
+`EMPTY SLOT`: complete SAVE first, then turn K2 clockwise to name it.
 NAME supports 12 characters; OCT+ writes the name, OCT− or HOME cancels.
 
 A project stores sounds, levels, steps/timing, Grids settings, LFOs/routing, Motion
@@ -384,9 +392,9 @@ or running use STOP TO EDIT. Automatic Song mutations affect RAM copies only.
 ## Color themes
 
 GLO short → MENU → COLOR. K1 steps in either direction; OCT+ advances, wrapping.
-The fourteen themes in 0.25.1 development menu order are ORANGE, ORANGE INV, BLUE,
+The fourteen themes in 1.0.0 menu order are ORANGE, ORANGE INV, BLUE,
 BLUE INV, WHITE, WHITE INV, YELLOW, YELLOW INV, VIOLET, VIOLET INV, RED, RED INV,
-PINK, PINK INV. Published 0.25.0 firmware and its simulator retain their original
+PINK, PINK INV. Historical 0.25.0 firmware and its simulator retain their original
 twelve themes and previous VIOLET color (#7524CF).
 
 | Stored index | Name | Background | Ink |
@@ -422,8 +430,9 @@ Hügelton Instruments**. Original authors, contributors and license notices rema
 in MENU > ABOUT and [LICENSING.md](../LICENSING.md); see the README Credits for the
 complete third-party list.
 
-See [release notes](RELEASE_NOTES_0.25.0.md) for the stable announcement and
-[release readiness](RELEASE_READINESS_0.25.0.md) for release validation and known limitations.
+See the [1.0.0 candidate notes](RELEASE_NOTES_1.0.0.md) for current release status
+and limitations. The [0.25.0 announcement](RELEASE_NOTES_0.25.0.md) and
+[readiness record](RELEASE_READINESS_0.25.0.md) are historical evidence, not 1.0.0 validation.
 
 The ORB record is resolved by Mr. Roboto's explicit independent-creation/redistribution declaration;
 Future Retro Orb is conceptual inspiration only. Exact table values and their source-to-binary chain

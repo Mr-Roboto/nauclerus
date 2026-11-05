@@ -24,13 +24,13 @@ built on **[Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita / Hü
 adds support for Puya P25Q80 and UC25HQ80 flash chips using the minimal Hortator 1.0.1
 allowlist fix. Nauclerus features, project/storage formats, firmware identity and
 update loader are preserved. See the [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md).
-The published stable package and simulator remain 0.25.0; their
-[validation record](docs/RELEASE_VALIDATION_0.25.0.md) does not validate this candidate.
+Publication of the 1.0.0 package and matching simulator is pending. The historical
+[0.25.0 validation record](docs/RELEASE_VALIDATION_0.25.0.md) does not validate this candidate.
 
 - **[User guide](docs/USER_GUIDE.md):** current page layouts, button combinations and recording/storage behavior.
 - **[1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md)**; historical **[0.25.0 release notes](docs/RELEASE_NOTES_0.25.0.md)** and **[release readiness](docs/RELEASE_READINESS_0.25.0.md)**.
 - Upstream Hortator browser/installer links and historical phase documents describe upstream or earlier
-  implementations. They are not a published Nauclerus 0.25.0 installer or a substitute for its release package.
+  implementations. Use the Nauclerus release package and its matching installer metadata.
 
 On a Roman galley, the *hortator* beat the drum that kept the rowers in time. Nauclerus preserves that
 Hortator/Felucca ancestry; all original contributor and license notices remain below.
@@ -65,7 +65,8 @@ and it is not presented as a screenshot of 0.25.0. No historical UI mockup is ad
 - **ORB Remix.** 256 owner-created mappings, A1–P16, with neutral A1. One shared GLOBAL DRUM selection and
   independent Bass selections per physical ACID track. K1/K2 draft, K4 SET or OCT+ confirm; K3 ON/OFF needs
   no confirmation. Playback changes at chronological step boundaries; notes, Motion and locks follow the
-  source while recording stays chronological. Song rows use their project slot's configurations.
+  source while recording stays chronological. Live Grids sources bypass ORB Remix until SRC becomes STEP.
+  Song rows use their project slot's configurations.
 - **TB-3PO.** The actual X0X-RMX v1.1.0 melody core, 22 scales, seeded phrases and restrained mutation.
   ARP on ACID opens GENERATE/SCALE; OCT+ NEW and OCT− MUTATE work with KEYS or ENV/STEPS enabled.
   Settings/seeds are independent per physical track and saved with projects. Automatic mutation counts
@@ -78,9 +79,10 @@ and it is not presented as a screenshot of 0.25.0. No historical UI mockup is ad
   per project (shared by the 8 tracks).
 - **SONG and names.** Chain up to 16 rows of projects with repeats; name projects on the device.
 - **Grids.** Mutable Instruments' pattern generator: a map of drum patterns, chaos, or Euclidean rhythms. Any track
-  can follow one of its three channels. On GRIDS page 2, K4 clockwise assigns T1–T3 to kick/snare/hat.
-  Stopped, OCT+ on either GRIDS page writes a deterministic snapshot to eligible drum tracks,
-  preserves each track's LEN, clears steps beyond it, sets DIV1/32/SRC STEP and enables ordinary Remix playback.
+  can follow one of its three channels. On GRIDS MAP page 2, turn K4 `ASSIGN / 3 TRACKS`
+  clockwise to assign T1–T3 to kick/snare/hat. Set track LEN on TRACKS, not GRIDS.
+  Stop playback, then press OCT+ WRITE on either GRIDS page to write a deterministic snapshot to eligible drum tracks.
+  The snapshot preserves each track's LEN, clears steps beyond it, sets DIV1/32/SRC STEP and enables ordinary Remix playback.
 - **Compressor.** The Streams compressor keyed by any track, for ducking and pumping; GHOST keeps the pump with the
   key track muted.
 - **Movement.** Two LFOs per track, ten wave shapes, three rate modes and four independent SRC/DEST/DEPTH slots.
@@ -219,6 +221,12 @@ PROJECT's SLOT points at it). If it can't be loaded (the slot is empty or unread
 `LOAD FAILED: SLOT B` / `START NEW PROJECT?`: OCT+ (YES) forgets it, OCT- (NO) tries it again at the next power-on;
 both carry on with the power-on kit. A safe start (SEQ held at power-on) loads nothing.
 
+Stop transport before saving. PROJECT SAVE (K4 clockwise or OCT+) needs two activations
+within approximately 1.5 seconds, including for an empty slot; the first shows `AGAIN: SAVE`.
+Save an empty slot before naming it. Turn K2 clockwise to open NAME for an occupied
+slot; an empty slot instead shows `EMPTY SLOT`. NAME supports 12 characters, with
+OCT+ to write the name and OCT−/HOME to cancel.
+
 Projects saved by this build can't be read by 0.16.0 or older; older projects load (every track with PRIO HIGH).
 Since the parameter locks, a project's motion lives in its own lock bank beside it: projects saved now show
 an empty slot on 0.23.x and older (`LOAD FAILED` at power-on; downgrading is safe, not supported: nothing breaks, the projects stay for this
@@ -252,13 +260,13 @@ MASTER volume, on the speaker, the headphones and USB audio. A device setting: s
 
 ### Screen colours
 
-In 0.25.1 development, GLO short > MENU > COLOR offers fourteen themes:
+In 1.0.0, GLO short > MENU > COLOR offers fourteen themes:
 **ORANGE** (default), **ORANGE INV**, **BLUE**, **BLUE INV**, **WHITE**, **WHITE INV**,
 **YELLOW**, **YELLOW INV**, **VIOLET**, **VIOLET INV**, **RED**, **RED INV**, **PINK**, **PINK INV**.
 K1 steps back/forward; OCT+ advances; selection wraps. ORANGE has #E96F25 background and #321308 ink;
 ORANGE INV is #160904 background with #F48532 ink. RED is #D80000/white; RED INV reverses it.
 VIOLET is #905BA8/white; PINK is #D397CA/black; their INV variants swap the exact pairs.
-Published 0.25.0 firmware and simulator retain twelve themes and the previous VIOLET color.
+Historical 0.25.0 firmware and simulator have twelve themes and the previous VIOLET color.
 See the [guide palette table](docs/USER_GUIDE.md#color-themes) for all pairs and stored indices.
 Preferences and default ID remain compatible: historical GREEN/GREEN INV slots are WHITE variants,
 and stored IDs0/1 now show Orange. Color is device-wide and saves when MENU closes.
@@ -371,22 +379,25 @@ FM-1's keys as live record does.
 
 ## Install
 
-Stable package: [nauclerus-0.25.0.fwsc](https://github.com/Mr-Roboto/nauclerus/releases/download/v0.25.0/nauclerus-0.25.0.fwsc).
+Current candidate: `build/nauclerus-1.0.0.fwsc` (609,649 bytes). Publication is pending;
+no 1.0.0 download or public installer deployment is claimed here.
 
 ```text
-SHA-256 b496e081fd78c05eaa3cd368caf384285ec7b708477c5ff638f373e6a3c2a870
+SHA-256 f28dff7fca14a1f311e649f9d9d8484a18deb0f6bd50bd243c2776cbefcbec58
 ```
 
-It identifies as **Nauclerus 0.25.0**, using application/package identity **FM-1_25000**, the existing
-USB VID/PID and **Felucca Update** loader. Download the matching
-source archive and licenses from [release v0.25.0](https://github.com/Mr-Roboto/nauclerus/releases/tag/v0.25.0).
+It identifies as **Nauclerus 1.0.0**, using application/package identity **FM-1_25000**, the existing
+USB VID/PID and **Felucca Update** loader. Publish the matching reviewed source archive
+and licenses alongside the package. See the [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md).
+The [v0.25.0 release](https://github.com/Mr-Roboto/nauclerus/releases/tag/v0.25.0)
+remains a historical package/source record.
 
 Use only the exact package approved for your installation and its matching instructions/checksum;
 keep a known-good recovery path available. Existing installer/recovery tools are in this tree,
 and the [Nauclerus installer](https://mr-roboto.github.io/nauclerus/webapp/installer/)
 verifies the stable package before enabling installation. Use the updated tools for
 RC13 migration or rollback; legacy port names remain supported. Upstream Hortator
-installers distribute their own firmware. See [release readiness](docs/RELEASE_READINESS_0.25.0.md)
+installers distribute their own firmware. See [candidate status](docs/RELEASE_NOTES_1.0.0.md)
 and [recovery notes](docs/RECOVERY.md).
 
 ### Back to the official firmware
@@ -406,7 +417,7 @@ If it does not start at all and never reaches boot mode, recovering it needs a
   package is explicitly staged).
 - Tests: `tests/run_tests.sh` and `tests/run_drum_tests.sh` (firmware), `tools/build_sim.sh` (simulator and site).
 - Version/tool background: [docs/VERSIONING.md](docs/VERSIONING.md). For this release, follow the
-  [current 0.25.0 readiness record](docs/RELEASE_READINESS_0.25.0.md); publishing tools are inherited
+  [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md); publishing tools are inherited
   and do not themselves authorize a stable release or establish a Nauclerus hosted installer.
 
 ## Layout

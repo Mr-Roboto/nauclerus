@@ -42,10 +42,31 @@ Candidate checks (2026-11-05):
 - Package SHA-256 (`sha256sum build/nauclerus-1.0.0.fwsc`):
   `f28dff7fca14a1f311e649f9d9d8484a18deb0f6bd50bd243c2776cbefcbec58`.
 
-No blockers were encountered. Source changes remain uncommitted on
-`dev/nauclerus-1.0.0` at the base commit above; retain the reviewed diff with the
-package to identify its exact source. No hardware was flashed and no tag,
-release, merge or push was performed.
+No blockers were encountered in NAU-1000-001. The candidate source was subsequently
+committed as `07bb53f` on `dev/nauclerus-1.0.0`; the checks above describe the
+original candidate build. NAU-1000-002 changes documentation and website source
+only and does not rebuild or alter that package. Its website changes have not
+been exercised through staging or browser automation. Publication is still pending.
+
+Current control limitations are unchanged:
+
+- GRIDS MAP page 2 K4 `ASSIGN / 3 TRACKS`, clockwise, assigns T1–T3 sources to
+  kick/snare/hat without choosing their sounds. Track LEN is set on TRACKS,
+  not GRIDS; EUCL channel lengths are separate generator settings.
+- Stop playback, then press OCT+ WRITE on either GRIDS page. This overwrites
+  eligible Grids-sourced drum tracks with ordinary STEP patterns, sets DIV 1/32,
+  preserves LEN and clears unused steps beyond LEN. Live Grids bypasses ORB
+  Remix; written STEP patterns can use Remix. Swing can make the snapshot's
+  timing differ from live Grids.
+- PROJECT SAVE needs two activations within approximately 1.5 seconds even for
+  an empty slot. Save that slot before NAME; K2 clockwise opens NAME only for
+  an occupied slot. An empty slot reports `EMPTY SLOT`.
+
+Remaining publication work requires separate authorization: build the matching
+1.0.0 simulator/source archive, stage and review the integrity-verified standard
+package with the updated installer, then publish the reviewed release assets and
+Pages deployment. Local staging must remain marked unpublished until deployment
+and public verification actually complete. No Bluetooth release is prepared.
 
 The previously accepted subjective ACID resonance/filter-character limitation
 remains; this task does not reassess it.

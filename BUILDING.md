@@ -55,8 +55,8 @@ FELUCCA_BLE=0 FELUCCA_CORE_REF=0 DRUM_BUNDLE=0 DRUM_SITE=0 DRUM_PACKAGE=1 ./buil
 
 `DRUM_SITE=0` skips site generation. Candidate validation is limited to a focused
 flash-ID check and this build; the full test and installation instructions below
-are general reference, not steps required for this candidate. The published web
-installer still serves stable 0.25.0. See [candidate notes](docs/RELEASE_NOTES_1.0.0.md).
+are general reference, not steps required for this candidate. The 1.0.0 public
+installer deployment is pending. See [candidate notes](docs/RELEASE_NOTES_1.0.0.md).
 
 Build options (environment, `0` or `1`; defaults in `firmware/src/felucca.c`):
 
@@ -101,7 +101,7 @@ serve their own firmware, not Nauclerus.
 From the command line (needs `pip3 install mido python-rtmidi`):
 
 ```
-python3 tools/fm1_install.py build/nauclerus-0.25.0.fwsc
+python3 tools/fm1_install.py build/nauclerus-1.0.0.fwsc
 python3 tools/fm1_install.py --info          # identity of the connected FM-1
 ```
 
@@ -110,10 +110,16 @@ Or, to install your own build from the web installer, make a local copy of the s
 
 ```
 tools/build_sim.sh --preview
-python3 web/make_site.py build/nauclerus-0.25.0.fwsc 0.25.0 /tmp/nauclerus-site
+python3 web/make_site.py build/nauclerus-1.0.0.fwsc 1.0.0 /tmp/nauclerus-site
 cd /tmp/nauclerus-site && python3 -m http.server 8000
 # open http://localhost:8000/webapp/installer/
 ```
+
+Preview staging has no installer. The separate release-staging command above
+verifies the package against its app and pinned loader, then adds the installer.
+It records the selected version/package and `installer_enabled: true` in
+`deployment.json`, while keeping `published: false`. Review and publication need
+separate authorization; these examples do not publish or authorize flashing.
 
 Installing firmware is at your own risk. If an install fails and the FM-1 no longer
 starts, recovery needs [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter).
