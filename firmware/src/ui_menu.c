@@ -198,8 +198,8 @@ static void draw_menu(void)
                     v = THEMES[theme_index(settings.palette)].name;
                 list_row(10, 225, y, MI_NAME[i], v, sel);
             }
-            i = (uint32_t)cv_keycap(12, (int32_t)MENU_HY, "OCT+", "OK", C_INK);
-            i = (uint32_t)cv_keycap((int32_t)i + 8, (int32_t)MENU_HY, "OCT-", "BACK", C_INK);
+            i = (uint32_t)cv_keycap(12, (int32_t)MENU_HY, "OCT-", "BACK", C_INK);
+            i = (uint32_t)cv_keycap((int32_t)i + 8, (int32_t)MENU_HY, "OCT+", "OK", C_INK);
             cv_keycap((int32_t)i + 8, (int32_t)MENU_HY,
                       menu_submenu(ui.menu_sel) ? "SEL" : "ENC",
                       menu_submenu(ui.menu_sel) ? "ENTER" : "MOVE", C_INK);

@@ -93,10 +93,10 @@ def load(root=ROOT, pinfile=None, descriptor=None):
         raise SecurityError('malformed/unavailable baseline evidence: '+str(e)) from e
 
 
-# NAU-0250-015: exact owner-approved application product descriptor only.
+# NAU-100-02: exact owner-approved application product descriptor only.
 # The independently pinned original blob, manifest and reference remain unchanged.
 USB_APP_PRODUCT_OLD = b"#else\nstatic const uint8_t STR2[] = {18, 3, 'H', 0, 'o', 0, 'r', 0, 't', 0, 'a', 0, 't', 0, 'o', 0, 'r', 0};\n#endif\n"
-USB_APP_PRODUCT_NEW = b"#else\nstatic const uint8_t STR2[] = {20, 3, 'N', 0, 'a', 0, 'u', 0, 'c', 0, 'l', 0, 'e', 0, 'r', 0, 'u', 0, 's', 0};\n#endif\n"
+USB_APP_PRODUCT_NEW = b"#else\nstatic const uint8_t STR2[] = {30, 3, 'N', 0, 'a', 0, 'u', 0, 'c', 0, 'l', 0, 'e', 0, 'r', 0, 'u', 0, 's', 0,\n                               ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};\n#endif\n"
 
 def approved_source_bytes(name, data):
     if name == 'firmware/src/usb_app.c' and data.count(USB_APP_PRODUCT_NEW) == 1 and USB_APP_PRODUCT_OLD not in data:

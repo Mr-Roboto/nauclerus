@@ -6,7 +6,7 @@ The build makes three files in `build/`:
 | --- | --- |
 | `felucca.bin` | the firmware app |
 | `loader/ota.bin` | the update loader |
-| `nauclerus-0.25.0.fwsc` | the stable installable package (app + shared loader) |
+| `nauclerus-1.0.0.fwsc` | the stable release package (app + shared loader) |
 
 ## Prerequisites (macOS)
 
@@ -43,9 +43,21 @@ On Linux x86-64 the toolchain runs natively and Docker is not needed.
 
 `DRUM_PACKAGE=1 ./build.sh` also creates the installable package. `VERSION.txt`
 sets the semantic version; the stable application/package ID is `FM-1_25000`,
-USB product is `Nauclerus`, and the display reads `Nauclerus 0.25.0`. The legacy
+USB product is `Nauclerus FM-1`, and the display reads `Nauclerus 1.0.0`. The legacy
 `--release X.Y` identity override is rejected. The shared loader remains
 `ota-FM-1_900`. See [identity migration](docs/IDENTITY_MIGRATION_0.25.0.md).
+
+For 1.0.0, build only the standard non-Bluetooth firmware package:
+
+```
+FELUCCA_BLE=0 FELUCCA_CORE_REF=0 DRUM_BUNDLE=0 DRUM_SITE=0 DRUM_PACKAGE=1 ./build.sh
+```
+
+`DRUM_SITE=0` skips site generation. The published 1.0.0 artifact has already
+passed its production build, package/loader integrity checks, 55 compatibility
+micro-tests and owner-confirmed physical firmware switching. Releasing those
+verified bytes does not require rebuilding them. See the
+[release notes](docs/RELEASE_NOTES_1.0.0.md); full suites below are general reference.
 
 Build options (environment, `0` or `1`; defaults in `firmware/src/felucca.c`):
 
@@ -90,7 +102,7 @@ serve their own firmware, not Nauclerus.
 From the command line (needs `pip3 install mido python-rtmidi`):
 
 ```
-python3 tools/fm1_install.py build/nauclerus-0.25.0.fwsc
+python3 tools/fm1_install.py build/nauclerus-1.0.0.fwsc
 python3 tools/fm1_install.py --info          # identity of the connected FM-1
 ```
 
@@ -99,10 +111,16 @@ Or, to install your own build from the web installer, make a local copy of the s
 
 ```
 tools/build_sim.sh --preview
-python3 web/make_site.py build/nauclerus-0.25.0.fwsc 0.25.0 /tmp/nauclerus-site
+python3 web/make_site.py build/nauclerus-1.0.0.fwsc 1.0.0 /tmp/nauclerus-site
 cd /tmp/nauclerus-site && python3 -m http.server 8000
 # open http://localhost:8000/webapp/installer/
 ```
+
+Preview staging has no installer. The separate release-staging command above
+verifies the package against its app and pinned loader, then adds the installer.
+It records the selected version/package and `installer_enabled: true` in
+`deployment.json`, while keeping `published: false`. Review and publication need
+separate authorization; these examples do not publish or authorize flashing.
 
 Installing firmware is at your own risk. If an install fails and the FM-1 no longer
 starts, recovery needs [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter).

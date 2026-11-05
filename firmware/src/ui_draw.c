@@ -2812,7 +2812,7 @@ static void draw_columns(void)
             draw_column(c, "NAME", "EDIT", "", CV_NORM, -1);
             continue;
         }
-        if (pg->scope==SC_TRACK && page_id(pg,c)==P_AMORPH && TSEL->p[P_E6]==0) {
+        if (pg->scope==SC_TRACK && page_id(pg,c)==P_AMORPH && (TSEL->p[P_E6]==0 || TSEL->p[P_E6]==2)) {
             fmt_int(val,*vp);
             draw_column(c,"MORPH",val,"",CV_DIM,-1);
             continue;

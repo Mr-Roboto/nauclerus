@@ -119,8 +119,8 @@ def main():
     report['negative_integrity_tests'] = tests
     elf = Elf(ROOT/'build/felucca.elf')
     usb=[(a,n) for a,n,s in elf.syms if s=='STR2']
-    expected_usb=bytes([20,3])+version.USB_PRODUCT.encode('utf-16le')
-    require(len(usb)==1 and usb[0][1]==20 and elf.bytes_at(usb[0][0],20)==expected_usb,'compiled USB product')
+    expected_usb=bytes([30,3])+version.USB_PRODUCT.encode('utf-16le')
+    require(len(usb)==1 and usb[0][1]==30 and elf.bytes_at(usb[0][0],30)==expected_usb,'compiled USB product')
     dev=[(a,n) for a,n,s in elf.syms if s=='DEV_DESC']
     require(len(dev)==1 and elf.bytes_at(dev[0][0]+8,4)==bytes.fromhex('09120100'),'USB VID/PID changed')
     report['usb_product']=version.USB_PRODUCT

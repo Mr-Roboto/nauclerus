@@ -1,10 +1,11 @@
-# Nauclerus 0.25.0 user guide
+# Nauclerus 1.0.0 user guide
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Release artifacts and validation are recorded in [release readiness](RELEASE_READINESS_0.25.0.md).
+Candidate artifacts, validation scope and limitations are recorded in the
+[1.0.0 release notes](RELEASE_NOTES_1.0.0.md).
 
-This guide describes **Nauclerus 0.25.0**, the accepted RC13 implementation. Earlier phase documents describe historical development contracts;
+This guide describes **Nauclerus 1.0.0**, including the corrections carried forward from 0.25.1. Earlier phase documents describe historical development contracts;
 this guide takes precedence for current controls.
 
 ## Panel navigation
@@ -79,19 +80,20 @@ Cancelling preset audition restores the previous manual MORPH value.
 | --- | --- |
 | SAW | Disabled/dimmed. Turning MORPH changes nothing and creates no edit mark, lock or Motion event. Its stored value is retained. A.MOR modulation is inaudible. |
 | PULSE | Variable width: 0 = 5%, 64 = 50%, 127 = 95%, monotonic between them. Both discontinuities are band-limited; width changes are smoothed over approximately 5 ms. |
+| TRIANGLE | Disabled/dimmed, as for SAW; the stored MORPH value is retained and A.MOR modulation is inaudible. |
 | MORPH | Continuous Sharkfin at 0 → Trapezoid at 64 → Notch-Trapezoid at 127, adapted from X0X-RMX v1.1.0. |
 
 Only one ACID track may own the MORPH waveform at a time. A conflicting selection
 says `MORPH IN USE` and retains the requesting track's previous waveform. Loading
 conflicting projects resolves ownership by physical track order. Both tracks may
-use SAW/PULSE independently. Extreme narrow PWM naturally changes harmonic balance;
+use SAW/PULSE/TRIANGLE independently. Extreme narrow PWM naturally changes harmonic balance;
 its bass fundamental is not identical to a 50% pulse.
 
-Stored WAVE IDs are deliberately stable: 0 SAW, 1 legacy SQUARE, 2 legacy fixed-width
-PULSE, 3 MORPH. IDs 1/2 both display PULSE; encoder selection exposes only three choices.
-Old SQUARE loads at MORPH 64, preserving the oscillator's 50% output. Old fixed-25%
-PULSE loads at MORPH 28 (approximately 24.69%, the nearest available integer setting).
-Newly saved PWM amounts are retained. Legacy MORPH never becomes PULSE.
+WAVE selection follows numerical order: 0 SAW, 1 PULSE, 2 TRIANGLE, 3 MORPH.
+Carried forward from 0.25.1, TRIANGLE replaces the legacy fixed-width PULSE at ID 2;
+existing saved WAVE 2 values now select TRIANGLE without a storage-format change.
+WAVE 1 presets still initialize MORPH to 64 (50% pulse width); TRIANGLE presets
+do not reset MORPH. Projects retain saved PWM amounts. MORPH remains ID 3.
 
 ACCNT controls accent strength; accented notes also affect filter-envelope behavior.
 SLIDE belongs to the outgoing step and carries into the next audible note; TIE
@@ -325,10 +327,15 @@ One clockwise K4 movement on page 2 assigns T1/T2/T3 SRC to G-KCK/G-SNR/G-HAT.
 Anticlockwise does nothing. It does not change models, steps or sounds, so choose
 appropriate drum models yourself. T4–T8 are untouched. Song editing restrictions apply.
 
-On either GRIDS page, stopped, **OCT+ WRITE** overwrites all non-ACID tracks currently
-sourced from a Grids channel with a deterministic 64-position 1/32 snapshot of that
-channel. Trigger/accent fields are written with ordinary drum defaults; LEN 64,
-DIV 1/32 and SRC STEP are set. Sounds, other track parameters, STEP-source tracks,
+Set each track's LEN on TRACKS, not GRIDS. In EUCL mode the GRIDS length controls
+set the generator channels' lengths; they do not set track LEN. Live Grids sources
+bypass ORB Remix until converted to ordinary STEP patterns.
+
+Stop playback, then press **OCT+ WRITE** on either GRIDS page. This overwrites all non-ACID tracks currently
+sourced from a Grids channel using a deterministic 64-position 1/32 snapshot of that
+channel. Each target retains its existing LEN (1–64): trigger/accent fields are
+written only to steps 0 through LEN−1 with ordinary drum defaults, and all unused
+steps beyond LEN are cleared. DIV 1/32 and SRC STEP are set. Sounds, other track parameters, STEP-source tracks,
 ACID tracks, Remix settings and live generator runtime are retained. This is an
 explicit overwrite: save the project first. `NO GRIDS TRACKS` means no eligible
 targets; while playing/chain busy, `STOP TO WRITE` leaves everything unchanged.
@@ -346,6 +353,9 @@ SAVE > PROJECT: K1 SLOT A–D, K2 NAME, K3 LOAD, K4 SAVE. OCT−/OCT+ are altern
 LOAD/SAVE inputs through the same handlers. GO actions use a first activation to
 arm (`AGAIN: LOAD/SAVE`) and a second within approximately 1.5s to act. Shortcuts do
 not bypass this safeguard. Stop transport for SAVE/LOAD (`STOP TO SAVE/LOAD`).
+SAVE also requires both activations for an empty slot; the first only arms it.
+Turn K2 clockwise to open NAME for an occupied slot. An empty slot shows
+`EMPTY SLOT`: complete SAVE first, then turn K2 clockwise to name it.
 NAME supports 12 characters; OCT+ writes the name, OCT− or HOME cancels.
 
 A project stores sounds, levels, steps/timing, Grids settings, LFOs/routing, Motion
@@ -382,8 +392,10 @@ or running use STOP TO EDIT. Automatic Song mutations affect RAM copies only.
 ## Color themes
 
 GLO short → MENU → COLOR. K1 steps in either direction; OCT+ advances, wrapping.
-The twelve themes in menu order are ORANGE, ORANGE INV, BLUE, BLUE INV, WHITE,
-WHITE INV, YELLOW, YELLOW INV, VIOLET, VIOLET INV, RED, RED INV.
+The fourteen themes in 1.0.0 menu order are ORANGE, ORANGE INV, BLUE,
+BLUE INV, WHITE, WHITE INV, YELLOW, YELLOW INV, VIOLET, VIOLET INV, RED, RED INV,
+PINK, PINK INV. Historical 0.25.0 firmware and its simulator retain their original
+twelve themes and previous VIOLET color (#7524CF).
 
 | Stored index | Name | Background | Ink |
 | --- | --- | --- | --- |
@@ -395,16 +407,20 @@ WHITE INV, YELLOW, YELLOW INV, VIOLET, VIOLET INV, RED, RED INV.
 | 5 | WHITE INV | #000000 | #FFFFFF |
 | 6 | YELLOW | #FFD000 | #171717 |
 | 7 | YELLOW INV | #171717 | #FFD000 |
-| 8 | VIOLET | #7524CF | #FFFFFF |
-| 9 | VIOLET INV | #FFFFFF | #7524CF |
+| 8 | VIOLET | #905BA8 | #FFFFFF |
+| 9 | VIOLET INV | #FFFFFF | #905BA8 |
 | 10 | RED | #D80000 | #FFFFFF |
 | 11 | RED INV | #FFFFFF | #D80000 |
+| 12 | PINK | #D397CA | #000000 |
+| 13 | PINK INV | #000000 | #D397CA |
 
 Values are quantized to RGB565 by the existing renderer. ORANGE's two polarities
 use the distinct specified pairs, not an exact swap. Stored indices/default are
 unchanged: earlier index 0/1 selections now show Orange. Historical GREEN slots 3/5
 are WHITE/WHITE INV; obsolete GREEN entries are not restored. Device preferences
-save when MENU closes. SEL ENTER does not change a theme.
+save when MENU closes. SEL ENTER does not change a theme. PINK IDs 12/13 append
+to the existing menu; IDs 0–11, the legacy mapping and THEME_TAG encoding remain
+unchanged, with no settings format change.
 
 ## Attribution and release status
 
@@ -414,8 +430,9 @@ Hügelton Instruments**. Original authors, contributors and license notices rema
 in MENU > ABOUT and [LICENSING.md](../LICENSING.md); see the README Credits for the
 complete third-party list.
 
-See [release notes](RELEASE_NOTES_0.25.0.md) for the stable announcement and
-[release readiness](RELEASE_READINESS_0.25.0.md) for release validation and known limitations.
+See the [1.0.0 candidate notes](RELEASE_NOTES_1.0.0.md) for current release status
+and limitations. The [0.25.0 announcement](RELEASE_NOTES_0.25.0.md) and
+[readiness record](RELEASE_READINESS_0.25.0.md) are historical evidence, not 1.0.0 validation.
 
 The ORB record is resolved by Mr. Roboto's explicit independent-creation/redistribution declaration;
 Future Retro Orb is conceptual inspiration only. Exact table values and their source-to-binary chain

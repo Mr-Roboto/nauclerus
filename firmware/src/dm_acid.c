@@ -143,7 +143,7 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
         recip=(uint32_t)((1ull<<48)/inc);
         acid_morph_prepare(&morph,(int32_t)v->k[0]);
     }
-    if (current==1u || current==2u || (fade && (old==1u || old==2u))) {
+    if (current==1u || (fade && old==1u)) {
         int32_t pos=(int32_t)v->k[0], target=clamp(t->p[P_AMORPH],0,127)*65536;
         int32_t amount=(127*65536/221)*(int32_t)n;
         uint32_t end=(uint32_t)(pos+qlim(target-pos,-amount,amount));
@@ -188,20 +188,22 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
             }
         }
         uint32_t edge_inc=inc;
-        if (current==1u || current==2u || (fade && (old==1u || old==2u))) {
+        if (current==1u || (fade && old==1u)) {
             int64_t speed=(int64_t)inc+pwm_step;
             edge_inc=(uint32_t)(speed<0 ? -speed : speed);
             if (!edge_inc) edge_inc=1;
         }
         x=current==3u ? acid_morph_eval(&morph,ph,inc,recip) :
-          (current==1u || current==2u) ? acid_pwm_wave(ph,inc,pwm_duty,edge_inc,pwm_gain>>15) : acid_plain_wave(ph,inc,0);
+          current==2u ? osc_tri(ph)*512 : /* Q15 -> Q24; multiplication also handles negative samples */
+          current==1u ? acid_pwm_wave(ph,inc,pwm_duty,edge_inc,pwm_gain>>15) : acid_plain_wave(ph,inc,0);
         if (fade) {
             int32_t prev=old==3u ? acid_morph_eval(&morph,ph,inc,recip) :
-                (old==1u || old==2u) ? acid_pwm_wave(ph,inc,pwm_duty,edge_inc,pwm_gain>>15) : acid_plain_wave(ph,inc,0);
+                old==2u ? osc_tri(ph)*512 :
+                old==1u ? acid_pwm_wave(ph,inc,pwm_duty,edge_inc,pwm_gain>>15) : acid_plain_wave(ph,inc,0);
             x=prev+(int32_t)(((int64_t)(x-prev)*(128u-fade))/128);
             fade--;
         }
-        if (current==1u || current==2u || (fade && (old==1u || old==2u))) {
+        if (current==1u || (fade && old==1u)) {
             pwm_duty=(uint32_t)((int64_t)pwm_duty+pwm_step);
             pwm_gain+=pwm_gain_step;
         }
@@ -257,7 +259,7 @@ static void acid_render(track_t *t, dvoice_t *v, int32_t *out, uint32_t n)
         dm_end(v);
 }
 
-static const char *const N_ACIDWAVE[4] = {"SAW", "PULSE", "PULSE", "MORPH"};
+static const char *const N_ACIDWAVE[4] = {"SAW", "PULSE", "TRIANGLE", "MORPH"};
 #define DM_ACID_DEF {"ACID", 1, 0, {PD("TUNE", F_SEMI, -24, 24, -12), PD("DECAY", F_INT, 0, 127, 50), \
     PD("CUTOF", F_INT, 0, 127, 80), PD("RESO", F_INT, 0, 127, 30), PD("ENVMD", F_INT, 0, 127, 60), \
     PD("ACCNT", F_INT, 0, 127, 64), PE("WAVE", N_ACIDWAVE, 1), PD("GATE", F_INT, 0, 127, 40)}, acid_trigger, \

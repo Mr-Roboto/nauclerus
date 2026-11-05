@@ -48,7 +48,7 @@ body{display:block;padding:32px 20px;background:var(--bg);color:var(--text)}main
   <section class="notes" aria-label="Before you install">
     <p class="beta" data-t="beta"></p>
     <p><span data-t="brick"></span>
-      <a href="https://github.com/Mr-Roboto/nauclerus/blob/v0.25.0/docs/RECOVERY.md" target="_blank" rel="noopener">Recovery
+      <a href="../../docs/RECOVERY.md" target="_blank" rel="noopener">Recovery
       guide</a>. <span data-t="brick2"></span>
       <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener">FM-1-transporter</a></p>
     <p><span data-t="back"></span>
@@ -152,7 +152,7 @@ document.querySelectorAll('input[name="variant"]').forEach((r) => r.addEventList
 }));
 
 $("go").addEventListener("click", async () => {
-  if (!image || !$("ack").checked || !confirm("Install verified Nauclerus 0.25.0? Keep USB and power connected until Done.")) return;
+  if (!image || !$("ack").checked || !confirm(`Install verified Nauclerus ${meta.version}? Keep USB and power connected until Done.`)) return;
   $("go").disabled = true;
   let midi;
   try { midi = await navigator.requestMIDIAccess({ sysex: true }); }

@@ -20,8 +20,7 @@ static int32_t cv_wx, cv_wy;     /* a window (cv_begin_win): where cv_px's corne
 #define RGB(r, g, b) ((uint16_t)((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3)))
 /* Two-tone themes. Saved IDs retain ORANGE=0, ORANGE INV=1, BLUE=2, BLUE INV=4.
  * Former GREEN IDs 3/5 now select WHITE/WHITE INV. Menu order is independent.
- * VIOLET uses WHITE LILAC lcd[4]/lcd[0] from fm1-x0x-rmx v1.1.0,
- * firmware/src/gfx.c (a4e78f3a6e16fa310b7614e5876d07e16a0020f9), unchanged RGB values. */
+ * Nauclerus 0.25.1 updates VIOLET and appends PINK, retaining all existing IDs. */
 typedef struct {
     const char *name;          /* MENU > COLOR's value */
     uint16_t bg, ink;
@@ -35,15 +34,17 @@ static const theme_t THEMES[] = {
     {"WHITE INV", RGB(0, 0, 0), RGB(255, 255, 255)},                 /* 5 WHITE ON BLACK */
     {"YELLOW", RGB(255, 208, 0), RGB(23, 23, 23)},                   /* 6 DARK ON YELLOW */
     {"YELLOW INV", RGB(23, 23, 23), RGB(255, 208, 0)},               /* 7 YELLOW ON DARK */
-    {"VIOLET", RGB(117, 36, 207), RGB(255, 255, 255)},              /* 8 WHITE ON VIOLET */
-    {"VIOLET INV", RGB(255, 255, 255), RGB(117, 36, 207)},          /* 9 VIOLET ON WHITE */
+    {"VIOLET", RGB(0x90, 0x5b, 0xa8), RGB(255, 255, 255)},         /* 8 WHITE ON VIOLET */
+    {"VIOLET INV", RGB(255, 255, 255), RGB(0x90, 0x5b, 0xa8)},     /* 9 VIOLET ON WHITE */
     {"RED", RGB(216, 0, 0), RGB(255, 255, 255)},                   /* 10 WHITE ON RED */
     {"RED INV", RGB(255, 255, 255), RGB(216, 0, 0)},               /* 11 RED ON WHITE */
+    {"PINK", RGB(0xd3, 0x97, 0xca), RGB(0, 0, 0)},               /* 12 BLACK ON PINK */
+    {"PINK INV", RGB(0, 0, 0), RGB(0xd3, 0x97, 0xca)},           /* 13 PINK ON BLACK */
 };
 #define NTHEMES (sizeof(THEMES) / sizeof(THEMES[0]))
 #define THEME_TAG 0x10u
 _Static_assert(NTHEMES <= 16u, "the theme index is 4 bits (THEME_TAG | index)");
-static const uint8_t THEME_ORDER[NTHEMES] = {0, 1, 2, 4, 3, 5, 6, 7, 8, 9, 10, 11};
+static const uint8_t THEME_ORDER[NTHEMES] = {0, 1, 2, 4, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 static uint16_t C_BG, C_INK;
 
 static uint32_t theme_index(uint32_t stored)

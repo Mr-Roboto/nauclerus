@@ -103,7 +103,7 @@ static inline int32_t acid_plain_wave(uint32_t ph, uint32_t inc, uint32_t wave)
     return x;
 }
 
-/* RC10 variable pulse: 1 and 2 are compatible stored Pulse identities.
+/* RC10 variable pulse: used by WAVE 1 (PULSE).
  * Quarter-power energy compensation limits narrow-pulse loss to 3.7 dB
  * without driving the pre-ladder signal above its existing +/-1.5 range.
  * This is a 256-byte coefficient table, not an oscillator wavetable. */

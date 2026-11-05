@@ -36,13 +36,11 @@ static int tb_oct_context(void)
 }
 static int acid_morph_editable(void)
 {
-    return (uint32_t)TSEL->p[P_MODEL]%NMODELS==DM_ACID && TSEL->p[P_E6]!=0;
+    return (uint32_t)TSEL->p[P_MODEL]%NMODELS==DM_ACID && (TSEL->p[P_E6]==1 || TSEL->p[P_E6]==3);
 }
 static int32_t acid_wave_choice(int32_t current, int32_t delta)
 {
-    static const uint8_t visible[3]={0,1,3};
-    int32_t i=current==0 ? 0 : current==3 ? 2 : 1;
-    return visible[clamp(i+delta,0,2)];
+    return clamp(current+delta,0,3);
 }
 
 /* fixes 2026-10-21 item 1: OCT+ where the keys are steps: 1 pressed (let go alone: the next bank), 2 a step key
@@ -609,13 +607,12 @@ static void grids_write_steps(void)
     grids_snapshot(snapshot);
     for (k = 0; k < NTRK; k++) if (targets & (1u << k)) {
         track_t *t = &trk[k];
-        uint32_t ch = (uint32_t)t->p[P_SRC] - 1u;
+        uint32_t ch = (uint32_t)t->p[P_SRC] - 1u, len = (uint32_t)clamp(t->p[P_SLEN], 1, 64);
         memset(t->step, 0, sizeof t->step);      /* normal drum C4, 100%, one hit, no tie/slide */
-        for (i = 0; i < 64u; i++) {
+        for (i = 0; i < len; i++) {
             t->step[i].on = (snapshot[i] >> ch) & 1u;
             t->step[i].acc = (snapshot[i] >> (ch + 3u)) & 1u;
         }
-        t->p[P_SLEN] = 64;
         t->p[P_SDIV] = 3;                       /* fixed N_DIV id: 1/32 */
         t->p[P_SRC] = 0;
     }
@@ -1288,6 +1285,8 @@ static void ui_input(void)
             open_family(FAM_GLO);
     }
     if (ui.menu) {
+        if ((pressed >> panel.btn[B_PLAY]) & 1u)
+            play_press();
         if (ui.rec_t0)
             ui.rec_t0 |= 2u;
         if (!ui.home_t0)

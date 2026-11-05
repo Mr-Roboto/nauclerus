@@ -196,10 +196,8 @@ static void preset_apply(track_t *t, const preset_t *p, uint32_t id)
     for (i = 0; i < 8u; i++)
         t->p[P_E0 + i] = (int16_t)clamp(p->k[i], m->edit[i].min, m->edit[i].max);
     if (p->model==DM_ACID) {
-        /* Eight-knob presets have no PWM field. The former fixed square
-         * starts at 50%; the legacy fixed pulse (id 2) at nearest 25%. */
+        /* Eight-knob presets have no PWM field. Pulse starts at 50%. */
         if (p->k[6]==1) t->p[P_AMORPH]=64;
-        else if (p->k[6]==2) t->p[P_AMORPH]=28;
         acid_wave_guard(t);
     }
     t->pre = (uint16_t)id;

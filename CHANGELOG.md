@@ -2,13 +2,52 @@
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Release artifacts and validation: [release readiness](docs/RELEASE_READINESS_0.25.0.md).
+Current release and validation: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
 
 Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes the
 accepted RC13 functionality and the release UI corrections listed below.
 Historical entries retain their original scope and terminology.
 
-## Unreleased
+## 1.0.0 - 2026-11-05
+
+- Stable release retaining the 0.25.1 development corrections below.
+- Accept Puya P25Q80 (`0x856014`) and UC25HQ80 (`0xB36014`) SPI flash IDs;
+  unknown IDs retain RAM-only saves. Minimal allowlist fix from
+  DEADACTIVE/hortator `drum-v1.0.1`, without upstream feature or format changes.
+- Advertise USB product `Nauclerus FM-1` for conventional FM-1 discovery.
+- Recognize `FM-Tangram` in both installers; Web MIDI accepts unique input/output
+  pairs differing only by trailing numeric suffixes and rejects ambiguous pairs.
+- Preserve firmware identity `FM-1_25000`, manufacturer, VID/PID, shared update
+  loader, OTA/SysEx protocol, DSP, sequencers, presets and project formats.
+- 55 compatibility micro-tests, production build and package/loader integrity
+  checks passed. Owner-confirmed physical switching: 0.25.0 → 1.0.0,
+  1.0.0 → AMB1 through The Firmware Hub, AMB1 → 1.0.0 through our Web installer.
+- Exact artifact and validation scope: [release notes](docs/RELEASE_NOTES_1.0.0.md).
+
+### Nauclerus 0.25.1 development
+
+- Grids WRITE preserves each target track's LEN (1–64), writes snapshot triggers
+  and accents only through LEN−1, and clears unused steps beyond LEN. DIV 1/32,
+  SRC STEP, snapshot generation, target selection and transport restrictions remain
+  unchanged; live Grids and Euclidean channel lengths are unaffected.
+
+- ACID WAVE 2 is now TRIANGLE, using the existing Q15 triangle oscillator converted
+  to Q24. All four choices are selectable in order: SAW, PULSE, TRIANGLE, MORPH,
+  with the existing waveform crossfade. PWM applies only to PULSE (ID 1);
+  TRIANGLE dims/disables MORPH editing and preserves its stored value. Remove
+  the former WAVE 2 preset width initialization; WAVE 1 still starts at 50%.
+  Saved WAVE 2 values now select TRIANGLE. Two-bit encoding, storage layout,
+  MORPH ownership and existing ACID gain remain unchanged.
+
+- Update VIOLET (ID 8) to background #905BA8 / ink #FFFFFF and VIOLET INV
+  (ID 9) to background #FFFFFF / ink #905BA8.
+- Append PINK (ID 12), background #D397CA / ink #000000, and PINK INV
+  (ID 13), background #000000 / ink #D397CA. Fourteen selectable themes in order:
+  ORANGE, ORANGE INV, BLUE, BLUE INV, WHITE, WHITE INV, YELLOW, YELLOW INV,
+  VIOLET, VIOLET INV, RED, RED INV, PINK, PINK INV. Existing IDs 0–11, default,
+  legacy mapping, THEME_TAG encoding and settings format remain unchanged.
+- Simulator LCD palettes come from the shared firmware renderer; no JavaScript
+  palette is added. The published 0.25.0 simulator remains unchanged.
 
 ## 0.25.0 - 2026-10-28
 

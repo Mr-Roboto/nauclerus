@@ -12,7 +12,8 @@ from pathlib import Path
 THEMES = [("md-red", "ORANGE"), ("red-on-black", "ORANGE INV"), ("white-on-blue", "BLUE"), ("blue-on-white", "BLUE INV"),
           ("black-on-white", "WHITE"), ("white-on-black", "WHITE INV"),
           ("amber-on-black", "YELLOW"), ("black-on-amber", "YELLOW INV"),
-          ("violet-on-beige", "VIOLET"), ("beige-on-violet", "VIOLET INV"), ("red", "RED"), ("red-inv", "RED INV")]   # MENU > COLOR's order and names
+          ("violet-on-beige", "VIOLET"), ("beige-on-violet", "VIOLET INV"), ("red", "RED"), ("red-inv", "RED INV"),
+          ("pink", "PINK"), ("pink-inv", "PINK INV")]   # MENU > COLOR's order and names
 
 
 def main(root):

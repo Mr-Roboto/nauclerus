@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 # Stable project identity; semantic releases remain in VERSION.txt.
 PRODUCT = 'FM-1_25000'
-USB_PRODUCT = 'Nauclerus'
+USB_PRODUCT = 'Nauclerus FM-1'
 
 FORM = re.compile(r"(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?")
 UNRELEASED = "## Unreleased"

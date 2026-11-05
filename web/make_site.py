@@ -5,9 +5,9 @@
 """Stage the Nauclerus static portal without releasing or installing firmware.
 
 Call portal(build/sim, destination) after tools/build_sim.sh. The legacy
-main(package, version, destination, optional_ble) signature is retained for the
-firmware builder, but it only stages the independently built portal. No package
-or installer is copied. Missing or mismatched simulator inputs fail closed.
+main(package, version, destination, optional_ble) stages the independently built
+portal and an integrity-verified release package with its installer. Neither
+workflow publishes a deployment. Missing or mismatched inputs fail closed.
 """
 import json
 import re
@@ -103,6 +103,12 @@ def install_site(pkg, version, out):
     if vpath.exists():
         v=json.loads(vpath.read_text());v['installer_enabled']=True;v['publication_status']='stable-release-prepared';v['firmware']=info
         vpath.write_text(json.dumps(v,indent=2)+'\n')
+    dpath=out/'deployment.json'
+    deployment=json.loads(dpath.read_text()) if dpath.exists() else {'target':'https://mr-roboto.github.io/nauclerus/','branch':'gh-pages','files':[]}
+    deployment.update(published=False,installer_enabled=True,publication_status='stable-release-prepared',version=version,firmware=info)
+    for name in ['firmware/'+pkg.name,'webapp/installer/index.html','firmware.json']:
+        if name not in deployment['files']:deployment['files'].append(name)
+    dpath.write_text(json.dumps(deployment,indent=2)+'\n')
     return info
 
 
