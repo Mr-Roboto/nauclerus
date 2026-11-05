@@ -20,12 +20,15 @@ WebMIDI action and is enabled only after verifying the exact stable package SHA-
 Nauclerus development, modifications and remix work by **Mr. Roboto**, based on **Hortator by DEADACTIVE**,
 built on **[Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita / Hügelton Instruments**.
 
-**Nauclerus 0.25.0** promotes the accepted RC13 implementation without DSP changes; it also corrects menu-header redraw and modal-input defects. It includes magnitude-only unipolar routing, project compatibility, and the
-Graphite/Champagne/Amber web portal. The owner accepts the remaining subjective ACID
-resonance/filter-character limitation. See the [release validation record](docs/RELEASE_VALIDATION_0.25.0.md).
+**Nauclerus 1.0.0 release candidate** retains the 0.25.1 development corrections and
+adds support for Puya P25Q80 and UC25HQ80 flash chips using the minimal Hortator 1.0.1
+allowlist fix. Nauclerus features, project/storage formats, firmware identity and
+update loader are preserved. See the [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md).
+The published stable package and simulator remain 0.25.0; their
+[validation record](docs/RELEASE_VALIDATION_0.25.0.md) does not validate this candidate.
 
 - **[User guide](docs/USER_GUIDE.md):** current page layouts, button combinations and recording/storage behavior.
-- **[0.25.0 release notes](docs/RELEASE_NOTES_0.25.0.md)** and **[release readiness](docs/RELEASE_READINESS_0.25.0.md)**.
+- **[1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md)**; historical **[0.25.0 release notes](docs/RELEASE_NOTES_0.25.0.md)** and **[release readiness](docs/RELEASE_READINESS_0.25.0.md)**.
 - Upstream Hortator browser/installer links and historical phase documents describe upstream or earlier
   implementations. They are not a published Nauclerus 0.25.0 installer or a substitute for its release package.
 

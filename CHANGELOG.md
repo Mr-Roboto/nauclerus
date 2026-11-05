@@ -8,7 +8,15 @@ Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes 
 accepted RC13 functionality and the release UI corrections listed below.
 Historical entries retain their original scope and terminology.
 
-## Unreleased
+## 1.0.0 - release candidate
+
+- Prepare the 0.25.1 development baseline as the Nauclerus 1.0.0 candidate.
+- Accept Puya P25Q80 (`0x856014`) and UC25HQ80 (`0xB36014`) SPI flash IDs;
+  unknown IDs retain RAM-only saves. Minimal allowlist fix from
+  DEADACTIVE/hortator `drum-v1.0.1`, without upstream feature or format changes.
+- Preserve FDRF projects, storage layout, Nauclerus functionality, USB name
+  `Nauclerus`, firmware identity `FM-1_25000` and the shared update loader.
+- Candidate scope and validation limits: [release notes](docs/RELEASE_NOTES_1.0.0.md).
 
 ### Nauclerus 0.25.1 development
 

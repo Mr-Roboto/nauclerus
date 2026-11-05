@@ -45,7 +45,7 @@ source snapshot, explicit release approval and the release-readiness checks.
 
 `tools/version.py` declares the stable project identity FM-1_25000 and USB product
 Nauclerus. VERSION.txt independently selects the display version, currently
-Nauclerus 0.25.0. Normal builds pass this exact ID into the application and package.
+Nauclerus 1.0.0 (release candidate). Normal builds pass this exact ID into the application and package.
 The legacy --release X.Y identity override is refused. The shared ota-FM-1_900
 loader and VID/PID remain unchanged. Do not globally replace legacy identities in
 migration fixtures or historical evidence. Public Nauclerus creator fields use
