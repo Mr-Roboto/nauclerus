@@ -20,15 +20,16 @@ WebMIDI action and is enabled only after verifying the exact stable package SHA-
 Nauclerus development, modifications and remix work by **Mr. Roboto**, based on **Hortator by DEADACTIVE**,
 built on **[Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita / Hügelton Instruments**.
 
-**Nauclerus 1.0.0 release candidate** retains the 0.25.1 development corrections and
-adds support for Puya P25Q80 and UC25HQ80 flash chips using the minimal Hortator 1.0.1
-allowlist fix. Nauclerus features, project/storage formats, firmware identity and
-update loader are preserved. See the [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md).
-Publication of the 1.0.0 package and matching simulator is pending. The historical
-[0.25.0 validation record](docs/RELEASE_VALIDATION_0.25.0.md) does not validate this candidate.
+**[Nauclerus 1.0.0 Stable](https://github.com/Mr-Roboto/nauclerus/releases/tag/v1.0.0)**
+retains the 0.25.1 corrections and supports Puya P25Q80 and UC25HQ80 flash chips.
+USB product **Nauclerus FM-1** improves FM-1 installer discovery; both installers
+recognize FM-Tangram, and Web MIDI pairs uniquely matching numbered ports.
+Firmware identity, update protocol, loader and project/storage formats remain unchanged.
+See the [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md) for validation and limitations.
+The historical [0.25.0 validation record](docs/RELEASE_VALIDATION_0.25.0.md) remains unchanged.
 
 - **[User guide](docs/USER_GUIDE.md):** current page layouts, button combinations and recording/storage behavior.
-- **[1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md)**; historical **[0.25.0 release notes](docs/RELEASE_NOTES_0.25.0.md)** and **[release readiness](docs/RELEASE_READINESS_0.25.0.md)**.
+- **[1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md)**; historical **[0.25.0 release notes](docs/RELEASE_NOTES_0.25.0.md)** and **[release readiness](docs/RELEASE_READINESS_0.25.0.md)**.
 - Upstream Hortator browser/installer links and historical phase documents describe upstream or earlier
   implementations. Use the Nauclerus release package and its matching installer metadata.
 
@@ -379,16 +380,18 @@ FM-1's keys as live record does.
 
 ## Install
 
-Current candidate: `build/nauclerus-1.0.0.fwsc` (609,649 bytes). Publication is pending;
-no 1.0.0 download or public installer deployment is claimed here.
+Stable package: [nauclerus-1.0.0.fwsc](https://github.com/Mr-Roboto/nauclerus/releases/download/v1.0.0/nauclerus-1.0.0.fwsc)
+(609,649 bytes), also available from the [firmware website](https://mr-roboto.github.io/nauclerus/firmware/nauclerus-1.0.0.fwsc).
 
 ```text
-SHA-256 f28dff7fca14a1f311e649f9d9d8484a18deb0f6bd50bd243c2776cbefcbec58
+SHA-256 72e923840964a892a25dadb3db6b91576734fca1e1e73b86ec1a2aa007f478e0
 ```
 
-It identifies as **Nauclerus 1.0.0**, using application/package identity **FM-1_25000**, the existing
-USB VID/PID and **Felucca Update** loader. Publish the matching reviewed source archive
-and licenses alongside the package. See the [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md).
+It identifies as **Nauclerus 1.0.0**, application/package **FM-1_25000**, USB product
+**Nauclerus FM-1**, with the existing VID/PID and **Felucca Update** loader.
+Matching source and licenses accompany the release. Physical updates from 0.25.0,
+from 1.0.0 to AMB1 through The Firmware Hub, and back from AMB1 through our Web
+installer are owner-confirmed **PASS**. See the [release notes](docs/RELEASE_NOTES_1.0.0.md).
 The [v0.25.0 release](https://github.com/Mr-Roboto/nauclerus/releases/tag/v0.25.0)
 remains a historical package/source record.
 
@@ -397,7 +400,7 @@ keep a known-good recovery path available. Existing installer/recovery tools are
 and the [Nauclerus installer](https://mr-roboto.github.io/nauclerus/webapp/installer/)
 verifies the stable package before enabling installation. Use the updated tools for
 RC13 migration or rollback; legacy port names remain supported. Upstream Hortator
-installers distribute their own firmware. See [candidate status](docs/RELEASE_NOTES_1.0.0.md)
+installers distribute their own firmware. See [release status](docs/RELEASE_NOTES_1.0.0.md)
 and [recovery notes](docs/RECOVERY.md).
 
 ### Back to the official firmware
@@ -417,8 +420,8 @@ If it does not start at all and never reaches boot mode, recovering it needs a
   package is explicitly staged).
 - Tests: `tests/run_tests.sh` and `tests/run_drum_tests.sh` (firmware), `tools/build_sim.sh` (simulator and site).
 - Version/tool background: [docs/VERSIONING.md](docs/VERSIONING.md). For this release, follow the
-  [1.0.0 candidate notes](docs/RELEASE_NOTES_1.0.0.md); publishing tools are inherited
-  and do not themselves authorize a stable release or establish a Nauclerus hosted installer.
+  [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md); local preparation tools do not publish automatically. The stable release and Pages deployment
+  use the separately authorized procedure in [VERSIONING.md](docs/VERSIONING.md).
 
 ## Layout
 

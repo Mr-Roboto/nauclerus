@@ -1,75 +1,79 @@
-# Nauclerus 1.0.0 release candidate
+# Nauclerus 1.0.0 Stable
 
-Based on `dev/nauclerus-0.25.1`, commit
-`33b4502bc57111962f96338cffc270aa73646e03`. This candidate is not a published
-stable release. Historical 0.25.0 release and validation records remain unchanged.
+Released 2026-11-05. [GitHub release](https://github.com/Mr-Roboto/nauclerus/releases/tag/v1.0.0)
+and [Web installer](https://mr-roboto.github.io/nauclerus/webapp/installer/).
+Historical releases and their validation records remain unchanged.
 
-The only firmware logic change accepts both supported FM-1 1 MiB SPI NOR chips:
-Puya P25Q80 (`0x856014`) and UC25HQ80 (`0xB36014`). Unknown IDs retain RAM-only
-saves. The allowlist comes from [DEADACTIVE/hortator, drum-v1.0.1](https://github.com/DEADACTIVE/hortator/blob/c8cca2ce9a6a1ba5a055ef3bd4aadc9ef5237bb4/firmware/src/project.c),
-commit `c8cca2ce9a6a1ba5a055ef3bd4aadc9ef5237bb4`. Nauclerus reads the ID once
-with interrupts disabled before applying that allowlist.
+## Changes
 
-FDRF project records, persistence, flash layout and loader protections are
-unchanged. ORB Remix, TB-3PO, Grids, ACID, SONG and PERFORM are retained, including
-the 0.25.1 Grids LEN, TRIANGLE and color-theme corrections. No Hortator Bluetooth
-MIDI, sequencer, FILL / REPEAT STEP / NUDGE, sampler, effects, web editor or new
-storage-format changes are imported.
+- Retain the 0.25.1 Grids WRITE track-length fix, ACID TRIANGLE waveform and
+  fourteen color themes, including corrected VIOLET and added PINK variants.
+- Accept both supported FM-1 1 MiB SPI NOR chips: Puya P25Q80 (`0x856014`)
+  and UC25HQ80 (`0xB36014`). Unknown IDs retain RAM-only saves. The minimal
+  allowlist comes from DEADACTIVE/hortator `drum-v1.0.1`, commit
+  `c8cca2ce9a6a1ba5a055ef3bd4aadc9ef5237bb4`; the ID is read once with
+  interrupts disabled before applying the allowlist.
+- Change the application USB product from `Nauclerus` to exactly `Nauclerus FM-1`
+  (30-byte UTF-16LE descriptor) for conventional FM-1 installer discovery.
+- Both Python and Web MIDI installers recognize `FM-Tangram` alongside existing
+  names. Web MIDI prefers exact input/output names; otherwise it accepts only a
+  unique pair differing by whitespace-separated trailing numeric suffixes.
+  Ambiguous pairs are rejected without probing them; no unrelated-name probing
+  or arbitrary-output fallback was added.
 
-The display version is `Nauclerus 1.0.0`; application/package identity remains
-`FM-1_25000`, USB product `Nauclerus`, shared loader `ota-FM-1_900` (USB:
-`Felucca Update`). The expected package is `build/nauclerus-1.0.0.fwsc`.
+Application/package identity remains `FM-1_25000`; display version is
+`Nauclerus 1.0.0`. Manufacturer `Hügelton Instruments`, application VID/PID
+`1209:0001`, shared loader `ota-FM-1_900` / `Felucca Update` (`1209:0002`),
+OTA/SysEx protocol and baseline pins are preserved. Descriptor integrity checks
+were updated narrowly for the exact approved name, without exemptions for other
+source or loader changes. No Bluetooth release is included.
 
-Validation scope is only a focused flash-ID check and, on success, one standard
-non-Bluetooth package build with site generation disabled. No existing isolated
-flash-ID test was found; a temporary harness checks the production gate. Full
-regressions, benchmarks, simulator/site builds, hardware flashing, hardware
-storage/update behavior and audio/UI acceptance are outside this candidate task.
-Candidate checks (2026-11-05):
+FDRF records, persistence and flash layout are unchanged. ORB Remix, TB-3PO,
+Grids, ACID, SONG, PERFORM, presets and accepted musical behavior are retained.
+No upstream sequencer, sampler, effects, editor or storage-format changes are imported.
 
-- `python3 /tmp/nau-1000-001-flash-id-test.py`: PASS. The temporary harness
-  extracts and compiles the production allowlist and boot gate with
-  `cc -std=c99 -O1 -Wall -Wextra -Werror`. It accepts `0x856014` and `0xB36014`,
-  rejects `0x123456` before flash mapping, and checks one IRQ-protected ID read
-  with interrupts restored for each case. A copy is retained locally at
-  `build/nau-1000-001/flash_id_test.py`; generated harness: `flash_id_test.c`
-  in the same directory. This isolates the gate, not full persistence behavior.
-- `env FELUCCA_BLE=0 FELUCCA_CORE_REF=0 DRUM_BUNDLE=0 DRUM_SITE=0 DRUM_PACKAGE=1 ./build.sh`:
-  PASS (one build). Log: `build/nau-1000-001/build.log`. Package: 609,649 bytes.
-  The build's internal RAM/register checks and pinned-loader check passed;
-  loader remains 6,493 bytes, SHA-256
-  `cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d`.
-- Package SHA-256 (`sha256sum build/nauclerus-1.0.0.fwsc`):
-  `f28dff7fca14a1f311e649f9d9d8484a18deb0f6bd50bd243c2776cbefcbec58`.
+## Verified release artifact
 
-No blockers were encountered in NAU-1000-001. The candidate source was subsequently
-committed as `07bb53f` on `dev/nauclerus-1.0.0`; the checks above describe the
-original candidate build. NAU-1000-002 changes documentation and website source
-only and does not rebuild or alter that package. Its website changes have not
-been exercised through staging or browser automation. Publication is still pending.
+- File: `nauclerus-1.0.0.fwsc`
+- Size: **609,649 bytes**
+- SHA-256: `72e923840964a892a25dadb3db6b91576734fca1e1e73b86ec1a2aa007f478e0`
+- Loader SHA-256: `cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d`
 
-Current control limitations are unchanged:
+The previously validated production artifact is published byte-for-byte without
+a release-time firmware rebuild. Matching source, retained licenses and checksums
+accompany the package. The earlier candidate hash beginning `f28dff7f` is superseded
+by the final compatibility build above.
 
-- GRIDS MAP page 2 K4 `ASSIGN / 3 TRACKS`, clockwise, assigns T1–T3 sources to
-  kick/snare/hat without choosing their sounds. Track LEN is set on TRACKS,
-  not GRIDS; EUCL channel lengths are separate generator settings.
-- Stop playback, then press OCT+ WRITE on either GRIDS page. This overwrites
-  eligible Grids-sourced drum tracks with ordinary STEP patterns, sets DIV 1/32,
-  preserves LEN and clears unused steps beyond LEN. Live Grids bypasses ORB
-  Remix; written STEP patterns can use Remix. Swing can make the snapshot's
-  timing differ from live Grids.
-- PROJECT SAVE needs two activations within approximately 1.5 seconds even for
-  an empty slot. Save that slot before NAME; K2 clockwise opens NAME only for
-  an occupied slot. An empty slot reports `EMPTY SLOT`.
+## Completed validation
 
-Remaining publication work requires separate authorization: build the matching
-1.0.0 simulator/source archive, stage and review the integrity-verified standard
-package with the updated installer, then publish the reviewed release assets and
-Pages deployment. Local staging must remain marked unpublished until deployment
-and public verification actually complete. No Bluetooth release is prepared.
+- **PASS:** 55 targeted compatibility checks (26 Python/source/integrity checks
+  and 29 mocked Web MIDI cases), covering descriptor bytes/length, identities,
+  unchanged VID/PID and loader descriptors, discovery names, unique/ambiguous
+  pairing and unrelated-device rejection.
+- **PASS:** production firmware build and package/loader integrity checks.
+- **Owner-confirmed physical PASS:** Nauclerus 0.25.0 → Nauclerus 1.0.0.
+- **Owner-confirmed physical PASS:** Nauclerus 1.0.0 → AMB1 through The Firmware Hub.
+- **Owner-confirmed physical PASS:** AMB1 → Nauclerus 1.0.0 through our Web installer.
 
-The previously accepted subjective ACID resonance/filter-character limitation
-remains; this task does not reassess it.
+Physical results and the completed production checks were supplied by the owner
+for stable publication. They are not new hardware tests performed by the release
+agent. Publication checks cover deployed links, metadata and exact downloaded
+artifact hashes; no additional full regressions or sanitizers are required here.
+
+## Compatibility and retained limitations
+
+Adding `FM-1` improves conventional name-based discovery; it does not guarantee
+every third-party installer, package format or version policy. Reselect DAW ports
+if the new USB name changes saved assignments; hosts may cache device names.
+Identical `FM-1_25000` identities do not distinguish semantic Nauclerus versions.
+Ambiguous multi-device names remain deliberately unsupported by Web MIDI pairing.
+
+GRIDS MAP page 2 K4 assigns sources, not sounds; track LEN belongs to TRACKS.
+Stopped OCT+ WRITE snapshots eligible Grids tracks to STEP, preserves LEN and
+sets DIV 1/32. Live Grids bypasses ORB Remix; STEP snapshots can use it, and swing
+can make snapshot timing differ. PROJECT SAVE needs two activations within about
+1.5 seconds; save a slot before naming it. The previously accepted subjective
+ACID resonance/filter-character limitation remains.
 
 Nauclerus development, modifications and remix work: Mr. Roboto. Upstream
 Hortator: DEADACTIVE. Felucca: Leo Kuroshita / Hügelton Instruments. Original

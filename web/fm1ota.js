@@ -114,14 +114,23 @@ export class Updater {
     this.log = log || (() => {});
   }
 
-  // every in/out pair with the same port name that answers the handshake
+  // Exact names first; trailing port numbers may differ only for a unique pair.
   async find(filter) {
-    const outs = [...this.access.outputs.values()];
-    for (const input of this.access.inputs.values()) {
-      if (input.state === "disconnected") continue;
-      if (!/fm-1|nauclerus|hortator|felucca|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
-      const output = outs.find((o) => o.name === input.name && o.state !== "disconnected");
-      if (!output) continue;
+    const ins = [...this.access.inputs.values()].filter((i) => i.state !== "disconnected");
+    const outs = [...this.access.outputs.values()].filter((o) => o.state !== "disconnected");
+    const normalize = (name) => (name || "").replace(/\s+\d+$/, "");
+    for (const input of ins) {
+      if (!/fm-1|nauclerus|hortator|felucca|fm-tangram|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
+      let matches = outs.filter((o) => o.name === input.name);
+      if (matches.length) {
+        if (ins.filter((i) => i.name === input.name).length !== 1) continue;
+      } else {
+        const base = normalize(input.name);
+        if (ins.filter((i) => normalize(i.name) === base).length !== 1) continue;
+        matches = outs.filter((o) => normalize(o.name) === base);
+      }
+      if (matches.length !== 1) continue;
+      const output = matches[0];
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);
       const id = await handshake(link, 2);

@@ -2,21 +2,27 @@
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Release artifacts and validation: [release readiness](docs/RELEASE_READINESS_0.25.0.md).
+Current release and validation: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
 
 Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes the
 accepted RC13 functionality and the release UI corrections listed below.
 Historical entries retain their original scope and terminology.
 
-## 1.0.0 - release candidate
+## 1.0.0 - 2026-11-05
 
-- Prepare the 0.25.1 development baseline as the Nauclerus 1.0.0 candidate.
+- Stable release retaining the 0.25.1 development corrections below.
 - Accept Puya P25Q80 (`0x856014`) and UC25HQ80 (`0xB36014`) SPI flash IDs;
   unknown IDs retain RAM-only saves. Minimal allowlist fix from
   DEADACTIVE/hortator `drum-v1.0.1`, without upstream feature or format changes.
-- Preserve FDRF projects, storage layout, Nauclerus functionality, USB name
-  `Nauclerus`, firmware identity `FM-1_25000` and the shared update loader.
-- Candidate scope and validation limits: [release notes](docs/RELEASE_NOTES_1.0.0.md).
+- Advertise USB product `Nauclerus FM-1` for conventional FM-1 discovery.
+- Recognize `FM-Tangram` in both installers; Web MIDI accepts unique input/output
+  pairs differing only by trailing numeric suffixes and rejects ambiguous pairs.
+- Preserve firmware identity `FM-1_25000`, manufacturer, VID/PID, shared update
+  loader, OTA/SysEx protocol, DSP, sequencers, presets and project formats.
+- 55 compatibility micro-tests, production build and package/loader integrity
+  checks passed. Owner-confirmed physical switching: 0.25.0 → 1.0.0,
+  1.0.0 → AMB1 through The Firmware Hub, AMB1 → 1.0.0 through our Web installer.
+- Exact artifact and validation scope: [release notes](docs/RELEASE_NOTES_1.0.0.md).
 
 ### Nauclerus 0.25.1 development
 

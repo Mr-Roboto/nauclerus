@@ -1,10 +1,10 @@
 # Nauclerus browser portal and interactive manual
 
-This source prepares the Nauclerus 1.0.0 portal. A matching simulator build and
-public deployment remain pending; existing generated artifacts are not updated by
-documentation or template edits.
+The Nauclerus 1.0.0 portal accompanies the stable firmware release. Its installer
+verifies the exact release package before enabling installation. The firmware
+artifact is reused without rebuilding; website preparation is independent.
 
-Intended publication URLs (prepared locally; public deployment is not part of this task):
+Publication URLs:
 
 - Portal: https://mr-roboto.github.io/nauclerus/
 - Live firmware panel: https://mr-roboto.github.io/nauclerus/#play
@@ -110,7 +110,7 @@ LCD colors use the shared firmware RGB565 renderer, not a JavaScript palette.
 The 1.0.0 source has fourteen themes, carried forward from 0.25.1, including updated VIOLET
 (#905BA8/white), VIOLET INV (white/#905BA8), PINK (#D397CA/black) and PINK INV
 (black/#D397CA). Historical 0.25.0 simulator artifacts have twelve themes and the
-earlier VIOLET color; a matching 1.0.0 simulator requires a separately authorized build.
+earlier VIOLET color. The 1.0.0 portal uses the current fourteen-theme renderer.
 
 No hardware USB/TRS MIDI, USB audio device, Bluetooth radio, physical calibration,
 update/recovery or hardware CPU-headroom claim is made. This is Web Audio, not an FM-1
