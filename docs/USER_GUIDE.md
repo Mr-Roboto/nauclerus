@@ -451,8 +451,8 @@ twelve themes and previous VIOLET color (#7524CF).
 
 | Stored index | Name | Background | Ink |
 | --- | --- | --- | --- |
-| 0 | ORANGE (default) | #D45E31 | #1B1110 |
-| 1 | ORANGE INV | #160904 | #D45E31 |
+| 0 | ORANGE (default) | #FF6500 | #120804 |
+| 1 | ORANGE INV | #100604 | #FF6500 |
 | 2 | BLUE | #2445C8 | #EAF1FF |
 | 4 | BLUE INV | #F4F8FF | #2445C8 |
 | 3 | WHITE | #FFFFFF | #000000 |
@@ -467,9 +467,9 @@ twelve themes and previous VIOLET color (#7524CF).
 | 13 | PINK INV | #000000 | #D397CA |
 
 Values are quantized to RGB565 by the existing renderer. In 1.1.0 the two
-ORANGE themes use a stronger enclosure-inspired burnt orange (#D45E31), with
-near-black ink in ORANGE and orange ink on dark in ORANGE INV. This is a visual
-palette change, not an exact hardware color measurement. The website chrome is
+ORANGE themes use high-saturation signal orange (#FF6500), with nearly-black
+ink in ORANGE and vivid orange ink on near-black in ORANGE INV. This is a
+purposefully bold LCD palette rather than a match to enclosure paint. The website chrome is
 unchanged; the browser emulator renders the firmware LCD palette. ORANGE's two
 polarities use the distinct specified pairs, not an exact swap. Stored indices/default are
 unchanged: earlier index 0/1 selections now show Orange. Historical GREEN slots 3/5
