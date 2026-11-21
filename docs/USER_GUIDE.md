@@ -46,16 +46,11 @@ Settings pages contain:
 | Page | K1 | K2 | K3 | K4 |
 | --- | --- | --- | --- | --- |
 | GLOBAL 1 | BPM | SWING | CLOCK | drum channel |
-| SYSTEM | USB status | SYNC | ROUTE | INFO |
+| SYSTEM | — | SYNC | ROUTE | INFO |
 | GLOBAL 2 | MUTE timing | METRO | — | — |
 
-SYSTEM K1 is a **read-only USB connection status**, not a mode selector.
-The standard build offers USB-MIDI and stereo USB-audio simultaneously.
-When configured, `M+A` means both interfaces are available (it does **not**
-mean an audio application is currently streaming). `OFF`, `WAIT`, `BUS`
-and `ENUM` are connection/setup states. A MIDI-only build without UAC
-still displays `MIDI`. There is no runtime OFF/MIDI/AUDIO/BOTH selector;
-USB audio is its own class interface, not audio sent through MIDI.
+The SYSTEM page intentionally leaves K1 empty. USB-MIDI and stereo USB audio
+remain enabled as before; USB status is not a user-adjustable parameter.
 
 The separate MENU contains COLOR, SPEAKER EQ, USB LEVEL, PERFORM, ZOOM, ACCEL,
 BACKLIGHT, HARDWARE CALIBRATION and ABOUT. BLUETOOTH is conditional on a separate
