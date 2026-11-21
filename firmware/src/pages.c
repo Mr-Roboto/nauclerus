@@ -42,7 +42,7 @@ static const page_t PAGES[] = {
     {"MOTION", FAM_SEQ, SC_TRACK, GR_MOTION, {0xFF, 0xFF, 0xFF, 0xFF}},   /* PLAY EVENT - CLEAR (motion.c) */
     {"SONG", FAM_SEQ, SC_GLOBAL, GR_SONG, {0xFF, 0xFF, 0xFF, 0xFF}},   /* ROW SLOT REPS LOOP (song.c) */
     {"GLOBAL", FAM_GLO, SC_GLOBAL, GR_NONE, {G_BPM, G_SWING, G_CLOCK, G_DRCH}},
-    {"SYSTEM", FAM_GLO, SC_GLOBAL, GR_NONE, {0xFF, G_SYNC, G_ROUTE, G_INFO}},
+    {"SYSTEM", FAM_GLO, SC_GLOBAL, GR_NONE, {G_SYNC, G_ROUTE, G_INFO, 0xFF}},
     {"GLOBAL", FAM_GLO, SC_GLOBAL, GR_NONE, {G_MUTEBAR, G_METRO, G_THRU, 0xFF}},   /* device settings (settings.mutebar,
                                                                                 * fx_metro) */
     {"PROJECT", FAM_SAVE, SC_GLOBAL, GR_SLOTS, {G_SLOT, G_NAME, G_LOAD, G_SAVE}},   /* NAME: rename (ui_name.c) */
