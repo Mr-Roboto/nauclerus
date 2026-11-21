@@ -80,8 +80,10 @@ enum {                          /* global parameters */
     G_CATK, G_CKNEE, G_CMKUP,                        /* attack, soft knee, makeup (127 = limiter) */
     G_CGHOST,                                        /* a muted / any source heard: CG_MUTE CG_KEEP CG_HIDE (fx.c) */
     G_RTYPE,                                         /* REVERB TYPE (fx.c): 0 ROOM, 1 SPRING (sound pack, FDR7) */
+    G_DMODE,                                         /* 0 NORMAL, 1 PING-PONG; project rsv[0] */
     G_COUNT
 };
+#define G_NSTORED G_DMODE         /* old FDRF global field count; do not change the flash layout */
 enum { CG_MUTE, CG_KEEP, CG_HIDE };                 /* GHOST: muted = muted; muted still keys; never heard, keys */
 enum { G_CLRALL = G_COUNT, G_INITALL, G_MUTEBAR, G_METRO };   /* TOOLS actions, the MUTE and METRO settings: shown
                                                      * like globals, not stored in projects */
