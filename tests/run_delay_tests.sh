@@ -9,3 +9,9 @@ ${CC:-cc} -O1 -g -Wall -Wno-unused-function -Wno-int-to-pointer-cast \
     -Ibuild/gen -Ifirmware/src \
     -o build/host/delay_time_test tests/delay_time_test.c -lm
 build/host/delay_time_test
+
+${CC:-cc} -O1 -g -Wall -Wno-unused-function -Wno-int-to-pointer-cast \
+    -fsanitize=undefined -fno-sanitize-recover=all \
+    -Ibuild/gen -Ifirmware/src \
+    -o build/host/delay_pingpong_test tests/delay_pingpong_test.c -lm
+build/host/delay_pingpong_test
