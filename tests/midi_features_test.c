@@ -32,6 +32,26 @@ int main(void)
            G_THRU==G_METRO+1 && GP_ACT[4].max==1 &&
            !strcmp(GP_ACT[4].label,"THRU"));
 
+    /* The SYSTEM page contains no inert first column: the encoders follow the
+     * new visible positions. The underlying G_ IDs and project storage stay put. */
+    open_family(FAM_GLO);                    /* GLOBAL 1/3 */
+    open_family(FAM_GLO);                    /* SYSTEM 2/3 */
+    verify("SYSTEM layout: K1 SYNC, K2 ROUT, K3 CPU, K4 blank",
+           !strcmp(cur_page()->title,"SYSTEM") &&
+           page_id(cur_page(),0)==G_SYNC && page_id(cur_page(),1)==G_ROUTE &&
+           page_id(cur_page(),2)==G_INFO && page_id(cur_page(),3)==0xFFu);
+    turn(EN_K1,1);
+    ui_frame();
+    verify("SYSTEM K1 now edits SYNC",song.g[G_SYNC]==SY_USB && song.g[G_ROUTE]==RT_NOTE);
+    turn(EN_K2,1);
+    ui_frame();
+    verify("SYSTEM K2 now edits ROUT",song.g[G_ROUTE]==RT_SEL && song.g[G_SYNC]==SY_USB);
+    turn(EN_K3,1);
+    turn(EN_K4,1);
+    ui_frame();
+    verify("SYSTEM K3 CPU is read-only, K4 remains unused",
+           song.g[G_INFO]==0 && song.g[G_ROUTE]==RT_SEL && song.g[G_SYNC]==SY_USB);
+
     host_init_live();
     usb.config=1;
     for(i=0;i<NTRK;i++) trk[i].p[P_NOTE]=(int16_t)(60+i);
