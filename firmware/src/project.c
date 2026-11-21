@@ -1058,6 +1058,7 @@ static void persist_boot(void)                    /* before settings_init / pane
                                                        * has them */
     memset(&lastp, 0, sizeof lastp);                  /* no last project, unless the flash record has one */
     fx_metro = 0;                                     /* METRO OFF, as well */
+    midi_thru = 0;                                    /* default: no TRS-to-USB forwarding */
     backlight = 0;                                    /* BACKLIGHT OFF, as well */
     memset(ml_map, 0, sizeof ml_map);                 /* MIDI LEARN: nothing learned, as well */
     memset(&upr, 0, sizeof upr);                      /* no user preset, as well (presets.c) */
@@ -1090,6 +1091,7 @@ static void persist_boot(void)                    /* before settings_init / pane
     if (st_load(OBJ_SETTINGS, &p, sizeof p) == (int)sizeof p && p.magic == PERSIST_MAGIC) {
         settings.magic = SETTINGS_MAGIC;
         settings.palette = p.palette & 0xFFu;       /* bits 0..7 the palette; bit 8 AUTOSTART (BLE: bt_page.c) */
+        midi_thru = (uint8_t)((p.palette >> 14) & 1u); /* THRU in spare settings bit; old records OFF */
         btset.bt_auto = (p.palette >> 8) & 1u;
         lc_unpack(p.lowcut);
         if (((p.palette >> 9) & 7u) - 1u < BL_COUNT - 1u && backlight)   /* BACKLIGHT's level, bits 9..11 (item 9; 0:
@@ -1236,6 +1238,7 @@ static void settings_save(void)                    /* asked for while playing: w
                                                      * Hortator reads a palette out of range from bit 8: its display
                                                      * settings reset; 9..11 BACKLIGHT's level (item 9: an older one reads
                                                      * lowcut's bit 7, ON) */
+    p.palette |= (uint32_t)(midi_thru & 1u) << 14;
     p.lowcut = lc_pack() | btset.bt_hi << 8;
     p.zoom = (settings.zoom & 1u) | (settings.mutebar & 1u) << 1 | (uint32_t)!settings.accel << 2 | (settings.usbfix & 1u) << 3 |
              (settings.perfpage & 1u) << 4 | (btset.btmode & 3u) << 5 | (btset.bt_type & 1u) << 7 | btset.bt_lo << 8;
