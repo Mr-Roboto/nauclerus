@@ -56,6 +56,8 @@ static void host_reset_fx(void)                     /* FX buses, master, slicer,
     memset(rev_comb, 0, sizeof rev_comb);
     memset(rev_ap, 0, sizeof rev_ap);
     memset(&fx, 0, sizeof fx);
+    memset(&dpp, 0, sizeof dpp);
+    memset(dly_side, 0, sizeof dly_side);
     memset(sl, 0, sizeof sl);
     memset(sl_buf, 0, sizeof sl_buf);
     lim_env = LIM_T;
