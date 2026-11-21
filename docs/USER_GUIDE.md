@@ -1,12 +1,16 @@
-# Nauclerus 1.0.0 user guide
+# Nauclerus user guide (1.1.0 development)
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Candidate artifacts, validation scope and limitations are recorded in the
-[1.0.0 release notes](RELEASE_NOTES_1.0.0.md).
+The published stable release remains **Nauclerus 1.0.0**; its validated artifact and
+limitations are recorded in the [1.0.0 release notes](RELEASE_NOTES_1.0.0.md).
+The [1.1.0 development notes](RELEASE_NOTES_1.1.0.md) describe changes that are
+not part of the published stable firmware or live public simulator yet.
 
-This guide describes **Nauclerus 1.0.0**, including the corrections carried forward from 0.25.1. Earlier phase documents describe historical development contracts;
-this guide takes precedence for current controls.
+This development guide describes the established **1.0.0** controls, including the
+corrections carried forward from 0.25.1, plus explicitly identified **1.1.0**
+additions. Earlier phase documents describe historical development contracts; this
+guide takes precedence for the 1.1.0 development branch.
 
 ## Panel navigation
 
@@ -48,6 +52,33 @@ Settings pages contain:
 The separate MENU contains COLOR, SPEAKER EQ, USB LEVEL, PERFORM, ZOOM, ACCEL,
 BACKLIGHT, HARDWARE CALIBRATION and ABOUT. BLUETOOTH is conditional on a separate
 BLE build; its presence in source does not mean the default package enables it.
+
+## Effects and tempo delay (1.1.0 development)
+
+On the **FX** delay page, **TIME** selects a tempo-synchronised note
+division. The planned 1.1.0 menu adds **1/4D** (dotted quarter),
+**1/8D** (dotted eighth) and **1/16D** (dotted sixteenth), alongside
+the existing normal and triplet values. It also exposes **4T** and
+**32T** from the upstream delay-specific division mapping. A dot adds
+half the normal note duration; a triplet is not a dotted note.
+
+The original TIME selection IDs 0–9 retain their numeric values and timing.
+The new choices are appended internally and displayed in duration order.
+Saved projects and presets therefore retain their existing TIME meaning;
+no migration or change to project-storage layout is required.
+
+The existing **65,536-sample** delay buffer is unchanged. Requested
+delays longer than approximately **1.49 seconds** are limited to that
+maximum: echoes repeat at the capped interval, rather than having their
+audio abruptly truncated. For example, at **40 BPM**, 1/4D requests
+2.25 seconds but plays at approximately 1.49 seconds; 1/8D and 1/16D
+remain within the limit. External MIDI clock uses its measured beat
+length when available.
+
+In the 1.1.0 **browser development simulator**, the endless encoder
+knobs have no absolute-position tick mark. The **MASTER** volume
+potentiometer retains its indicator. This is cosmetic; encoder gestures
+and firmware controls remain unchanged.
 
 ## ACID sound engine
 
