@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* Effects: per-track DIST insert, then sends into three
- * shared buses (chorus, tempo delay, reverb). Mono buses, stereo dry mix. */
+ * shared buses (chorus, tempo delay, reverb). Mono buses, stereo dry mix;
+ * in PING mode the delay echoes alternate left and right. */
 #define DLY_LEN 65536u           /* 1.49 s: 1/4 at 40 BPM fits */
 #define CHO_LEN 2048u
 static int16_t dly_buf[DLY_LEN] __attribute__((section(".pool")));
@@ -27,6 +28,14 @@ static struct {
                                              * length (Q8, glides) */
     uint32_t sp_ph;                      /* .. the output tap's wobble */
 } fx;
+/* The delay's stereo return is the wet RIGHT plus (LEFT - RIGHT) for the left.
+ * A separate running state keeps all of NORMAL's existing fx struct unchanged. */
+static struct {
+    uint8_t mode, side;
+    uint32_t clr;
+    int32_t lp1, lp2, s;
+} dpp;
+static int32_t dly_side[CTL];
 
 /* SPRING (G_RTYPE 1, upstream 1.0.2): one spring of a spring tank, mono like the other buses, in the ROOM's own
  * buffers (no RAM of its own): the input and the loop's return -> a low cut (~110 Hz: a spring carries little bass)
@@ -292,7 +301,83 @@ static void rev_clear(void)
 
 static int32_t part_buf[CTL];                            /* a part's block (mix_part); the fade of a model change */
 
-/* process the three buses for one block; sends in, wet stereo-equal out */
+/* Stereo PING (G_DMODE=1) uses the existing delay ring at half sample rate,
+ * so no second 128 KiB buffer is needed. First echo LEFT at TIME, second
+ * RIGHT at 2*TIME, alternating thereafter. Pairs of input samples are
+ * averaged; high frequencies are softened slightly against NORMAL.
+ * wet holds the right channel and dly_side = left - right. */
+#define DLY_HM (DLY_LEN - 1u)
+#define DLY_CLR 4096u
+_Static_assert(CTL % 2u == 0u && DLY_LEN % DLY_CLR == 0u, "PING sample/block alignment");
+static __attribute__((noinline)) void dly_pp(const int32_t *dly_in, int32_t *wet, uint32_t n)
+{
+    uint32_t i, d = delay_samples(), e = (d + 1u) >> 1, w = fx.dly_w;
+    int32_t fb = song.g[G_DFDBK] * 230, col = 2000 + song.g[G_DCOLOR] * 240, dmix = song.g[G_DMIX] * 258;
+    int32_t c2 = 2 * col - ((col * col) >> 15), mo = -(int32_t)(d & 1u);
+    int32_t lp1 = dpp.lp1, lp2 = dpp.lp2, s0 = dpp.s;
+    for (i = 0; i < n; i += 2u, w++) {
+        int32_t a = dly_buf[(w - e) & DLY_HM], b = dly_buf[(w - e + 1u) & DLY_HM], h1 = (b - a) >> 1;
+        int32_t s1, l0, l1, r0, r1;
+        lp1 += mulq15(dly_buf[(w - d + 1u) & DLY_HM] - lp1, c2);
+        s1 = mulq15(lp1, fb);
+        lp2 += mulq15(s0 - lp2, c2);
+        dly_buf[w & DLY_HM] = (int16_t)clamp(((dly_in[i] + dly_in[i + 1u]) >> 2) + mulq15(lp2, fb), -32768, 32767);
+        l0 = mulq15((a + (h1 & mo)) << 1, dmix);
+        l1 = mulq15((a + h1 + ((b - a - h1) & mo)) << 1, dmix);
+        r0 = mulq15(s0 << 1, dmix);
+        r1 = mulq15((s0 + s1) & ~1, dmix);
+        wet[i] += r0;
+        wet[i + 1u] += r1;
+        dly_side[i] = l0 - r0;
+        dly_side[i + 1u] = l1 - r1;
+        s0 = s1;
+    }
+    fx.dly_w = w;
+    dpp.lp1 = lp1;
+    dpp.lp2 = lp2;
+    dpp.s = s0;
+    dpp.side = 1;
+}
+
+/* The new mode cannot replay echoes left in the ring by the previous mode.
+ * Clear over 16 blocks instead of stalling the audio ISR, with the chorus
+ * continuing during the brief silence. NORMAL's original DSP stays unchanged. */
+static __attribute__((noinline)) void dly_alt(const int32_t *cho_in, const int32_t *dly_in, int32_t *wet, uint32_t n)
+{
+    uint32_t i, m = song.g[G_DMODE] == 1;
+    uint32_t cinc = LFO_INC[song.g[G_CRATE] & 127] / CTL;
+    int32_t cdepth = song.g[G_CDEPTH] * 6;
+    for (i = 0; i < n; i++) {
+        int32_t r, c0, c1, f;
+        uint32_t ri;
+        cho_buf[fx.cho_w & (CHO_LEN - 1u)] = (int16_t)clamp(cho_in[i] >> 1, -32768, 32767);
+        fx.cho_ph += cinc;
+        r = (400 << 8) + ((osc_sine(fx.cho_ph) + 32768) * cdepth >> 8);
+        ri = (uint32_t)r >> 8;
+        f = r & 255;
+        c0 = cho_buf[(fx.cho_w - ri) & (CHO_LEN - 1u)];
+        c1 = cho_buf[(fx.cho_w - ri - 1u) & (CHO_LEN - 1u)];
+        wet[i] = (c0 + (((c1 - c0) * f) >> 8)) << 1;
+        fx.cho_w++;
+    }
+    if (m != dpp.mode) {
+        dpp.mode = (uint8_t)m;
+        dpp.clr = DLY_LEN;
+        dpp.lp1 = dpp.lp2 = dpp.s = 0;
+        fx.dly_lp = 0;
+    }
+    if (dpp.clr) {
+        int16_t *p = dly_buf + (DLY_LEN - dpp.clr);
+        for (i = 0; i < DLY_CLR; i++)
+            p[i] = 0;
+        dpp.clr -= DLY_CLR;
+        return;
+    }
+    if (m)
+        dly_pp(dly_in, wet, n);
+}
+
+/* process the three buses for one block; sends in, mono wet plus optional PING stereo side */
 static void fx_buses(const int32_t *cho_in, const int32_t *dly_in, const int32_t *rev_in, int32_t *wet,
                      uint32_t n)
 {
@@ -301,7 +386,10 @@ static void fx_buses(const int32_t *cho_in, const int32_t *dly_in, const int32_t
     int32_t dmix = song.g[G_DMIX] * 258;
     int32_t cdepth = song.g[G_CDEPTH] * 6, rt;
     uint32_t cinc = LFO_INC[song.g[G_CRATE] & 127] / CTL;
-    for (i = 0; i < n; i++) {
+    dpp.side = 0;
+    if (song.g[G_DMODE] || dpp.mode || dpp.clr)
+        dly_alt(cho_in, dly_in, wet, n);
+    else for (i = 0; i < n; i++) {
         int32_t y = 0, x, r;
         /* chorus: modulated short delay, 5..15 ms */
         cho_buf[fx.cho_w & (CHO_LEN - 1u)] = (int16_t)clamp(cho_in[i] >> 1, -32768, 32767);
@@ -489,6 +577,9 @@ static void mix_block(int32_t *out, uint32_t n)
     if (perf)
         perf_pre(mix_l, mix_r, send_d, send_r, n);  /* THROW */
     fx_buses(send_c, send_d, send_r, wet, n);
+    if (dpp.side)
+        for (i = 0; i < n; i++)
+            mix_l[i] += dly_side[i];          /* PING: wet left = wet right + side */
     for (i = 0; i < n; i++) {                           /* the master level */
         mix_l[i] = (clamp((mix_l[i] + wet[i]) >> 2, -524287, 524287) * mg) >> 10;
         mix_r[i] = (clamp((mix_r[i] + wet[i]) >> 2, -524287, 524287) * mg) >> 10;   /* fits Q12 */
