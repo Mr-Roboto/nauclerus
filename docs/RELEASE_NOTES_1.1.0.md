@@ -124,6 +124,7 @@ source restores the exact firmware implementation tested in that build.
 - **Not claimed:** exhaustive external-clock or interrupted-update recovery tests.
 
 Historical 1.0.0 artifacts remain unchanged.
+Publication and web installation are separate: publishing does not flash any FM-1 device.
 
 **Credits:** Nauclerus modifications by Mr. Roboto; original Hortator by
 DEADACTIVE; Felucca by Leo Kuroshita / Hügelton Instruments. Original
