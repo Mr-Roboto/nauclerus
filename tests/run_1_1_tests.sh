@@ -10,3 +10,9 @@ ${CC:-cc} -O1 -g -Wall -Wno-unused-function -Wno-int-to-pointer-cast \
     -Ibuild/gen -Ifirmware/src \
     -o build/host/solo_test tests/solo_test.c -lm
 build/host/solo_test
+
+${CC:-cc} -O1 -g -Wall -Wno-unused-function -Wno-int-to-pointer-cast \
+    -fsanitize=undefined -fno-sanitize-recover=all \
+    -Ibuild/gen -Ifirmware/src \
+    -o build/host/midi_features_test tests/midi_features_test.c -lm
+build/host/midi_features_test
