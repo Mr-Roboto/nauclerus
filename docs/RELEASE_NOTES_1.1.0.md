@@ -70,10 +70,11 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 
 ### LCD orange theme refinement
 
-- Match the ORANGE display theme (saved index 0, also the default) more closely
-  to the orange FM-1 enclosure: background **#D45E31**, dark ink **#1B1110**.
-- ORANGE INV (saved index 1) retains its dark **#160904** background and uses
-  matching orange **#D45E31** for text and graphics.
+- Make ORANGE (saved index 0, also the default) visibly stronger and more
+  saturated than the previous burnt-orange proposal: vivid signal-orange
+  background **#FF6500**, almost-black ink **#120804**.
+- ORANGE INV (saved index 1) uses background **#100604**, with matching vivid
+  **#FF6500** text and graphics.
 - Preserve all fourteen theme IDs, the menu order, the twelve other colors and
   settings persistence. The hardware LCD and web emulator share the RGB565
   palette; site-wide CSS/physical panel colors do not change.
