@@ -2,11 +2,20 @@
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Current release and validation: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
+Published stable release: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
+Next development version: [1.1.0 draft notes](docs/RELEASE_NOTES_1.1.0.md) (not published).
 
 Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes the
 accepted RC13 functionality and the release UI corrections listed below.
 Historical entries retain their original scope and terminology.
+
+## Unreleased (1.1.0 development branch; no tag or public release)
+
+- FX delay TIME adds 1/4D, 1/8D and 1/16D as well as upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values.
+- Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
+- Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
+- Update web Controls/FX help and the user guide; see [development release notes](docs/RELEASE_NOTES_1.1.0.md).
+- Firmware package, browser simulator, hardware acceptance and release publication pending.
 
 ## 1.0.0 - 2026-11-05
 
