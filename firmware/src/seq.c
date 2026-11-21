@@ -562,14 +562,16 @@ static void keyboard_block(void)
                                                      * (seq_mode 2): the keys play and record */
     }
     for (i = 0; ch && i < NTRK; i++) {
-        uint32_t k = KEY_TRK_KEY[i], note = (uint32_t)trk[i].p[P_NOTE] & 127u;
+        uint32_t k = KEY_TRK_KEY[i], track_route = song.g[G_ROUTE] == RT_TRACK;
+        uint32_t note = track_route ? 60u : (uint32_t)trk[i].p[P_NOTE] & 127u;
+        uint32_t mc = track_route ? i : drum_ch();
         if (!((ch >> k) & 1u))
             continue;
         if ((cur >> k) & 1u) {
             input_hit(&trk[i], 100u);
-            midi_out_event(0x09u | (0x90u | drum_ch()) << 8 | note << 16 | 100u << 24);
+            midi_out_event(0x09u | (0x90u | mc) << 8 | note << 16 | 100u << 24);
         } else {
-            midi_out_event(0x08u | (0x80u | drum_ch()) << 8 | note << 16);
+            midi_out_event(0x08u | (0x80u | mc) << 8 | note << 16);
         }
     }
 }
@@ -586,6 +588,22 @@ static void midi_clock_transport(uint32_t status, uint32_t ms);
 static void learn_cc(uint32_t cc, uint32_t v);                /* midi_learn.c: MIDI LEARN */
 static int learn_note(uint32_t n, uint32_t on);
 static void learn_block(void);
+
+/* ROUT SEL/TRACK: MIDI C4 transposes as the STEPS note does; the selected
+ */channel track's armed pattern records that pitch without changing defaults. */
+static void midi_pitched_hit(track_t *t, uint32_t vel, int32_t nt)
+{
+    nt = clamp(nt, NT_MIN, NT_MAX);
+    if (((song.rec >> trk_index(t)) & 1u) && song.playing && !t->p[P_SRC]) {
+        uint32_t idx = rec_hit(t, vel);
+        t->step[idx].nt = (int8_t)nt;
+    }
+    drum_play(t, vel, nt);
+    if (trk_model(t)->gate) {
+        t->gate_n = hit_gate_len(t);
+        t->slide_in = 0;
+    }
+}
 
 static void midi_block(void)
 {
@@ -615,14 +633,26 @@ static void midi_block(void)
         }
         if ((st == 0x90u || st == 0x80u) && learn_note(d1, st == 0x90u && d2))
             continue;                               /* a learned note (any channel): its action, no drum */
-        if (st != 0x90u || !d2 || ch != drum_ch())
+        if (st != 0x90u || !d2)
             continue;                               /* note-offs: one-shots ignore them */
+        if (song.g[G_ROUTE] == RT_TRACK) {
+            if (ch < NTRK)
+                midi_pitched_hit(&trk[ch], d2, (int32_t)d1 - 60);
+            continue;
+        }
+        if (ch != drum_ch())
+            continue;
+        if (song.g[G_ROUTE] == RT_SEL) {
+            midi_pitched_hit(TSEL, d2, (int32_t)d1 - 60);
+            continue;
+        }
         for (i = 0; i < NTRK; i++)
             if ((uint32_t)trk[i].p[P_NOTE] == d1)
                 input_hit(&trk[i], d2);
     }
 }
 
+#include "midi_out.c"            /* USB clock and input MIDI THRU (Hortator selectively adapted) */
 #include "lockbank.c"               /* the lock bank: motion events and parameter locks, sorted (spec 2026-10-24) */
 #include "motion.c"                 /* knob moves per step (upstream 1.0's motion recording) */
 static void seq_stop(void);
@@ -741,6 +771,7 @@ static void seq_start(void)
     slicer_start();
     motion_begin();
     chain_start();                                  /* song.c: an armed song from row 1 */
+    mout_start();
 }
 
 static void seq_stop(void)
@@ -752,6 +783,7 @@ static void seq_stop(void)
     acid_gates_close();                             /* ACID: no note drones on */
     motion_end();                                   /* motion.c: the patch back */
     chain_stop();                                   /* song.c: the timing and REC back */
+    mout_stop();
 }
 
 static void seq_tick(track_t *t, uint32_t n)
@@ -891,6 +923,7 @@ static void events_block(uint32_t n)
         grids_tick(seq_n);
         chain.cut = 0;
     }
+    mout_block(n, run);                             /* clock pulses aligned to the audio grid */
     if (song.playing)
         song.tick++;
 }
