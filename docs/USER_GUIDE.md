@@ -57,7 +57,7 @@ BLE build; its presence in source does not mean the default package enables it.
 
 On PROJECT **LOAD/SAVE** and TOOLS **CLRSQ/INIT/CLR/INIT ALL**, turn the
 corresponding knob once to arm the operation. The **AGAIN** message remains
-visible for approximately **four seconds**. Turn the **same knob again**
+visible for approximately **three seconds**. Turn the **same knob again**
 during that window to perform the action; otherwise the operation is
 cancelled. A page-select encoder turn does not confirm these operations.
 A project LOAD or SAVE requires the transport to be stopped.
