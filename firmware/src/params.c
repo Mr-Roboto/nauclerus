@@ -17,6 +17,8 @@ static const char *const N_CLOCK[] = {"INT", "USB", "TRS",   /* G_CLOCK: = the i
 #endif
 };
 static const char *const N_NOTE[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+static const char *const N_SYNC[] = {"OFF", "USB"};
+static const char *const N_ROUTE[] = {"NOTE", "SEL", "TRACK"};
 static const char *const N_DASH[] = {"--"};
 static const char *const N_SLOT[] = {"-", "A", "B", "C", "D"};   /* G_SLOT 1..4: the project slots A..D */
 static const char *const N_GO[] = {"--", "GO"};
@@ -112,8 +114,8 @@ static const param_desc_t GP[G_COUNT] = {
     [G_CRATE] = PD("CRT", F_LFOHZ, 0, 127, 40),
     [G_CDEPTH] = PD("CDP", F_PCT, 0, 127, 60),
     [G_MIDI] = PE("MIDI", N_DASH, 0),
-    [G_SYNC] = PE("SYNC", N_DASH, 0),
-    [G_ROUTE] = PE("ROUT", N_DASH, 0),
+    [G_SYNC] = PE("SYNC", N_SYNC, 0),
+    [G_ROUTE] = PE("ROUT", N_ROUTE, 0),
     [G_INFO] = PD("CPU", F_INT, 0, 0, 0),
     [G_SLOT] = {"SLOT", F_ENUM, 1, 4, 1, N_SLOT, 0},
     [G_NAME] = PE("NAME", N_DASH, 0),
@@ -148,8 +150,8 @@ static const param_desc_t GP[G_COUNT] = {
  * device settings settings.mutebar, fx_metro); their knob values are song.act, not song.g / projects */
 static const char *const N_MUTEBAR[] = {"NOW", "BAR"};
 static const char *const N_METRO[] = {"OFF", "LOW", "MID", "HIGH"};
-static const param_desc_t GP_ACT[4] = {PE("CLR*", N_GO, 0), PE("INIT*", N_GO, 0), PE("MUTE", N_MUTEBAR, 0),
-                                       PE("METRO", N_METRO, 0)};
+static const param_desc_t GP_ACT[5] = {PE("CLR*", N_GO, 0), PE("INIT*", N_GO, 0), PE("MUTE", N_MUTEBAR, 0),
+                                       PE("METRO", N_METRO, 0), PE("THRU", N_ONOFF, 0)};
 
 /* RESON STRCT on CHORD: the chord type, 0..127 split evenly over N_RCHORD (reson.c rs_chord) */
 static const param_desc_t RS_CHORD_DESC = {"CHORD", F_INT, 0, 127, 0, N_RCHORD, 0};
