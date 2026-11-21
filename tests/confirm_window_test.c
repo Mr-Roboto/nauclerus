@@ -20,15 +20,15 @@ int main(void)
 
     turn(EN_K4, 1);
     ui_frame();
-    chk("first SAVE turn arms without saving, ~4 s remain",
-        ui.arm == G_SAVE && ui.arm_t >= 260u && ui.arm_t <= UI_GO_CONFIRM_FRAMES);
+    chk("first SAVE turn arms without saving, ~3 s remain",
+        ui.arm == G_SAVE && ui.arm_t >= 190u && ui.arm_t <= UI_GO_CONFIRM_FRAMES);
     chk("AGAIN: SAVE popup stays visible for the whole arm window",
         str_eq(ui.msg, "AGAIN: SAVE") && ui.msg_t == ui.arm_t);
-    for (i = 0; i < 220u; i++)
+    for (i = 0; i < 150u; i++)
         ui_frame();
-    chk("SAVE remains armed after more than 3 seconds",
+    chk("SAVE remains armed after more than 2 seconds",
         ui.arm == G_SAVE && ui.arm_t > 0 && ui.msg_t == ui.arm_t);
-    for (i = 0; i < 100u; i++)
+    for (i = 0; i < 70u; i++)
         ui_frame();
     chk("expired SAVE silently disarms and hides its prompt",
         ui.arm == 0u && ui.arm_t == 0u && ui.msg_t == 0u);
@@ -41,9 +41,9 @@ int main(void)
     ui_frame();
     chk("first CLRSQ turn arms but retains the pattern",
         ui.arm == G_CLRSEQ && trk[0].step[0].on);
-    for (i = 0; i < 220u; i++)
+    for (i = 0; i < 150u; i++)
         ui_frame();
-    turn(EN_K1, 1);                            /* second turn within 4 s */
+    turn(EN_K1, 1);                            /* second turn within 3 s */
     ui_frame();
     chk("late second turn clears, disarms and shows completion",
         !trk[0].step[0].on && !ui.arm && !ui.arm_t && str_eq(ui.msg, "PATTERN CLEARED"));
@@ -51,7 +51,7 @@ int main(void)
     song.g[G_BPM] = 137;
     turn(EN_K4, 1);                            /* INIT ALL first turn */
     ui_frame();
-    for (i = 0; i < 300u; i++)
+    for (i = 0; i < 230u; i++)
         ui_frame();
     chk("INIT ALL expires without changing the live project",
         song.g[G_BPM] == 137 && ui.arm == 0);
