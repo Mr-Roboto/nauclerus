@@ -15,3 +15,9 @@ ${CC:-cc} -O1 -g -Wall -Wno-unused-function -Wno-int-to-pointer-cast \
     -Ibuild/gen -Ifirmware/src \
     -o build/host/delay_pingpong_test tests/delay_pingpong_test.c -lm
 build/host/delay_pingpong_test
+
+${CC:-cc} -O1 -g -Wall -Wno-unused-function -Wno-int-to-pointer-cast \
+    -fsanitize=undefined -fno-sanitize-recover=all \
+    -Ibuild/gen -Ifirmware/src \
+    -o build/host/lfo_fx_targets_test tests/lfo_fx_targets_test.c -lm
+build/host/lfo_fx_targets_test
