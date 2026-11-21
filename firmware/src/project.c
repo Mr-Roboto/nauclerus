@@ -68,7 +68,7 @@ static int16_t proj_xp_get(const proj_trk_t *s, uint32_t id)
 }
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_t t[NTRK];
     uint16_t lk_n;                              /* FDRF: its lock bank's count (0: no bank needed); FDR8..FDRE: the
@@ -90,7 +90,7 @@ project_t proj_slot[4] __attribute__((section(".noinit")));
 /* FDRE (0.23.x): FDRF's layout with the motion (128 events) where FDRF has its bank link */
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_t t[NTRK];
     motion_store_t motion;
@@ -247,7 +247,7 @@ typedef struct {
 } proj_trk_va_t;
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_va_t t[NTRK];
     motion_store_t motion;
@@ -263,7 +263,7 @@ typedef struct {
 } proj_trk_vb_t;
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_vb_t t[NTRK];
     motion_store_t motion;
@@ -280,7 +280,7 @@ typedef struct {
 /* FDRC (0.17.0 .. 0.20.0): everything but the presets, 3688 B; FDRD's fields up to the name at the same offsets */
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_vd_t t[NTRK];
     motion_store_t motion;
@@ -291,7 +291,7 @@ typedef struct {
 /* FDRD (0.21.0 .. 0.22.0): everything but the DEST slots' new parameters, 3712 B */
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_vd_t t[NTRK];
     motion_store_t motion;
@@ -378,7 +378,7 @@ typedef struct {
 /* the sound pack's format: everything but the motion. 3028 B */
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_v9_t t[NTRK];
     uint32_t sum;
@@ -386,7 +386,7 @@ typedef struct {
 /* motion's format: everything but the song and the name. 3544 B */
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_v9_t t[NTRK];
     motion_store_t motion;
@@ -395,7 +395,7 @@ typedef struct {
 /* FDR9: everything but the FILTER. 3592 B */
 typedef struct {
     uint32_t magic, size;
-    int16_t g[G_COUNT];
+    int16_t g[G_NSTORED];
     uint8_t sel, rsv[3];
     proj_trk_v9_t t[NTRK];
     motion_store_t motion;
@@ -479,7 +479,7 @@ static void proj_from_old(project_t *q, lk_bank_t *b, uint32_t ver)
         memset(q, 0, sizeof *q);
         q->magic = PROJ_MAGIC;
         q->size = sizeof *q;
-        for (i = 0; i < G_COUNT; i++)
+        for (i = 0; i < G_NSTORED; i++)
             q->g[i] = g[i];
         q->sel = ver == 8u ? proj_old.v8.sel : ver == 9u ? proj_old.v9.sel : ver == 10u ? proj_old.va.sel : proj_old.vb.sel;
         for (k = 0; k < NTRK; k++) {
@@ -504,13 +504,13 @@ static void proj_from_old(project_t *q, lk_bank_t *b, uint32_t ver)
         return;
     }
     ng = ver == 1u ? (uint32_t)G_GMODE : ver == 2u ? (uint32_t)G_CSRC : ver == 6u ? (uint32_t)G_RTYPE
-                : ver == 7u ? (uint32_t)G_COUNT : (uint32_t)G_CGHOST;
+                : ver == 7u ? (uint32_t)G_NSTORED : (uint32_t)G_CGHOST;
     np = ver == 1u ? (uint32_t)P_SRC : ver == 2u ? (uint32_t)P_DUCK : ver == 3u ? (uint32_t)P_LFO1
                 : ver == 4u ? (uint32_t)P_RMODEL : (uint32_t)P_FTYPE;
     memset(q, 0, sizeof *q);
     q->magic = PROJ_MAGIC;
     q->size = sizeof *q;
-    for (i = 0; i < G_COUNT; i++)
+    for (i = 0; i < G_NSTORED; i++)
         q->g[i] = i >= ng ? GP[i].def
                 : ver == 1u ? proj_old.v1.g[i] : ver == 2u ? proj_old.v2.g[i] : ver == 3u ? proj_old.v3.g[i]
                 : ver == 4u ? proj_old.v4.g[i] : ver == 5u ? proj_old.v5.g[i] : ver == 6u ? proj_old.v6.g[i] : proj_old.v7.g[i];
@@ -628,8 +628,9 @@ static void project_save(uint32_t slot)
     memset(p, 0, sizeof *p);
     p->magic = PROJ_MAGIC;
     p->size = sizeof *p;
-    for (i = 0; i < G_COUNT; i++)
+    for (i = 0; i < G_NSTORED; i++)
         p->g[i] = song.g[i];
+    p->rsv[0] = (uint8_t)(song.g[G_DMODE] == 1); /* old projects always wrote 0 */
     p->sel = song.sel;
     for (i = 0; i < NTRK; i++) {
         memcpy(p->t[i].p, trk[i].p, sizeof p->t[i].p);
@@ -704,10 +705,11 @@ static int proj_load(uint32_t slot, int irq)
     transport_req = 2;
     if (irq)
         fm1_irq_off();                                  /* the audio ISR must not see half a project */
-    for (i = 0; i < G_COUNT; i++)
+    for (i = 0; i < G_NSTORED; i++)
         if (i != G_SLOT && i != G_LOAD && i != G_SAVE)
             song.g[i] = (int16_t)(i == G_CLOCK && (p->g[i] < 0 || p->g[i] > GP[i].max)
                                       ? 0 : clamp(p->g[i], GP[i].min, GP[i].max));   /* CLK BLE without BLE: INT */
+    song.g[G_DMODE] = (int16_t)(p->rsv[0] == 1u);
     for (k = 0; k < NTRK; k++) {
         track_t *t = &trk[k];
         const proj_trk_t *s = &p->t[k];
