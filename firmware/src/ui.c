@@ -64,9 +64,10 @@ static struct {
     uint8_t about_top;           /* ABOUT: the first credits row shown (ui_menu.c; 0 whenever ABOUT opens) */
     uint32_t menu_sig, home_t0;
     uint8_t force;               /* full redraw pending */
-    uint8_t msg_t;               /* transient message frames */
+    uint16_t msg_t;              /* popup frames: also the extended GO confirmation message */
     uint8_t bpm_t;
-    uint8_t arm, arm_t;          /* destructive action armed: param id, frames left to confirm */
+    uint8_t arm;                 /* destructive action armed: param id */
+    uint16_t arm_t;              /* GO confirmation frames left (~4 s at firmware UI cadence) */
     uint32_t rec_t0;             /* REC press time (btn_hold) */
     uint8_t rec_all, rec_keep;   /* REC ALL (a REC tap off TRACKS, ui_input.c rec_tap): on; the arm mask before it (back
                                   * when it is left). Never stored, as the arm state */
