@@ -34,6 +34,11 @@ int main(void)
     unsigned i;
     int old_ok = 1, timing_ok = 1, order_ok = 1, rank_ok = 1;
 
+    host_init_live();                          /* new project: uses the actual production initializer */
+    verify("new project defaults TIME to dotted eighth 8D (stored ID 12)",
+           d->def == 12 && song.g[G_DTIME] == 12 && strcmp(N_DTIME[song.g[G_DTIME]], "8D") == 0);
+    verify("saved regular eighth keeps its distinct stored ID 1",
+           strcmp(N_DTIME[1], "1/8") == 0 && div_samples(1) == quarter / 2u);
     song.g[G_CLOCK] = 0;
     song.g[G_BPM] = 120;
 
