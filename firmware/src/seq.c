@@ -18,6 +18,11 @@ static volatile uint8_t ml_keys;      /* main: MIDI LEARN is on (ui_learn.c): a 
 static volatile uint32_t ml_kb_hit;   /* ISR -> main: those presses (no effect played), until the UI takes them */
 /* key index (0 = F3, the lowest key) of the white keys F3 G3 A3 B3 C4 D4 E4 F4 -> tracks 1..8 */
 static const uint8_t KEY_TRK_KEY[NTRK] = {0, 2, 4, 6, 7, 9, 11, 12};
+/* Black keys F#3..A#4 = SOLO tracks 1..8, F#5 selects toggle/momentary. */
+static const uint8_t SOLO_KEY[NTRK] = {1, 3, 5, 8, 10, 13, 15, 17};
+#define KEY_SOLO_MODE 25u
+static uint8_t solo_mom;       /* 0 TOGGLE (power-on default), 1 MOMENTARY */
+static uint8_t solo_down;      /* momentary solo keys still awaiting release */
 #define KEY_LEARN 14u                    /* G4, the first white key above F4: MIDI LEARN on the MUTE screen (ui_learn.c) */
 /* the STEP grid: steps 1..16 of a bank on the 16 white keys F3 G3 A3 B3 C4 D4 E4 F4 G4 A4 B4 C5 D5 E5 F5 G5
  * (key index from F3); the black keys do nothing there */
