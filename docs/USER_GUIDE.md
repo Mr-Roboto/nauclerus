@@ -53,6 +53,15 @@ The separate MENU contains COLOR, SPEAKER EQ, USB LEVEL, PERFORM, ZOOM, ACCEL,
 BACKLIGHT, HARDWARE CALIBRATION and ABOUT. BLUETOOTH is conditional on a separate
 BLE build; its presence in source does not mean the default package enables it.
 
+## PROJECT and TOOLS confirmations (1.1.0)
+
+On PROJECT **LOAD/SAVE** and TOOLS **CLRSQ/INIT/CLR/INIT ALL**, turn the
+corresponding knob once to arm the operation. The **AGAIN** message remains
+visible for approximately **four seconds**. Turn the **same knob again**
+during that window to perform the action; otherwise the operation is
+cancelled. A page-select encoder turn does not confirm these operations.
+A project LOAD or SAVE requires the transport to be stopped.
+
 ## Effects and tempo delay (1.1.0 development)
 
 On the **FX** delay page, **TIME** selects a tempo-synchronised note
