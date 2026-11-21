@@ -1760,7 +1760,7 @@ static void graph_perf(void)
 static void draw_mute(void)
 {
     uint32_t k, blink = (fm1_ticks() / (250u * 1000u * FM1_TICKS_PER_US)) & 1u;
-    uint32_t sig = settings.mutebar * 7u + song.mute_q * 977u + (song.mute_q ? blink + 1u : 0u) * 131u + ui.ml.on * 5003u;
+    uint32_t sig = settings.mutebar * 7u + song.mute_q * 977u + (song.mute_q ? blink + 1u : 0u) * 131u + ui.ml.on * 5003u + song.solo * 3301u + solo_mom * 2153u;
     int32_t x, w;
     char b[24];
     for (k = 0; k < NTRK; k++)
@@ -1802,6 +1802,8 @@ static void draw_mute(void)
         b[1] = 0;
         md_text(bx + ((int32_t)MU_BW - md_text_w(&MD_F3, 2, b)) / 2, by + 6, &MD_F3, 2, b, pen);
         md_text(bx + ((int32_t)MU_BW - md_text_w(&MD_F3, 2, mn)) / 2, by + 22, &MD_F3, 2, mn, pen);
+        if ((song.solo >> k) & 1u)
+            md_text(bx + 3, by + 3, &MD_F3, 2, "S", pen);
         note_text(b, 53 + KEY_TRK_KEY[k]);
         md_text(bx + ((int32_t)MU_BW - md_text_w(&MD_F3, 2, b)) / 2, by + (int32_t)MU_BH + 4, &MD_F3, 2, b, C_INK);
     }
@@ -1810,7 +1812,8 @@ static void draw_mute(void)
                                                        * when not chosen), "G4 LEARN: OFF" / "ON" (MIDI LEARN) */
     cv_rect(0, 0, 1, 62, C_INK);
     cv_rect(239, 0, 1, 62, C_INK);
-    str_cpy(b, settings.mutebar ? "MUTE: NEXT BAR" : "MUTE: NOW", sizeof b);
+    str_cpy(b, settings.mutebar ? (solo_mom ? "BAR  SOLO MOM F#5" : "BAR  SOLO TGL F#5")
+                                 : (solo_mom ? "NOW  SOLO MOM F#5" : "NOW  SOLO TGL F#5"), sizeof b);
     md_text((240 - md_text_w(&MD_F3, 2, b)) / 2, 4, &MD_F3, 2, b, C_INK);
     w = md_text_w(&MD_F3, 2, "C# NOW  D# NEXT BAR");
     x = (240 - w) / 2;
