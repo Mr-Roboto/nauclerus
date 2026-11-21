@@ -180,13 +180,17 @@ static uint32_t beat_samples(void)                    /* a quarter note: the clo
 {
     return song.g[G_CLOCK] && midi_beat_samples ? midi_beat_samples : (uint32_t)FS * 60u / (uint32_t)song.g[G_BPM];
 }
-/* length of one division (N_DIV id) in samples at the song tempo: ids 0..5 a quarter / DEN, the slow ids 6..9
- * (1/2 1/1 2BAR 4BAR) a quarter x 2, 4, 8, 16 (upstream 1.0.2) */
-static const uint8_t DIV_DEN[6] = {1, 2, 4, 8, 3, 6};    /* beats = 1 / DEN; original ids fixed, slow rates append */
+/* Stored division IDs 0..9 retain their original meaning for projects and
+ * slicer timing. Only delay TIME exposes the additional IDs 10..14.
+ * 10=4T, 11=1/4D, 12=1/8D, 13=1/16D, 14=32T (Hortator mapping).
+ * The delay buffer still imposes its existing maximum length. */
+static const uint8_t DIV_DEN[6] = {1, 2, 4, 8, 3, 6};
+static const uint8_t DIV_XN[5] = {2, 3, 3, 3, 1}, DIV_XD[5] = {3, 2, 4, 8, 12};
 static uint32_t div_samples(uint32_t div)
 {
     uint32_t quarter = beat_samples();
-    return div < 6u ? quarter / DIV_DEN[div] : div < 10u ? quarter << (div - 5u) : quarter / DIV_DEN[div % 6u];
+    return div < 6u ? quarter / DIV_DEN[div] : div < 10u ? quarter << (div - 5u)
+         : div < 15u ? quarter * DIV_XN[div - 10u] / DIV_XD[div - 10u] : quarter / DIV_DEN[div % 6u];
 }
 
 #include "perform.c"                                 /* the FX hold layer's effects (the master) */
