@@ -32,6 +32,7 @@ void fm1_timer5_irq(void)
             fm1_ms++;
         }
     }
+    mout_tick(t0, felucca_dbg.in_audio);            /* scheduled MIDI clocks and safe TRS->USB THRU */
     if (usb_due)
         owed |= 1u;                             /* 2 kHz: all USB SIE traffic lives here */
 #if FELUCCA_UART
