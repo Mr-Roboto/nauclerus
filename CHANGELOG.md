@@ -17,7 +17,7 @@ Historical entries retain their original scope and terminology.
 - Make PROJECT LOAD/SAVE and TOOLS clear/init GO confirmations usable: approximately three seconds to turn the same knob again, with AGAIN message visible for the full confirmation window. Untouched project data and unchanged action semantics.
 - Remove the misleading non-adjustable SYSTEM USB display and shift the remaining controls left: K1 SYNC, K2 ROUT, K3 CPU, K4 unused. This changes only page layout/encoder mapping; USB interfaces and stored parameter IDs are unchanged.
 - Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
-- Refresh the firmware ORANGE LCD palette (ID 0, #D45E31 background / #1B1110 ink) and ORANGE INV (ID 1, #160904 background / #D45E31 ink) to better match the orange FM-1 enclosure; all twelve other themes, saved IDs and website colors remain unchanged.
+- Strengthen the firmware ORANGE LCD palette (ID 0, #FF6500 background / #120804 ink) and ORANGE INV (ID 1, #100604 background / #FF6500 ink) to vivid high-saturation signal orange; this replaces the earlier muted #D45E31 proposal. The other twelve themes, saved IDs and website colors remain unchanged.
 - Add DLY MODE NORM/PING (second FX delay page): alternating stereo echoes reuse the existing delay ring. Old FDRF projects load as NORM; the mode uses reserved byte rsv[0], without changing the record length.
 - Append LFO DEST 20..23 = DST/CHO/DLY/REV. The Nauclerus ACID MORPH destination remains ID 19; every preexisting route retains its identity.
 - Add eight-track SOLO on the GLO/MUTE screen's black keys, with F#5 switching momentary/toggle. Existing white-key mute commands remain.
