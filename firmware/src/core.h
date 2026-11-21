@@ -84,8 +84,10 @@ enum {                          /* global parameters */
     G_COUNT
 };
 #define G_NSTORED G_DMODE         /* old FDRF global field count; do not change the flash layout */
+#define SY_USB 1u                    /* G_SYNC: MIDI clock over USB; TRS jack is input only */
+enum { RT_NOTE, RT_SEL, RT_TRACK };  /* G_ROUTE: drum-channel NOTE, selected pitched, per-track pitched */
 enum { CG_MUTE, CG_KEEP, CG_HIDE };                 /* GHOST: muted = muted; muted still keys; never heard, keys */
-enum { G_CLRALL = G_COUNT, G_INITALL, G_MUTEBAR, G_METRO };   /* TOOLS actions, the MUTE and METRO settings: shown
+enum { G_CLRALL = G_COUNT, G_INITALL, G_MUTEBAR, G_METRO, G_THRU };   /* TOOLS actions, the MUTE and METRO settings: shown
                                                      * like globals, not stored in projects */
 
 /* ----------------------------------------------------------- voices --- */
@@ -210,7 +212,7 @@ typedef struct {
     uint32_t sheds;              /* overload sheds (audio.c shed_voice): the top bar's CPU icon (ui_draw.c) */
     uint32_t master_q12;
     int32_t batt_raw;            /* smoothed ADC ch3 (battery divider), 0 = not read yet */
-    int16_t act[4];              /* TOOLS action knobs CLR* INIT* (G_CLRALL ..): GO buttons, never stored; MUTE: a
+    int16_t act[5];              /* TOOLS action knobs CLR* INIT* (G_CLRALL ..): GO buttons, never stored; MUTE: a
                                   * copy of settings.mutebar; METRO: of fx_metro */
     uint8_t mute_q;              /* mutes to flip on the next bar (bit per track; seq.c) */
     uint8_t solo;                /* SOLO (the SMC-Mixer): bit per track, runtime only (trk_silent) */
