@@ -36,12 +36,14 @@ static int lfo_slot_of(uint32_t id, uint32_t *f)
 static int lfo_own(uint32_t id) { return (id >= P_LFO1 && id < P_LFO2 + LF_N) || (id >= P_LSRC1 && id <= P_LS4DEPTH); }
 
 /* DEST -> the knob an LFO writes; R.TUN (11) writes no knob: the resonator's fine pitch (lfo_track);
- * F.CUT / F.RES (17, 18): FILTER's CUT / RESO (filter.c) */
+ * F.CUT / F.RES (17, 18): FILTER's CUT / RESO; 19 ACID MORPH (Nauclerus),
+ * 20..23 DIST and the CHORUS/DELAY/REVERB sends (append-only). */
 static uint32_t lfo_dest_param(uint32_t dest)
 {
     return dest >= 1u && dest <= 8u ? P_E0 + dest - 1u : dest == 9u ? (uint32_t)P_LEVEL : dest == 10u ? (uint32_t)P_PAN
          : dest >= 12u && dest <= 16u ? P_RDECAY + dest - 12u : dest == 17u ? (uint32_t)P_FCUT
-         : dest == 18u ? (uint32_t)P_FRESO : dest == 19u ? (uint32_t)P_AMORPH : 0xFFu;
+         : dest == 18u ? (uint32_t)P_FRESO : dest == 19u ? (uint32_t)P_AMORPH
+         : dest >= 20u && dest <= 23u ? P_DIST + dest - 20u : 0xFFu;
 }
 
 static uint32_t lfo_inc(const int16_t *q)
@@ -175,7 +177,7 @@ static int32_t lfo_route_amount(int32_t code, int32_t out, int32_t depth)
  * the first time). Inlined per slot: its ids are constants (direct loads) */
 static inline __attribute__((always_inline)) void lfo_slot(track_t *t, uint32_t s, int32_t *acc)
 {
-    uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 19), pid, k;
+    uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 23), pid, k;
     int32_t m = lfo_route_amount(t->p[LS_ID[s][LS_SRC]], t->lfo[lfo_source(t->p[LS_ID[s][LS_SRC]])].out, t->p[LS_ID[s][LS_DEPTH]]);
     const param_desc_t *d;
     if (dest == 11u) {                                /* R.TUN: the resonator's fine pitch, smooth (TUNE untouched) */
@@ -317,7 +319,7 @@ static int lfo_live(const track_t *t, uint32_t pid, int32_t *val)
     int32_t sum = 0;
     const param_desc_t *d = track_desc(t, pid);
     for (s = 0; s < LS_N; s++) {
-        uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 19);
+        uint32_t dest = (uint32_t)clamp(t->p[LS_ID[s][LS_DEST]], 0, 23);
         int32_t m = lfo_route_amount(t->p[LS_ID[s][LS_SRC]], t->lfo[lfo_source(t->p[LS_ID[s][LS_SRC]])].out, t->p[LS_ID[s][LS_DEPTH]]);
         if (!dest || !t->p[LS_ID[s][LS_DEPTH]])
             continue;
