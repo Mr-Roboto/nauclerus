@@ -1,7 +1,8 @@
 # Nauclerus 1.1.0 — Development Release Notes (Draft)
 
 **Status:** development branch only. **Nauclerus 1.0.0 remains the published Stable release.**
-No 1.1.0 package, GitHub release, web deployment or hardware validation is claimed by this document.
+A development 1.1.0 package was built and locally tested on the FM-1 for the delay
+and encoder changes; final 1.1.0 validation and publication are still pending.
 
 ## Changes since 1.0.0
 
@@ -30,6 +31,16 @@ For instance, 1/4D at 40 BPM requests 2.25 s but uses approximately 1.49 s;
 1/8D (1.125 s) and 1/16D (0.5625 s) fit at 40 BPM.
 The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 
+### LCD orange theme refinement
+
+- Match the ORANGE display theme (saved index 0, also the default) more closely
+  to the orange FM-1 enclosure: background **#D45E31**, dark ink **#1B1110**.
+- ORANGE INV (saved index 1) retains its dark **#160904** background and uses
+  matching orange **#D45E31** for text and graphics.
+- Preserve all fourteen theme IDs, the menu order, the twelve other colors and
+  settings persistence. The hardware LCD and web emulator share the RGB565
+  palette; site-wide CSS/physical panel colors do not change.
+
 ### Browser emulator visual accuracy
 
 - Remove absolute-position tick marks from the continuous FM-1 encoders in
@@ -53,8 +64,10 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 ## Development status and release checklist
 
 The changes above have been committed to `dev/nauclerus-1.1.0`.
-Initial source inspection checked the old parameter IDs, extended duration
-mapping and CSS selectors; this is **not a firmware build or hardware test**.
+Initial source inspection, simulator build and focused delay tests passed;
+the owner confirmed the prior 1.1.0 delay/encoder build worked on FM-1 hardware.
+The refreshed ORANGE palette and any later 1.1.0 features still require their
+own rebuild and final hardware validation.
 
 Before publishing 1.1.0:
 
