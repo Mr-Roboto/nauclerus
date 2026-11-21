@@ -7,13 +7,16 @@ No 1.1.0 package, GitHub release, web deployment or hardware validation is claim
 
 ### Tempo-synchronised delay times
 
-- Add **1/4D** (dotted quarter), **1/8D** (dotted eighth) and **1/16D**
-  (dotted sixteenth) as distinct FX delay TIME choices, using the existing
+- Add **4D** (dotted quarter = 1/4D), **8D** (dotted eighth = 1/8D) and
+  **16D** (dotted sixteenth = 1/16D) as distinct FX delay TIME choices,
+  using the existing
   Hortator delay-division arithmetic.
 - Preserve the existing **8T** and **16T** triplets; additionally expose
   the upstream delay-specific **4T** and **32T** choices.
-- Present delay-time choices in descending duration order without renumbering
-  their stored values. Legacy selection IDs **0–9** retain their exact meanings;
+- Present delay-time choices in descending nominal duration order without
+  renumbering their stored values: **4BAR, 2BAR, 1/1, 1/2, 4D, 1/4, 8D,
+  4T, 1/8, 16D, 8T, 1/16, 16T, 1/32, 32T**. Labels 4D/8D/16D deliberately
+  fit the four-glyph LCD value field; 16D must not appear as a second 1/16. Legacy selection IDs **0–9** retain their exact meanings;
   new selections use append-only IDs **10–14**.
 - Keep the existing delay buffer, firmware project layout, parameter identity,
   and preset persistence unchanged; no migration or silent reinterpretation
