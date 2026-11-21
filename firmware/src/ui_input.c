@@ -625,8 +625,8 @@ static void grids_write_steps(void)
 }
 
 /* A confirmed GO action must allow enough time to read the prompt and turn again.
- * The UI runs roughly once per 15 ms, so 270 frames are about four seconds. */
-#define UI_GO_CONFIRM_FRAMES 270u
+ * The UI runs roughly once per 15 ms, so 200 frames are about three seconds. */
+#define UI_GO_CONFIRM_FRAMES 200u
 static void edit_param(uint32_t slot, int32_t steps)
 {
     int16_t *vp;
@@ -759,7 +759,7 @@ static void edit_param(uint32_t slot, int32_t steps)
     }
     if ((id == G_LOAD || id == G_SAVE || id == G_CLRSEQ || id == G_INITSND || id == G_CLRALL || id == G_INITALL) &&
         ui.arm != id) {
-        *vp = 0;                                      /* one detent arms, second detent within ~4 s acts */
+        *vp = 0;                                      /* one detent arms, second detent within ~3 s acts */
         ui.arm = (uint8_t)id;
         ui.arm_t = UI_GO_CONFIRM_FRAMES;
         ui_say("AGAIN: ", d->label);
