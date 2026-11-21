@@ -164,7 +164,9 @@ jobs:
           set -euo pipefail
           git fetch origin gh-pages
           git worktree add --detach "$RUNNER_TEMP/nauclerus-gh-pages" origin/gh-pages
-          rsync -a build/stable-site/ "$RUNNER_TEMP/nauclerus-gh-pages/"
+          rsync -a --checksum build/stable-site/ "$RUNNER_TEMP/nauclerus-gh-pages/"
+          grep -Fq "68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd" "$RUNNER_TEMP/nauclerus-gh-pages/firmware.json"
+          grep -Fq "68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd" "$RUNNER_TEMP/nauclerus-gh-pages/webapp/installer/index.html"
           cd "$RUNNER_TEMP/nauclerus-gh-pages"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
