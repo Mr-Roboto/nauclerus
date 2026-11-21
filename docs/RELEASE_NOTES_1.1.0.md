@@ -19,6 +19,9 @@ and encoder changes; final 1.1.0 validation and publication are still pending.
   4T, 1/8, 16D, 8T, 1/16, 16T, 1/32, 32T**. Labels 4D/8D/16D deliberately
   fit the four-glyph LCD value field; 16D must not appear as a second 1/16. Legacy selection IDs **0–9** retain their exact meanings;
   new selections use append-only IDs **10–14**.
+- Set the factory TIME default for a newly initialized project to **8D** (stored
+  ID **12**) instead of the regular eighth **1/8** (stored ID **1**). Projects
+  already saved with an explicit TIME value keep that value on LOAD.
 - Keep the existing delay buffer, firmware project layout, parameter identity,
   and preset persistence unchanged; no migration or silent reinterpretation
   of saved delay times.
@@ -94,7 +97,8 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 - Keep the original drum/ACID synthesis, ORB Remix, TB-3PO, Grids
   and flash-memory record sizes unchanged. MIDI input/playback behavior
   changes only when ROUT is set beyond its legacy NOTE default; the
-  existing LFO and delay defaults retain their prior behavior.
+  existing LFO defaults retain their prior behavior; the delay TIME
+  default is intentionally changed to 8D for new/initialized projects.
 - The 1.0.0 published firmware and its release artifacts are not modified.
 
 ## Development status and release checklist
