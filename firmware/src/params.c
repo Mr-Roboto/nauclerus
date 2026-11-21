@@ -3,6 +3,11 @@
  * Drum machine fork: 2026 DEADACTIVE */
 /* Parameter descriptions and value formatting. P_E0..P_E7 are described by the track's model. */
 static const char *const N_DIV[] = {"1/4", "1/8", "1/16", "1/32", "8T", "16T", "1/2", "1/1", "2BAR", "4BAR"};   /* ids fixed: slow rates appended */
+/* Dedicated delay divisions: preserve IDs 0..9 of N_DIV and append the upstream
+ * 4T / dotted quarter, eighth, sixteenth / 32T choices at IDs 10..14.
+ * Previously saved project values must keep their original timing. */
+static const char *const N_DTIME[] = {"1/4", "1/8", "1/16", "1/32", "8T", "16T", "1/2", "1/1", "2BAR", "4BAR",
+                                     "4T", "1/4D", "1/8D", "1/16D", "32T"};
 static const char *const N_ONOFF[] = {"OFF", "ON"};
 static const char *const N_CLOCK[] = {"INT", "USB", "TRS",   /* G_CLOCK: = the input ring's source (1 USB, 2 TRS, */
 #if FELUCCA_BLE
@@ -95,7 +100,7 @@ static const param_desc_t GP[G_COUNT] = {
     [G_BPM] = PD("BPM", F_BPM, 40, 240, 120),
     [G_SWING] = PD("SWG", F_PCT, 0, 100, 0),
     [G_CLOCK] = PE("CLK", N_CLOCK, 0),
-    [G_DTIME] = PE("TIME", N_DIV, 1),
+    [G_DTIME] = PE("TIME", N_DTIME, 1),
     [G_DFDBK] = PD("FDBK", F_PCT, 0, 120, 60),
     [G_DCOLOR] = PD("COLR", F_PCT, 0, 127, 70),
     [G_DMIX] = PD("MIX", F_PCT, 0, 127, 90),
@@ -182,7 +187,12 @@ static const param_desc_t *track_desc(const track_t *t, uint32_t id)
  * neighbours), on the knobs and the gauges; the stored values (N_DIV ids: projects) stay.
  * -> the shown order of d's values (index: position, entry: value), 0 = the values' own order */
 static const uint8_t DIV_ORDER[10] = {9, 8, 7, 6, 0, 1, 4, 2, 5, 3};   /* 4BAR 2BAR 1/1 1/2 1/4 1/8 8T 1/16 16T 1/32 */
-static const uint8_t *enum_order(const param_desc_t *d) { return d->names == N_DIV ? DIV_ORDER : 0; }
+/* Delay-only display/navigation order, longest first. Stored IDs are unchanged. */
+static const uint8_t DTIME_ORDER[15] = {9, 8, 7, 6, 11, 0, 12, 10, 1, 13, 4, 2, 5, 3, 14};
+static const uint8_t *enum_order(const param_desc_t *d)
+{
+    return d->names == N_DIV ? DIV_ORDER : d->names == N_DTIME ? DTIME_ORDER : 0;
+}
 static int32_t enum_rank(const param_desc_t *d, int32_t v)   /* v's place in the shown order (+ min): the gauges */
 {
     const uint8_t *o = enum_order(d);
