@@ -2,14 +2,14 @@
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Published stable release: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
-Next development version: [1.1.0 draft notes](docs/RELEASE_NOTES_1.1.0.md) (not published).
+Published stable release: [1.1.0 release notes](docs/RELEASE_NOTES_1.1.0.md).
+Previous stable release: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
 
 Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes the
 accepted RC13 functionality and the release UI corrections listed below.
 Historical entries retain their original scope and terminology.
 
-## Unreleased (1.1.0 development branch; no tag or public release)
+## 1.1.0 - 2026-11-21 (Stable)
 
 - FX delay TIME adds dotted quarter (4D), dotted eighth (8D) and dotted sixteenth (16D), plus upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values. Short LCD labels prevent 16D from being mistaken for 1/16.
 - Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
@@ -22,9 +22,9 @@ Historical entries retain their original scope and terminology.
 - Append LFO DEST 20..23 = DST/CHO/DLY/REV. The Nauclerus ACID MORPH destination remains ID 19; every preexisting route retains its identity.
 - Add eight-track SOLO on the GLO/MUTE screen's black keys, with F#5 switching momentary/toggle. Existing white-key mute commands remain.
 - Enable SYSTEM SYNC OFF/USB, ROUT NOTE/SEL/TRACK, and GLOBAL THRU OFF/ON. USB clock and TRS-to-USB channel forwarding use the existing USB MIDI output; TRS remains input only. THRU is saved in previously unused settings bit 14.
-- New focused host regression programs cover ping-pong routing/persistence, LFO destination compatibility, SOLO, and MIDI routing/clock/THRU. Their execution, production build, simulator and physical hardware validation remain pending.
+- Seven focused host regression programs and the JieLi production build passed. The owner physically accepted ping-pong, LFO FX modulation and display, SOLO/MUTE, USB MIDI, confirmation and SYSTEM controls.
 - Update web Controls/FX help and the user guide; see [development release notes](docs/RELEASE_NOTES_1.1.0.md).
-- The initial 1.1.0 delay/encoder build passed simulation, focused host tests and owner-confirmed hardware acceptance. Later theme changes and remaining planned work require fresh verification; no 1.1.0 stable release has been published.
+- Stable release reuses the verified candidate without a release-time rebuild. The later unapproved #FF9500 experiment was reverted, retaining the installed #FF4D00 palette.
 
 ## 1.0.0 - 2026-11-05
 

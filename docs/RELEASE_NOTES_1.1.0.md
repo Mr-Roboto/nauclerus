@@ -1,8 +1,10 @@
-# Nauclerus 1.1.0 — Development Release Notes (Draft)
+# Nauclerus 1.1.0 Stable
 
-**Status:** development branch only. **Nauclerus 1.0.0 remains the published Stable release.**
-A development 1.1.0 package was built and locally tested on the FM-1 for the delay
-and encoder changes; final 1.1.0 validation and publication are still pending.
+Released 2026-11-21. [GitHub release](https://github.com/Mr-Roboto/nauclerus/releases/tag/v1.1.0)
+and [Web installer](https://mr-roboto.github.io/nauclerus/webapp/installer/).
+
+The owner chose to conclude 1.1.0 with the hardware-tested #FF4D00 orange palette.
+The later #FF9500 color experiment was reverted without changing any accepted feature.
 
 ## Changes since 1.0.0
 
@@ -34,7 +36,7 @@ For instance, 1/4D at 40 BPM requests 2.25 s but uses approximately 1.49 s;
 1/8D (1.125 s) and 1/16D (0.5625 s) fit at 40 BPM.
 The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 
-### Stereo ping-pong delay (development, not yet verified)
+### Stereo ping-pong delay
 
 - Add an FX DELAY second page MODE: NORM (existing mono/stereo-equal wet return)
   or PING (successive echoes alternate L/R), using the same 65,536-sample
@@ -44,19 +46,19 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
   after stored globals and persists as rsv[0] (previously zero). Old records
   therefore select NORM by default.
 
-### Expanded LFO destinations (development, not yet verified)
+### Expanded LFO destinations
 
 - Preserve all old destination IDs, especially Nauclerus ACID MORPH = 19.
 - Append DEST 20 DST (distortion amount), 21 CHO, 22 DLY and 23 REV
   (per-track effect sends). Every existing LFO routing remains meaningful.
 
-### Eight-track solo (development, not yet verified)
+### Eight-track solo
 
 - GLO held: eight black keys F#3..A#4 select solo tracks 1..8.
   F#5 switches between TOGGLE and MOMENTARY. SOLO is a runtime state;
   the white keys retain their mute functionality and MIDI LEARN remains G4.
 
-### USB MIDI Clock Out, routing and Thru (development, not yet verified)
+### USB MIDI Clock Out, routing and Thru
 
 - SYSTEM SYNC OFF/USB provides MIDI Clock and Start/Stop on USB when
   internally clocked; when following TRS clock, its Start/Stop/Clock is
@@ -70,14 +72,12 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 
 ### LCD orange theme refinement
 
-- Set ORANGE (saved index 0, also the default) to saturated, red-leaning
-  neon orange: background **#FF4D00**, almost-black ink **#120804**.
-  This replaces the earlier, too autumnal **#FF6500** appearance.
-- ORANGE INV (saved index 1) uses background **#100604**, with matching neon
-  **#FF4D00** text and graphics.
-- Preserve all fourteen theme IDs, the menu order, the twelve other colors and
-  settings persistence. The hardware LCD and web emulator share the RGB565
-  palette; site-wide CSS/physical panel colors do not change.
+- Keep ORANGE (index 0) at **#FF4D00** background / **#120804** ink,
+  and ORANGE INV (index 1) at **#100604** background / **#FF4D00** ink.
+- The user found the color subjectively insufficiently vivid but explicitly
+  elected to retain it and finalize the stable release. The later **#FF9500**
+  experiment was reverted.
+- All other twelve themes, their IDs and settings remain unchanged.
 
 ### Browser emulator visual accuracy
 
@@ -102,24 +102,28 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
   default is intentionally changed to 8D for new/initialized projects.
 - The 1.0.0 published firmware and its release artifacts are not modified.
 
-## Development status and release checklist
+## Verified release artifact
 
-The changes above have been committed to `dev/nauclerus-1.1.0`.
-Initial source inspection, simulator build and focused delay tests passed;
-the owner confirmed the prior 1.1.0 delay/encoder build worked on FM-1 hardware.
-The refreshed ORANGE palette and the four feature groups above require a new
-production build, focused host regressions, simulator checks, and final hardware
-validation before release.
+- File: `nauclerus-1.1.0.fwsc` (609,649 bytes)
+- SHA-256: `68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd`
+- Application SHA-256: `290519d8076ea94bb3667f63b694216dfabbdc40a7156494f9b74b7c309f9127`
+- Pinned loader SHA-256: `cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d`
+- Verified candidate source: `6ca5ba3ff5ad7ea76912bf161d29719837c221c0`
+- [Successful regression and production build run #44901940987](https://github.com/Mr-Roboto/nauclerus/actions/runs/44901940987)
 
-Before publishing 1.1.0:
+The stable release retains the verified candidate bytes. The final release
+source restores the exact firmware implementation tested in that build.
 
-- Build the firmware and matching browser simulator using the established
-  repository toolchain; verify the package and loader checks.
-- Perform narrowly scoped timing and project-compatibility checks, followed
-  by the agreed hardware acceptance.
-- Record final release tag, build artifact, SHA-256, and public download
-  references only after they exist.
-- Replace this draft status with verified results and an actual release date.
+## Completed validation
+
+- **PASS:** seven host regression programs, package build and pinned loader.
+- **Owner-confirmed hardware PASS:** stereo ping-pong, LFO FX send modulation
+  and visual rings, SOLO/MUTE, MIDI clock/routing/THRU observed with a computer
+  MIDI monitor, three-second confirmation and new SYSTEM layout.
+- **Subjective limitation accepted:** Orange is not as vivid as desired.
+- **Not claimed:** exhaustive external-clock or interrupted-update recovery tests.
+
+Historical 1.0.0 artifacts remain unchanged.
 
 **Credits:** Nauclerus modifications by Mr. Roboto; original Hortator by
 DEADACTIVE; Felucca by Leo Kuroshita / Hügelton Instruments. Original
