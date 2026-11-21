@@ -1,0 +1,164 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Explicitly requested one-off Nauclerus 1.1.0 stable publication.
+# Only the named main-branch release commit runs; later pushes do not republish.
+name: Publish Nauclerus 1.1.0 Stable
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  stable-release:
+    if: ${{ github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable' }}
+    name: Publish verified candidate as v1.1.0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get already-verified 1.1.0 candidate (no rebuilding)
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44901940987
+          github-token: ${{ github.token }}
+          name: nauclerus-1.1.0-candidate
+          path: candidate
+      - name: Verify exact accepted code and package; extract pinned OTA loader
+        run: |
+          set -euo pipefail
+          test "$(cat VERSION.txt)" = "1.1.0"
+          test -z "$(git diff --name-only 6ca5ba3ff5ad7ea76912bf161d29719837c221c0 HEAD -- firmware/)"
+          grep -Fq '{"ORANGE", RGB(0xff, 0x4d, 0x00)' firmware/src/gfx.c
+          mkdir -p build/loader release
+          cp candidate/nauclerus-1.1.0.fwsc build/
+          cp candidate/felucca.bin build/
+          echo '68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd  build/nauclerus-1.1.0.fwsc' | sha256sum -c -
+          echo '290519d8076ea94bb3667f63b694216dfabbdc40a7156494f9b74b7c309f9127  build/felucca.bin' | sha256sum -c -
+          python3 - <<'PY'
+          import hashlib, struct, sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools')
+          import fm1pkg_make as fmt
+          import check_package_integrity as ci
+          raw = Path('build/nauclerus-1.1.0.fwsc').read_bytes()
+          logical, product = ci.unpack(raw)
+          loader = None
+          for i in range(2):
+              ent = bytearray(logical[64+80*i:144+80*i])
+              fmt.enc(ent, 0, len(ent))
+              typ, idx, crc, reserved, off, size, aligned = struct.unpack_from('<HHHHIII',ent)
+              if typ == 100:
+                  loader = logical[off:off+size]
+          assert loader is not None
+          Path('build/loader/ota.bin').write_bytes(loader)
+          assert hashlib.sha256(loader).hexdigest() == 'cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d'
+          report = ci.validate(logical,Path('build/felucca.bin').read_bytes(),loader)
+          print('Stable candidate verified:',report)
+          PY
+      - name: Prepare source, license, notes, hashes and validation assets
+        run: |
+          set -euo pipefail
+          cp build/nauclerus-1.1.0.fwsc release/
+          cp docs/RELEASE_NOTES_1.1.0.md release/RELEASE_NOTES.md
+          git archive --format=tar --prefix=nauclerus-1.1.0/ HEAD | gzip -n > release/nauclerus-1.1.0-source.tar.gz
+          tar --sort=name --mtime='@0' --owner=0 --group=0 -czf release/nauclerus-1.1.0-licenses.tar.gz LICENSE LICENSING.md LICENSES
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          report = {
+            'version':'1.1.0','status':'stable','product':'FM-1_25000',
+            'release_source_commit':os.environ['GITHUB_SHA'],
+            'accepted_candidate_commit':'6ca5ba3ff5ad7ea76912bf161d29719837c221c0',
+            'validation_run':'https://github.com/Mr-Roboto/nauclerus/actions/runs/44901940987',
+            'host_regressions':'PASS: 7 programs','production_build':'PASS',
+            'hardware_acceptance':'Owner-confirmed: stereo delay, LFO sends, SOLO/MUTE, MIDI, GO window, SYSTEM',
+            'orange_palette':'#FF4D00; retained by owner decision',
+            'loader_sha256':'cc98eed224299fa42ca22a546073e0f8b98d8362e26b5f325a9aaeab287bdf5d'
+          }
+          Path('release/nauclerus-1.1.0-validation.json').write_text(json.dumps(report,indent=2)+'\n')
+          PY
+          (cd release && sha256sum nauclerus-1.1.0.fwsc nauclerus-1.1.0-source.tar.gz nauclerus-1.1.0-licenses.tar.gz nauclerus-1.1.0-validation.json RELEASE_NOTES.md > SHA256SUMS)
+          cat release/SHA256SUMS
+      - name: Create stable tag and public GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a v1.1.0 -m 'Nauclerus 1.1.0 Stable'
+          git push origin refs/tags/v1.1.0
+          gh release create v1.1.0 release/* --verify-tag --latest \
+            --title 'Nauclerus 1.1.0 Stable' --notes-file release/RELEASE_NOTES.md
+          gh release view v1.1.0 --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
+
+  stable-pages:
+    if: ${{ github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable' }}
+    needs: stable-release
+    name: Update 1.1.0 web installer and simulator
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44901940987
+          github-token: ${{ github.token }}
+          name: nauclerus-1.1.0-candidate
+          path: candidate
+      - name: Install portal dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y emscripten
+          python3 -m pip install Pillow markdown-it-py
+      - name: Stage source-matched portal and verified installer
+        run: |
+          set -euo pipefail
+          mkdir -p build/loader
+          cp candidate/nauclerus-1.1.0.fwsc candidate/felucca.bin build/
+          python3 - <<'PY'
+          import hashlib,struct,sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          import check_package_integrity as ci, fm1pkg_make as fmt
+          raw=Path('build/nauclerus-1.1.0.fwsc').read_bytes()
+          assert hashlib.sha256(raw).hexdigest()=='68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd'
+          logical,_=ci.unpack(raw)
+          for i in range(2):
+              e=bytearray(logical[64+80*i:144+80*i]);fmt.enc(e,0,80)
+              typ,_,_,_,off,size,_=struct.unpack_from('<HHHHIII',e)
+              if typ==100: Path('build/loader/ota.bin').write_bytes(logical[off:off+size])
+          ci.validate(logical,Path('build/felucca.bin').read_bytes(),Path('build/loader/ota.bin').read_bytes())
+          PY
+          tools/build_sim.sh --preview
+          python3 web/make_site.py build/nauclerus-1.1.0.fwsc 1.1.0 build/stable-site
+          echo '68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd  build/stable-site/firmware/nauclerus-1.1.0.fwsc' | sha256sum -c -
+      - name: Append gh-pages deployment without rewriting history
+        run: |
+          set -euo pipefail
+          git fetch origin gh-pages
+          git worktree add --detach "$RUNNER_TEMP/nauclerus-gh-pages" origin/gh-pages
+          rsync -a build/stable-site/ "$RUNNER_TEMP/nauclerus-gh-pages/"
+          cd "$RUNNER_TEMP/nauclerus-gh-pages"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'deploy: Nauclerus 1.1.0 Stable portal and installer'
+          git push origin HEAD:gh-pages
+      - name: Request Pages rebuild (best effort; historical gh-pages source preserved)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${{ github.repository }}/pages/builds" || echo 'Pages build must be checked separately'
