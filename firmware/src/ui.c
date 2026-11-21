@@ -591,6 +591,13 @@ static void track_solo_toggle(uint32_t k)
             panic_req |= (uint8_t)(1u << i);
 }
 
+/* Momentary keys change an existing solo only when necessary. */
+static void track_solo_set(uint32_t k, uint32_t on)
+{
+    if (k < NTRK && ((song.solo >> k) & 1u) != !!on)
+        track_solo_toggle(k);
+}
+
 /* COMP: white key k turns DUCK of track k on / off (not the source's: it is never ducked) */
 static void track_duck_toggle(uint32_t k)
 {
