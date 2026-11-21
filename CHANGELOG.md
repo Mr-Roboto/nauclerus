@@ -11,7 +11,7 @@ Historical entries retain their original scope and terminology.
 
 ## Unreleased (1.1.0 development branch; no tag or public release)
 
-- FX delay TIME adds 1/4D, 1/8D and 1/16D as well as upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values.
+- FX delay TIME adds dotted quarter (4D), dotted eighth (8D) and dotted sixteenth (16D), plus upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values. Short LCD labels prevent 16D from being mistaken for 1/16.
 - Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
 - Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
 - Update web Controls/FX help and the user guide; see [development release notes](docs/RELEASE_NOTES_1.1.0.md).
