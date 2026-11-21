@@ -31,6 +31,40 @@ For instance, 1/4D at 40 BPM requests 2.25 s but uses approximately 1.49 s;
 1/8D (1.125 s) and 1/16D (0.5625 s) fit at 40 BPM.
 The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 
+### Stereo ping-pong delay (development, not yet verified)
+
+- Add an FX DELAY second page MODE: NORM (existing mono/stereo-equal wet return)
+  or PING (successive echoes alternate L/R), using the same 65,536-sample
+  delay buffer. Switching modes clears old delay contents over successive
+  audio blocks rather than replaying stale echoes.
+- Keep earlier project records 3840 bytes: the new parameter is appended
+  after stored globals and persists as rsv[0] (previously zero). Old records
+  therefore select NORM by default.
+
+### Expanded LFO destinations (development, not yet verified)
+
+- Preserve all old destination IDs, especially Nauclerus ACID MORPH = 19.
+- Append DEST 20 DST (distortion amount), 21 CHO, 22 DLY and 23 REV
+  (per-track effect sends). Every existing LFO routing remains meaningful.
+
+### Eight-track solo (development, not yet verified)
+
+- GLO held: eight black keys F#3..A#4 select solo tracks 1..8.
+  F#5 switches between TOGGLE and MOMENTARY. SOLO is a runtime state;
+  the white keys retain their mute functionality and MIDI LEARN remains G4.
+
+### USB MIDI Clock Out, routing and Thru (development, not yet verified)
+
+- SYSTEM SYNC OFF/USB provides MIDI Clock and Start/Stop on USB when
+  internally clocked; when following TRS clock, its Start/Stop/Clock is
+  forwarded to USB rather than being regenerated.
+- SYSTEM ROUT NOTE (legacy drum mapping), SEL (selected track pitched
+  from C4), TRACK (MIDI channels 1..8 to tracks 1..8, pitched from C4).
+- GLOBAL THRU OFF/ON forwards channel events from TRS MIDI input to USB,
+  with no USB-input echo back to USB. THRU is a device setting using a
+  spare settings-record bit, OFF for earlier records.
+- FM-1 TRS is an input only. No new BLE requirements, no MIDI TRS output.
+
 ### LCD orange theme refinement
 
 - Match the ORANGE display theme (saved index 0, also the default) more closely
@@ -57,8 +91,10 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 - Preserve firmware/product identity `FM-1_25000`, USB product name
   `Nauclerus FM-1`, loader identity `ota-FM-1_900`, and the existing
   USB VID/PID and OTA protocol.
-- No changes to drum/ACID synthesis, sequencing, ORB Remix, TB-3PO,
-  Grids, saved project layout, or flash-memory organization.
+- Keep the original drum/ACID synthesis, ORB Remix, TB-3PO, Grids
+  and flash-memory record sizes unchanged. MIDI input/playback behavior
+  changes only when ROUT is set beyond its legacy NOTE default; the
+  existing LFO and delay defaults retain their prior behavior.
 - The 1.0.0 published firmware and its release artifacts are not modified.
 
 ## Development status and release checklist
@@ -66,8 +102,9 @@ The ceiling is not new: the 1.0.0 delay had the same buffer limit.
 The changes above have been committed to `dev/nauclerus-1.1.0`.
 Initial source inspection, simulator build and focused delay tests passed;
 the owner confirmed the prior 1.1.0 delay/encoder build worked on FM-1 hardware.
-The refreshed ORANGE palette and any later 1.1.0 features still require their
-own rebuild and final hardware validation.
+The refreshed ORANGE palette and the four feature groups above require a new
+production build, focused host regressions, simulator checks, and final hardware
+validation before release.
 
 Before publishing 1.1.0:
 
