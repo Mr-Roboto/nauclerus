@@ -68,6 +68,7 @@ void fm1_alnk0_irq(void)                       /* via isr_alnk0 (hal/fm1_isr.S) 
             shed_req = 0;
             shed_voice();
         }
+        mout_half(t0);                               /* USB MIDI Clock Out: absolute audio-IRQ time */
 #if FELUCCA_UAC
         uac_render_start();
 #endif
@@ -78,7 +79,11 @@ void fm1_alnk0_irq(void)                       /* via isr_alnk0 (hal/fm1_isr.S) 
             bench_mute(o);                              /* the DAC: silence */
         fm1_audio_ack_half();
         audio_halves++;
-        us = (fm1_ticks() - t0 - t5_nested_ticks) / FM1_TICKS_PER_US;   /* the render alone */
+        {
+            uint32_t t1 = fm1_ticks();
+            mout_half_done(t1);                       /* closest possible USB poll after render */
+            us = (t1 - t0 - t5_nested_ticks) / FM1_TICKS_PER_US;
+        }   /* the render alone */
         if (us > audio_max_us)
             audio_max_us = us;
         if (bench.mode) {                               /* BENCH: timed, never shed */
