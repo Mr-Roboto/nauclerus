@@ -14,8 +14,9 @@ Historical entries retain their original scope and terminology.
 - FX delay TIME adds dotted quarter (4D), dotted eighth (8D) and dotted sixteenth (16D), plus upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values. Short LCD labels prevent 16D from being mistaken for 1/16.
 - Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
 - Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
+- Refresh the firmware ORANGE LCD palette (ID 0, #D45E31 background / #1B1110 ink) and ORANGE INV (ID 1, #160904 background / #D45E31 ink) to better match the orange FM-1 enclosure; all twelve other themes, saved IDs and website colors remain unchanged.
 - Update web Controls/FX help and the user guide; see [development release notes](docs/RELEASE_NOTES_1.1.0.md).
-- Firmware package, browser simulator, hardware acceptance and release publication pending.
+- The initial 1.1.0 delay/encoder build passed simulation, focused host tests and owner-confirmed hardware acceptance. Later theme changes and remaining planned work require fresh verification; no 1.1.0 stable release has been published.
 
 ## 1.0.0 - 2026-11-05
 
