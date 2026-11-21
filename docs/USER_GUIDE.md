@@ -1,12 +1,16 @@
-# Nauclerus 1.0.0 user guide
+# Nauclerus user guide (1.1.0 development)
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Candidate artifacts, validation scope and limitations are recorded in the
-[1.0.0 release notes](RELEASE_NOTES_1.0.0.md).
+The published stable release remains **Nauclerus 1.0.0**; its validated artifact and
+limitations are recorded in the [1.0.0 release notes](RELEASE_NOTES_1.0.0.md).
+The [1.1.0 development notes](RELEASE_NOTES_1.1.0.md) describe changes that are
+not part of the published stable firmware or live public simulator yet.
 
-This guide describes **Nauclerus 1.0.0**, including the corrections carried forward from 0.25.1. Earlier phase documents describe historical development contracts;
-this guide takes precedence for current controls.
+This development guide describes the established **1.0.0** controls, including the
+corrections carried forward from 0.25.1, plus explicitly identified **1.1.0**
+additions. Earlier phase documents describe historical development contracts; this
+guide takes precedence for the 1.1.0 development branch.
 
 ## Panel navigation
 
@@ -42,12 +46,60 @@ Settings pages contain:
 | Page | K1 | K2 | K3 | K4 |
 | --- | --- | --- | --- | --- |
 | GLOBAL 1 | BPM | SWING | CLOCK | drum channel |
-| SYSTEM | MIDI | SYNC | ROUTE | INFO |
+| SYSTEM | SYNC | ROUTE | INFO (CPU) | — |
 | GLOBAL 2 | MUTE timing | METRO | — | — |
+
+The SYSTEM page begins with SYNC on K1, ROUT on K2 and CPU status on K3;
+K4 is unused. The non-adjustable USB status was removed. USB-MIDI and stereo
+USB audio remain enabled as before; existing stored parameter IDs are unchanged.
 
 The separate MENU contains COLOR, SPEAKER EQ, USB LEVEL, PERFORM, ZOOM, ACCEL,
 BACKLIGHT, HARDWARE CALIBRATION and ABOUT. BLUETOOTH is conditional on a separate
 BLE build; its presence in source does not mean the default package enables it.
+
+## PROJECT and TOOLS confirmations (1.1.0)
+
+On PROJECT **LOAD/SAVE** and TOOLS **CLRSQ/INIT/CLR/INIT ALL**, turn the
+corresponding knob once to arm the operation. The **AGAIN** message remains
+visible for approximately **three seconds**. Turn the **same knob again**
+during that window to perform the action; otherwise the operation is
+cancelled. A page-select encoder turn does not confirm these operations.
+A project LOAD or SAVE requires the transport to be stopped.
+
+## Effects and tempo delay (1.1.0 development)
+
+On the **FX** delay page, **TIME** selects a tempo-synchronised note
+division. The planned 1.1.0 menu adds **4D** (dotted quarter, 1/4D),
+**8D** (dotted eighth, 1/8D) and **16D** (dotted sixteenth, 1/16D), alongside
+the existing normal and triplet values. It also exposes **4T** and
+**32T** from the upstream delay-specific division mapping. A dot adds
+half the normal note duration; a triplet is not a dotted note.
+
+The original TIME selection IDs 0–9 retain their numeric values and timing.
+The new choices are appended internally and displayed from longest to shortest:
+**4BAR, 2BAR, 1/1, 1/2, 4D, 1/4, 8D, 4T, 1/8, 16D, 8T,
+1/16, 16T, 1/32, 32T**. The shorter 4D/8D/16D labels fit the
+four-character display; 16D is distinct from the regular 1/16.
+This order reflects nominal rhythmic lengths; at slow tempos, several
+long choices may yield the same capped delay interval.
+For new and freshly initialized projects, **TIME defaults to 8D**
+(dotted eighth, stored ID 12), not the normal 1/8 (stored ID 1).
+Loading a saved project restores its own TIME setting unchanged.
+Saved projects and presets therefore retain their existing TIME meaning;
+no migration or change to project-storage layout is required.
+
+The existing **65,536-sample** delay buffer is unchanged. Requested
+delays longer than approximately **1.49 seconds** are limited to that
+maximum: echoes repeat at the capped interval, rather than having their
+audio abruptly truncated. For example, at **40 BPM**, 1/4D requests
+2.25 seconds but plays at approximately 1.49 seconds; 1/8D and 1/16D
+remain within the limit. External MIDI clock uses its measured beat
+length when available.
+
+In the 1.1.0 **browser development simulator**, the endless encoder
+knobs have no absolute-position tick mark. The **MASTER** volume
+potentiometer retains its indicator. This is cosmetic; encoder gestures
+and firmware controls remain unchanged.
 
 ## ACID sound engine
 
@@ -392,15 +444,15 @@ or running use STOP TO EDIT. Automatic Song mutations affect RAM copies only.
 ## Color themes
 
 GLO short → MENU → COLOR. K1 steps in either direction; OCT+ advances, wrapping.
-The fourteen themes in 1.0.0 menu order are ORANGE, ORANGE INV, BLUE,
+The fourteen themes (same saved IDs and menu order as 1.0.0) are ORANGE, ORANGE INV, BLUE,
 BLUE INV, WHITE, WHITE INV, YELLOW, YELLOW INV, VIOLET, VIOLET INV, RED, RED INV,
 PINK, PINK INV. Historical 0.25.0 firmware and its simulator retain their original
 twelve themes and previous VIOLET color (#7524CF).
 
 | Stored index | Name | Background | Ink |
 | --- | --- | --- | --- |
-| 0 | ORANGE (default) | #E96F25 | #321308 |
-| 1 | ORANGE INV | #160904 | #F48532 |
+| 0 | ORANGE (default) | #FF4D00 | #120804 |
+| 1 | ORANGE INV | #100604 | #FF4D00 |
 | 2 | BLUE | #2445C8 | #EAF1FF |
 | 4 | BLUE INV | #F4F8FF | #2445C8 |
 | 3 | WHITE | #FFFFFF | #000000 |
@@ -414,13 +466,47 @@ twelve themes and previous VIOLET color (#7524CF).
 | 12 | PINK | #D397CA | #000000 |
 | 13 | PINK INV | #000000 | #D397CA |
 
-Values are quantized to RGB565 by the existing renderer. ORANGE's two polarities
-use the distinct specified pairs, not an exact swap. Stored indices/default are
+Values are quantized to RGB565 by the existing renderer. In 1.1.0 the two
+ORANGE themes use high-saturation, red-leaning neon orange (#FF4D00), with
+nearly-black ink in ORANGE and neon orange ink on near-black in ORANGE INV.
+This replaces the earlier #FF6500 autumn-orange look; LCD color appearance
+still depends on the physical RGB565 panel. The website chrome is
+unchanged; the browser emulator renders the firmware LCD palette. ORANGE's two
+polarities use the distinct specified pairs, not an exact swap. Stored indices/default are
 unchanged: earlier index 0/1 selections now show Orange. Historical GREEN slots 3/5
 are WHITE/WHITE INV; obsolete GREEN entries are not restored. Device preferences
 save when MENU closes. SEL ENTER does not change a theme. PINK IDs 12/13 append
 to the existing menu; IDs 0–11, the legacy mapping and THEME_TAG encoding remain
 unchanged, with no settings format change.
+
+## Nauclerus 1.1.0 development additions
+
+The following features are in development and require a new build and acceptance
+tests before being considered ready for regular hardware use.
+
+- **Ping-pong delay:** On the FX family's second DLY page set MODE to NORM or
+  PING. TIME's existing rhythmic division and 1.49 s maximum remain.
+  PING alternates delay echoes left and right; NORM preserves the original
+  effect. The choice is saved with the project, using its previously reserved
+  byte so earlier projects select NORM.
+- **LFO effect destinations:** LFO DEST choices 20..23 are DST, CHO, DLY and
+  REV, controlling the respective track's distortion amount and effect sends.
+  Destination 19 remains Nauclerus ACID MORPH; no old project is renumbered.
+- **Solo:** Hold GLO to show MUTE. The eight black keys F#3..A#4 solo the
+  corresponding eight tracks. F#5 changes SOLO between TOGGLE and MOMENTARY.
+  The original white-key MUTE operations stay available; SOLO state is
+  temporary, not stored in projects.
+- **MIDI clock:** On SYSTEM set SYNC to OFF or USB. With CLK INT and SYNC USB,
+  PLAY/STOP sends MIDI transport and 24 clocks per quarter note over USB.
+  With CLK TRS, the received realtime transport/clock goes to USB; CLK USB
+  never sends that input back to the same USB port.
+- **MIDI routing:** On SYSTEM set ROUT NOTE (original drum-channel NOTE
+  mappings), SEL (the selected pitched track on the drum channel) or TRACK
+  (MIDI channels 1..8 play tracks 1..8, pitched relative to C4).
+- **MIDI Thru:** GLOBAL page 3/3 has THRU OFF/ON. ON forwards received
+  TRS MIDI channel messages to USB; USB messages are never fed back into
+  USB. THRU is saved as a device-wide setting and defaults OFF for old
+  settings records. The FM-1 TRS connector has no MIDI output.
 
 ## Attribution and release status
 

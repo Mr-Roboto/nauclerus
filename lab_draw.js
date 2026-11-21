@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Drum machine fork: 2026 DEADACTIVE
 // The lab pieces' traces, drawn like the FM-1's LEDs: a bright line with a glow on the plate's black.
-import { INK } from './lab_ui.js?v=885112ac6477';
-import { ditherPattern } from './dither.js?v=885112ac6477';
+import { INK } from './lab_ui.js?v=318f1ce8133a';
+import { ditherPattern } from './dither.js?v=318f1ce8133a';
 
 const LABEL = '16px "Nauclerus Terminus", monospace';
 

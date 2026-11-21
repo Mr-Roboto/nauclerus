@@ -2,8 +2,8 @@
 // Drum machine fork: 2026 DEADACTIVE
 // A small FM-1 from the layout table (the install diagram, the manual's panel map), scaled to its host. Returns its
 // parts by control: a button by its label (HOME, OCT-), a knob by its label (SELECT, KNOB1, MASTER), a key as key:n.
-import { BTN, ENC } from './controls.js?v=885112ac6477';
-import { LAYOUTS } from './layout.js?v=885112ac6477';
+import { BTN, ENC } from './controls.js?v=318f1ce8133a';
+import { LAYOUTS } from './layout.js?v=318f1ce8133a';
 
 export function buildMini(host) {
   const parts = {};

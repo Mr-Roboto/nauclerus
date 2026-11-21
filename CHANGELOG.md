@@ -2,11 +2,29 @@
 
 Canonical project: **Nauclerus** — [repository](https://github.com/Mr-Roboto/nauclerus),
 [releases/downloads](https://github.com/Mr-Roboto/nauclerus/releases).
-Current release and validation: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
+Published stable release: [1.1.0 release notes](docs/RELEASE_NOTES_1.1.0.md).
+Previous stable release: [1.0.0 release notes](docs/RELEASE_NOTES_1.0.0.md).
 
 Nauclerus and inherited Hortator history, newest first. Version 0.25.0 includes the
 accepted RC13 functionality and the release UI corrections listed below.
 Historical entries retain their original scope and terminology.
+
+## 1.1.0 - 2026-11-21 (Stable)
+
+- FX delay TIME adds dotted quarter (4D), dotted eighth (8D) and dotted sixteenth (16D), plus upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values. Short LCD labels prevent 16D from being mistaken for 1/16.
+- Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
+- Change new/initialized projects' delay TIME default from regular 1/8 (stored ID 1) to dotted eighth 8D (stored ID 12). Explicit TIME selections in previously saved projects load unchanged.
+- Make PROJECT LOAD/SAVE and TOOLS clear/init GO confirmations usable: approximately three seconds to turn the same knob again, with AGAIN message visible for the full confirmation window. Untouched project data and unchanged action semantics.
+- Remove the misleading non-adjustable SYSTEM USB display and shift the remaining controls left: K1 SYNC, K2 ROUT, K3 CPU, K4 unused. This changes only page layout/encoder mapping; USB interfaces and stored parameter IDs are unchanged.
+- Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
+- Set the firmware ORANGE LCD palette to neon orange #FF4D00 (ID 0 background, #120804 ink) and ORANGE INV to #FF4D00 ink on #100604 background (ID 1), replacing the earlier #FF6500 autumn-orange candidate. The other twelve themes, saved IDs and website colors remain unchanged.
+- Add DLY MODE NORM/PING (second FX delay page): alternating stereo echoes reuse the existing delay ring. Old FDRF projects load as NORM; the mode uses reserved byte rsv[0], without changing the record length.
+- Append LFO DEST 20..23 = DST/CHO/DLY/REV. The Nauclerus ACID MORPH destination remains ID 19; every preexisting route retains its identity.
+- Add eight-track SOLO on the GLO/MUTE screen's black keys, with F#5 switching momentary/toggle. Existing white-key mute commands remain.
+- Enable SYSTEM SYNC OFF/USB, ROUT NOTE/SEL/TRACK, and GLOBAL THRU OFF/ON. USB clock and TRS-to-USB channel forwarding use the existing USB MIDI output; TRS remains input only. THRU is saved in previously unused settings bit 14.
+- Seven focused host regression programs and the JieLi production build passed. The owner physically accepted ping-pong, LFO FX modulation and display, SOLO/MUTE, USB MIDI, confirmation and SYSTEM controls.
+- Update web Controls/FX help and the user guide; see [development release notes](docs/RELEASE_NOTES_1.1.0.md).
+- Stable release reuses the verified candidate without a release-time rebuild. The later unapproved #FF9500 experiment was reverted, retaining the installed #FF4D00 palette.
 
 ## 1.0.0 - 2026-11-05
 

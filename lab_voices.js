@@ -3,9 +3,9 @@
 // Piece 1, the drum voices: a model, its four HOME knobs; one hit rendered by the firmware (lab_voice) drawn as its
 // waveform (the window fits the hit's length) and its spectrum. Play loops the hit on the quarters; the pad hits it.
 // The chips are the MODEL knob's list (ids.list, ui.c MODEL_LIST) in its banks: MD (TRX, EFM), MODERN, CLASSIC.
-import { el, knob, chips, scope, hitPad } from './lab_ui.js?v=885112ac6477';
-import { tailLength, spectrum } from './lab_dsp.js?v=885112ac6477';
-import * as draw from './lab_draw.js?v=885112ac6477';
+import { el, knob, chips, scope, hitPad } from './lab_ui.js?v=318f1ce8133a';
+import { tailLength, spectrum } from './lab_dsp.js?v=318f1ce8133a';
+import * as draw from './lab_draw.js?v=318f1ce8133a';
 
 const GROUP = { MACHINEDRUM: 'MD' };                 // a bank's short name, as the voices chapter tells it
 

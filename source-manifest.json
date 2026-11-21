@@ -1,10 +1,20 @@
 {
-  "source_digest": "885112ac647770457de56e979856e230d42dac52af46758a4181ee3adee739bf",
+  "source_digest": "318f1ce8133ae60104f8ca1fa8123611f138a0419471c2fe1020c1d8a7c90b1a",
   "files": [
     {
       "path": ".github/FUNDING.yml",
       "sha256": "a1043dfc62d9fee207eb9093af3d72054990c5727cf587c3d32b176e2951fcaf",
       "bytes": 895
+    },
+    {
+      "path": ".github/workflows/nauclerus-1.1-validation.yml",
+      "sha256": "b5a057a5ca6e41752913a9afae082a08486f6d8485259cfbcb25ce7ad97559c9",
+      "bytes": 2280
+    },
+    {
+      "path": ".github/workflows/publish-nauclerus-1.1-stable.yml",
+      "sha256": "675337ea75e506e06ea7050ebaa23038a1c78ea9b8b86fe2aa3f6d093a7d9ae7",
+      "bytes": 8536
     },
     {
       "path": ".gitignore",
@@ -18,8 +28,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "cb74c59ecc48728d2024ca2fe967d257f18c3acef22c464b2e48471e6d4187ed",
-      "bytes": 56520
+      "sha256": "ca941c1cf1c6e4089db6ebb1f3804241bd6963ac754a38e678dac5eb72d13d01",
+      "bytes": 59354
     },
     {
       "path": "LICENSE",
@@ -63,12 +73,12 @@
     },
     {
       "path": "README.md",
-      "sha256": "d5e6c1109f7352d665b3373a79804e8c4f7c22a0e11a35746916b5b2dc00e3be",
-      "bytes": 40224
+      "sha256": "14c72be30f91cc67a042cde5b673a5c98ea17f5ae5bb9134c37977cec9ad3a5c",
+      "bytes": 40101
     },
     {
       "path": "VERSION.txt",
-      "sha256": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
+      "sha256": "1575e1af4a95f12f70b4ee6a6adce8160953d93ea17dc2611b90883ccc3ad3b8",
       "bytes": 6
     },
     {
@@ -242,6 +252,21 @@
       "bytes": 1063
     },
     {
+      "path": "candidate/candidate-sha256.txt",
+      "sha256": "89b916166887cc0602c6f4f95bbf3a01d0b374aa863536b22384ffad3b5d86d1",
+      "bytes": 264
+    },
+    {
+      "path": "candidate/felucca.bin",
+      "sha256": "290519d8076ea94bb3667f63b694216dfabbdc40a7156494f9b74b7c309f9127",
+      "bytes": 361512
+    },
+    {
+      "path": "candidate/nauclerus-1.1.0.fwsc",
+      "sha256": "68e15f3bfed73bb3202f18ed877be6716b7aa99a6686036780e2a48e533413dd",
+      "bytes": 609649
+    },
+    {
       "path": "docs/ACID_GOLDEN_0.25.0.json",
       "sha256": "b1021c3342ca2bafdefe375c34e926400b06b4caf256dbb218160455964133ba",
       "bytes": 5430
@@ -322,6 +347,11 @@
       "bytes": 4580
     },
     {
+      "path": "docs/RELEASE_NOTES_1.1.0.md",
+      "sha256": "1bdb73f80ead0b6796dc2044b9cb843e584c556e706326f22e897db6a0ca19ce",
+      "bytes": 6734
+    },
+    {
       "path": "docs/RELEASE_READINESS_0.25.0.md",
       "sha256": "bf5fd2e2466eef84cdfb85618dd4a7ea8e73642fd3c075d294ec2e70ccc4d174",
       "bytes": 1892
@@ -378,8 +408,8 @@
     },
     {
       "path": "docs/SIMULATOR.md",
-      "sha256": "724e4eca460ff20fb867ca374472b60e1c30f8a90eac0a995b772eedd35e40b7",
-      "bytes": 8477
+      "sha256": "fea309d0324226ed30fd63710b11ffa6f43bb0237bb426557769c2bc41c620e1",
+      "bytes": 8620
     },
     {
       "path": "docs/UPSTREAM_1.0.2.md",
@@ -388,8 +418,8 @@
     },
     {
       "path": "docs/USER_GUIDE.md",
-      "sha256": "7fde87d62c64de597153930a09e8e7dd2b921d64760615e9a939ec12de5cbf99",
-      "bytes": 26484
+      "sha256": "f741ea0183d79d294f7ab482b2f2f1c8e4e98a8d035a9dd52615f8313f3e9b4f",
+      "bytes": 31616
     },
     {
       "path": "docs/VERSIONING.md",
@@ -913,8 +943,8 @@
     },
     {
       "path": "firmware/src/audio.c",
-      "sha256": "6b32511e8774a092d7eaeb2dad541a26c47bdc8625e24af772ecdc2009980537",
-      "bytes": 4866
+      "sha256": "e70618d0d982cef479aba07439efcf5f574fd1b72af9e3045cfc9d8f2218357b",
+      "bytes": 5122
     },
     {
       "path": "firmware/src/bench.c",
@@ -1033,8 +1063,8 @@
     },
     {
       "path": "firmware/src/core.h",
-      "sha256": "6db1dcc05c3d987d4a51fd43bf818ef1ce375694292674205c50b399f35f0771",
-      "bytes": 15244
+      "sha256": "f97a159994abbb9c56cb70a665ebc725810080eaa2aaa81e4a1e88f6a54620e4",
+      "bytes": 15651
     },
     {
       "path": "firmware/src/core_ble_api.c",
@@ -1188,13 +1218,13 @@
     },
     {
       "path": "firmware/src/fx.c",
-      "sha256": "a444baa5bcb09cf06099e98514668966778463d8df60d17b5877410113125c9a",
-      "bytes": 26438
+      "sha256": "358ca146dd8546ba20786bfb9a741fd61b1840fca2c62a5f58327b9676551081",
+      "bytes": 30368
     },
     {
       "path": "firmware/src/gfx.c",
-      "sha256": "ac57c0b5409aec99af40d639c3224c12dad5de538208298cc969c3a605b0c763",
-      "bytes": 19350
+      "sha256": "0e4918427f2cb570e4b91449ebc2fcfd2f6b50249fdbc565fa6df935769a2b55",
+      "bytes": 19516
     },
     {
       "path": "firmware/src/grids.c",
@@ -1218,8 +1248,8 @@
     },
     {
       "path": "firmware/src/lfo.c",
-      "sha256": "b531c57421d3ca44a9dc258d1ccbdedfa26561ff98cb29b2a0ed585b68f0ef4b",
-      "bytes": 14211
+      "sha256": "57bb80c9b5b90ff330edd5f2be8fae36bc749ed2d15e771904262b098543d8c6",
+      "bytes": 14352
     },
     {
       "path": "firmware/src/lfo_tables.h",
@@ -1238,8 +1268,8 @@
     },
     {
       "path": "firmware/src/main.c",
-      "sha256": "4a138bc1f12c0f2147183e3716dd548df5e9d7c01b165b7a3d401288d54764eb",
-      "bytes": 10154
+      "sha256": "24e26e5f6d1a47fc4d247c19e7cc18237d6cbe195a46a14300ba69b64f2c8117",
+      "bytes": 10257
     },
     {
       "path": "firmware/src/midi_clock.c",
@@ -1250,6 +1280,11 @@
       "path": "firmware/src/midi_learn.c",
       "sha256": "bdf81164b1a016e9825f8aee45afd635bbb3b1e79c6ea472b1066ae90d3896e7",
       "bytes": 10637
+    },
+    {
+      "path": "firmware/src/midi_out.c",
+      "sha256": "ab334c89726171b1e7b673076bdafecc583e6819465db383773aff84b03415c4",
+      "bytes": 8637
     },
     {
       "path": "firmware/src/midi_uart.c",
@@ -1268,8 +1303,8 @@
     },
     {
       "path": "firmware/src/pages.c",
-      "sha256": "e05329eec05d7a5a694c52a4e5955aafd2bc12cbdd086bee9dccf5d8f56369dc",
-      "bytes": 7776
+      "sha256": "db827d97d3630be784daa31f345da9778a832b62c0fb6c17b4ef285e2cc1dbec",
+      "bytes": 7864
     },
     {
       "path": "firmware/src/panel.c",
@@ -1278,8 +1313,8 @@
     },
     {
       "path": "firmware/src/params.c",
-      "sha256": "5a62f3494066f48a56c6317f6136652b0e52ee96b275630de3d980921b94ee9f",
-      "bytes": 18746
+      "sha256": "ac61609b91c6fb4938856064f9f9596938dbd4fe3e823208a1c5f1448e8bed54",
+      "bytes": 20187
     },
     {
       "path": "firmware/src/perform.c",
@@ -1303,8 +1338,8 @@
     },
     {
       "path": "firmware/src/project.c",
-      "sha256": "b4cfc3515dfcca1a6b6c4b28c6f3fde8c0cef2ad3582c24db7ff8ea703eb8f5b",
-      "bytes": 58355
+      "sha256": "f091c28f02f331aa16bb0a669e7b277aa172c5a8492de82297ce279f921a41c3",
+      "bytes": 58766
     },
     {
       "path": "firmware/src/remix.c",
@@ -1328,8 +1363,8 @@
     },
     {
       "path": "firmware/src/seq.c",
-      "sha256": "829282c9a9dce4ad105e743ad40e0d9e509dce9568ba9ce25a136c0ac75ad65b",
-      "bytes": 39551
+      "sha256": "0d96fff6bb3c5761b0ba2370d23d9ce17fb9b058f18f335e795856dc796121be",
+      "bytes": 41102
     },
     {
       "path": "firmware/src/slicer.c",
@@ -1373,18 +1408,18 @@
     },
     {
       "path": "firmware/src/ui.c",
-      "sha256": "fc9708985a4310df85f6f97284bbad5137ec67e1e4687bc491037cc5dc451aae",
-      "bytes": 33239
+      "sha256": "34b747c2d9d521cfcf1a85eabf59d3eaaad2c288cb3c8a46b453096cf8fa87ab",
+      "bytes": 33549
     },
     {
       "path": "firmware/src/ui_draw.c",
-      "sha256": "6a2a6ece56c0249e34b9f9356648af243e9a0572d14114dc2e17e5d4af36370e",
-      "bytes": 131264
+      "sha256": "852e8e7a2a7b83022d8f74e6e508d36299417d186700f6fedb8f7f0de7149311",
+      "bytes": 131234
     },
     {
       "path": "firmware/src/ui_input.c",
-      "sha256": "45f263d8002f6eafcb1cb191348a08f1c3a30862b89a9559a2bc469de2a41aa4",
-      "bytes": 73521
+      "sha256": "5e5b24389235ce1f4baf8d8f6e2433f39c5e014c97e7fe930c174f0a63304337",
+      "bytes": 75312
     },
     {
       "path": "firmware/src/ui_learn.c",
@@ -1527,6 +1562,21 @@
       "bytes": 1311
     },
     {
+      "path": "tests/confirm_window_test.c",
+      "sha256": "753145bb3e2e51e71ee573fbb60dc8d1107bd7fc3b7652321605a66c9a96ab62",
+      "bytes": 2462
+    },
+    {
+      "path": "tests/delay_pingpong_test.c",
+      "sha256": "96aea377d65d5cf22bbb4687a0add7583f2e5f24ac82376933c88ed25c0ea2df",
+      "bytes": 3602
+    },
+    {
+      "path": "tests/delay_time_test.c",
+      "sha256": "65bb80fbf97ff68e382984ce473bc700495b166ece50db1a37c4376a16610b27",
+      "bytes": 3810
+    },
+    {
       "path": "tests/drum_cost_ref.txt",
       "sha256": "c869827227840bb2bb60fc768d6e9c9de5c3d3fb847e239b31a048115792d26e",
       "bytes": 1510
@@ -1543,8 +1593,8 @@
     },
     {
       "path": "tests/drum_host.h",
-      "sha256": "3f2a1560c96626f7499a169126dbc61c3c5fe98149851db2d4b4eeee45161bb9",
-      "bytes": 6192
+      "sha256": "56ede5677c06be6ee895c15761d374282ce877603bab6f51b22b98da7cde5c45",
+      "bytes": 6559
     },
     {
       "path": "tests/drum_metrics.h",
@@ -1638,8 +1688,8 @@
     },
     {
       "path": "tests/gfx_test.c",
-      "sha256": "1a7b8c3d3e6cdac1393864c34a91321c3ef1a3971c54e6bf4080786fc15fbe9d",
-      "bytes": 8198
+      "sha256": "0a9c67afb4868f23b58f3db813d416db7a576155178bcf667ff2d01e4c0c46fa",
+      "bytes": 8609
     },
     {
       "path": "tests/grids_cases.h",
@@ -1717,6 +1767,11 @@
       "bytes": 10651
     },
     {
+      "path": "tests/lfo_fx_targets_test.c",
+      "sha256": "e176dda218453f2bf8e498e0fba5036932e5553dc3606d706b67504272283dec",
+      "bytes": 2029
+    },
+    {
       "path": "tests/lock_test.c",
       "sha256": "6c0c28494e21bb4a82997c7827d30ddd1cd8f205c135c27e605411a6a9a3c8f8",
       "bytes": 18067
@@ -1737,6 +1792,11 @@
       "bytes": 15695
     },
     {
+      "path": "tests/midi_features_test.c",
+      "sha256": "54152698955caee948ac79c5614285510879acda65b91271fb0463aa1fddfe43",
+      "bytes": 4940
+    },
+    {
       "path": "tests/midi_uart_test.c",
       "sha256": "fd69128a349b73340cdb3d8206bccb78899925c31e0ed7f935c250c71a4b0869",
       "bytes": 8474
@@ -1750,6 +1810,11 @@
       "path": "tests/old_defs.h",
       "sha256": "db033f0f397ecc8dc14b467fa2ca4fadf67709c9a3f72dd80a93743e963441a3",
       "bytes": 4445
+    },
+    {
+      "path": "tests/orange_palette_test.c",
+      "sha256": "639e0b45e5055af263e5b090cf721747a403e7f30587cb6e2c6d34c936feb2f2",
+      "bytes": 1525
     },
     {
       "path": "tests/ota_test.c",
@@ -1865,6 +1930,16 @@
       "path": "tests/remix_ui_test.c",
       "sha256": "a9747a274817752bd56aa26372a8e54a460b9fc733fa0a6fdead53fa507a7399",
       "bytes": 36524
+    },
+    {
+      "path": "tests/run_1_1_tests.sh",
+      "sha256": "5735cd3255df8fb94040bc2519985c1dd1dffce28754a32e2b95c7f63ba082b2",
+      "bytes": 1205
+    },
+    {
+      "path": "tests/run_delay_tests.sh",
+      "sha256": "dfe3751bb9844ebbef9b4579e6f188df78915b94be0e10ca855a640630c86d44",
+      "bytes": 941
     },
     {
       "path": "tests/run_drum_tests.sh",
@@ -1985,6 +2060,11 @@
       "path": "tests/smc_test.c",
       "sha256": "4b1d58292a53355190b32b408e2ecf619d4a37fdad8681e764267c21bce882b2",
       "bytes": 21489
+    },
+    {
+      "path": "tests/solo_test.c",
+      "sha256": "75eaf0b3e1f0888647c2d21c97375d0a471d7155cee3d2d3f26a702e48a160db",
+      "bytes": 1630
     },
     {
       "path": "tests/song_test.c",
@@ -2403,8 +2483,8 @@
     },
     {
       "path": "web/sim/index.html",
-      "sha256": "6abef125cfd09751d29760b866e7e6a7cbcdd99889cd305b222b1ee63cf6db5b",
-      "bytes": 17566
+      "sha256": "34e1cca40b43948ba7209682153394d2459763e55b157d9aeaa4bf6daa3198ec",
+      "bytes": 17901
     },
     {
       "path": "web/sim/lab.js",
@@ -2493,8 +2573,8 @@
     },
     {
       "path": "web/sim/sim.css",
-      "sha256": "21657564b003478eb9cd0af18bd6fe6a15422346345060354c5bce1fe1e97736",
-      "bytes": 48551
+      "sha256": "f4553c894855e1ea469246935a05d8378fa93092bfd28ed5ed78e1ea234bea1a",
+      "bytes": 48691
     },
     {
       "path": "web/sim/store.js",

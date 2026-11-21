@@ -1,6 +1,8 @@
 # Nauclerus browser portal and interactive manual
 
-The Nauclerus 1.0.0 portal accompanies the stable firmware release. Its installer
+The Nauclerus 1.1.0 portal accompanies the stable firmware release.
+The public installer is staged from the accepted SHA-256 verified firmware candidate,
+without changing device firmware during site deployment. Its installer
 verifies the exact release package before enabling installation. The firmware
 artifact is reused without rebuilding; website preparation is independent.
 
@@ -107,10 +109,10 @@ manual/panel controls, feature labs and IndexedDB reloads. No device is contacte
 ## Simulation limits and publication
 
 LCD colors use the shared firmware RGB565 renderer, not a JavaScript palette.
-The 1.0.0 source has fourteen themes, carried forward from 0.25.1, including updated VIOLET
+The 1.1.0 source has fourteen themes, carried forward from 0.25.1, including updated VIOLET
 (#905BA8/white), VIOLET INV (white/#905BA8), PINK (#D397CA/black) and PINK INV
 (black/#D397CA). Historical 0.25.0 simulator artifacts have twelve themes and the
-earlier VIOLET color. The 1.0.0 portal uses the current fourteen-theme renderer.
+earlier VIOLET color. The 1.1.0 portal uses the current fourteen-theme renderer.
 
 No hardware USB/TRS MIDI, USB audio device, Bluetooth radio, physical calibration,
 update/recovery or hardware CPU-headroom claim is made. This is Web Audio, not an FM-1
@@ -129,7 +131,7 @@ A package is never automatically published with a preview.
 For release staging, after a matching simulator build and package review:
 
 ```sh
-python3 web/make_site.py build/nauclerus-1.0.0.fwsc 1.0.0 /tmp/nauclerus-release-site
+python3 web/make_site.py build/nauclerus-1.1.0.fwsc 1.1.0 /tmp/nauclerus-release-site
 ```
 
 Choose an empty destination. Preview metadata keeps `installer_enabled: false`.
