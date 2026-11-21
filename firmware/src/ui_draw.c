@@ -2806,18 +2806,6 @@ static void draw_columns(void)
             draw_column(c, "", "", "", CV_NORM, -1);
             continue;
         }
-        if (pg->id[c] == G_MIDI && pg->scope == SC_GLOBAL) {
-            /* Connection status, not a selectable mode. When enumerated the
-             * standard firmware offers MIDI and USB audio simultaneously;
-             * audio streaming starts only when the host opens that interface. */
-#if FELUCCA_UAC
-            str_cpy(val, !usb.up ? "OFF" : usb.config ? "M+A" : usb.setups ? "ENUM" : usb.sof_seen ? "BUS" : "WAIT", 12);
-#else
-            str_cpy(val, !usb.up ? "OFF" : usb.config ? "MIDI" : usb.setups ? "ENUM" : usb.sof_seen ? "BUS" : "WAIT", 12);
-#endif
-            draw_column(c, "USB", val, "USB", CV_NORM, -1);
-            continue;
-        }
         if (pg->id[c] == G_NAME && pg->scope == SC_GLOBAL) {
             draw_column(c, "NAME", "EDIT", "", CV_NORM, -1);
             continue;
