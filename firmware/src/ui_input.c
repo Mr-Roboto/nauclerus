@@ -216,6 +216,9 @@ static void ui_leds(void)
         int blink = (int)((fm1_ticks() / (250u * 1000u * FM1_TICKS_PER_US)) & 1u);
         for (k = 0; k < NTRK; k++)
             led_put(nl, 14u + KEY_TRK_KEY[k], !trk[k].p[P_MUTE] ^ (((song.mute_q >> k) & 1u) && blink));
+        for (k = 0; k < NTRK; k++)
+            led_put(nl, 14u + SOLO_KEY[k], (song.solo >> k) & 1u);
+        led_put(nl, 14u + KEY_SOLO_MODE, solo_mom);
         led_put(nl, 14u + 20u, !settings.mutebar);
         led_put(nl, 14u + 22u, settings.mutebar);
         led_put(nl, 14u + KEY_LEARN, ui.ml.on);       /* G4: MIDI LEARN */
@@ -904,9 +907,27 @@ static int glo_dead(void) { return ui.menu || ui.confirm || name_on() || pl_on()
 static void mute_keys(uint32_t hits)                   /* the keys the ISR gave the MUTE screen */
 {
     uint32_t k;
-    for (k = 0; k < NTRK; k++)
+    for (k = 0; k < NTRK; k++) {
         if ((hits >> KEY_TRK_KEY[k]) & 1u)
             track_mute_toggle(k);
+        if ((hits >> SOLO_KEY[k]) & 1u) {
+            if (solo_mom) {
+                track_solo_set(k, 1u);
+                solo_down |= (uint8_t)(1u << k);
+            } else
+                track_solo_toggle(k);
+        }
+    }
+    if ((hits >> KEY_SOLO_MODE) & 1u) {
+        if (solo_mom) {                                  /* leave MOM: release its held solos */
+            for (k = 0; k < NTRK; k++)
+                if ((solo_down >> k) & 1u)
+                    track_solo_set(k, 0u);
+            solo_down = 0;
+        }
+        solo_mom ^= 1u;
+        ui_message(solo_mom ? "SOLO: MOMENTARY" : "SOLO: TOGGLE");
+    }
     if ((hits >> 20) & 1u)                             /* top C#: NOW */
         mute_bar_set(0);
     if ((hits >> 22) & 1u)                             /* top D#: NEXT BAR */
@@ -914,9 +935,21 @@ static void mute_keys(uint32_t hits)                   /* the keys the ISR gave 
     if ((hits >> KEY_LEARN) & 1u)                      /* G4: MIDI LEARN on / off (ui_learn.c) */
         ml_toggle();
 }
+static void solo_release(void)
+{
+    uint32_t k;
+    if (!solo_mom || !solo_down)
+        return;
+    for (k = 0; k < NTRK; k++)
+        if (((solo_down >> k) & 1u) && !(kb_mute & (1u << SOLO_KEY[k]))) {
+            track_solo_set(k, 0u);                      /* also after GLO itself was released */
+            solo_down &= (uint8_t)~(1u << k);
+        }
+}
 static uint32_t glo_input(uint32_t now, uint32_t notes)
 {
     uint32_t bit = 1u << panel.btn[B_GLO], *t0 = &ui.glo_t0, hits = 0, tap = 0;
+    solo_release();
     if (kb_mute_hit) {
         fm1_irq_off();
         hits = kb_mute_hit;
