@@ -47,7 +47,7 @@ static const char *const N_LSRC[] = {"L1BI", "L2BI", "L1U+", "L2U+", "L1U-", "L2
 #define LFO_TP(b, rf)                                                                                     \
     [b + LF_WAVE] = PE("WAVE", N_LWAVE, 3), [b + LF_MODE] = PE("MODE", N_LMODE, 0),                         \
     [b + LF_RATE] = PD("RATE", rf, 0, 127, 23), [b + LF_MORPH] = PD("MORPH", F_INT, 0, 127, 0),              \
-    [b + LF_DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0), [b + LF_DEST] = PD("DEST", F_LDEST, 0, 19, 0),        \
+    [b + LF_DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0), [b + LF_DEST] = PD("DEST", F_LDEST, 0, 23, 0),        \
     [b + LF_TRIG] = PE("TRIG", N_LTRIG, 2), [b + LF_PHASE] = PD("PHASE", F_LPHASE, 0, 127, 0)
 static const param_desc_t TP[P_COUNT] = {
     [P_MODEL] = PE("MODEL", N_MODEL, 0),
@@ -91,9 +91,9 @@ static const param_desc_t TP[P_COUNT] = {
     [P_PRIO] = PE("PRIO", N_PRIO, 0),
     [P_LSRC1] = PE("SRC", N_LSRC, 0), [P_LSRC2] = PE("SRC", N_LSRC, 1),   /* slots 1 / 2: LFO 1 / LFO 2 (the routing
                                                                             * before slots) */
-    [P_LS3SRC] = PE("SRC", N_LSRC, 0), [P_LS3DEST] = PD("DEST", F_LDEST, 0, 19, 0),
+    [P_LS3SRC] = PE("SRC", N_LSRC, 0), [P_LS3DEST] = PD("DEST", F_LDEST, 0, 23, 0),
     [P_LS3DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0),
-    [P_LS4SRC] = PE("SRC", N_LSRC, 1), [P_LS4DEST] = PD("DEST", F_LDEST, 0, 19, 0),
+    [P_LS4SRC] = PE("SRC", N_LSRC, 1), [P_LS4DEST] = PD("DEST", F_LDEST, 0, 23, 0),
     [P_LS4DEPTH] = PD("DEPTH", F_BIPCT, -64, 64, 0),
     [P_AMORPH] = PD("MORPH", F_INT, 0, 127, 64),
     [P_RKEY] = PD("KEYF", F_PCT, 0, 127, 0),       /* RESON KEYFOLLOW: 0 off (the ring at TUNE), 127 = 100 % */
@@ -246,6 +246,10 @@ static const char *lfo_dest_label(const track_t *t, int32_t dest)
         return "OFF";
     if (dest == 19)
         return (uint32_t)t->p[P_MODEL]%NMODELS==DM_ACID ? "A.MOR" : "--";
+    if (dest >= 20 && dest <= 23) {              /* append-only: DIST, CHORUS, DELAY, REVERB sends */
+        d = track_desc(t, lfo_dest_param((uint32_t)dest));
+        return d->label && d->label[0] != '-' ? d->label : "--";
+    }
     if (dest >= 11)
         return N_RDEST[clamp(dest, 11, 18) - 11];
     d = track_desc(t, lfo_dest_param((uint32_t)clamp(dest, 1, 10)));
