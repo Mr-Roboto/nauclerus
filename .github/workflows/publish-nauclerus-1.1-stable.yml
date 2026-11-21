@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   stable-release:
-    if: ${{ github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable' }}
+    if: "github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable'"
     name: Publish verified candidate as v1.1.0
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -99,7 +99,7 @@ jobs:
           gh release view v1.1.0 --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
 
   stable-pages:
-    if: ${{ github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable' }}
+    if: "github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable'"
     needs: stable-release
     name: Update 1.1.0 web installer and simulator
     runs-on: ubuntu-24.04
