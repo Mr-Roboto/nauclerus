@@ -99,7 +99,7 @@ jobs:
           gh release view v1.1.0 --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
 
   stable-pages:
-    if: "github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable'"
+    if: "always() && (github.event.head_commit.message == 'release: Nauclerus 1.1.0 stable' || github.event.head_commit.message == 'deploy: Nauclerus 1.1.0 stable site')"
     needs: stable-release
     name: Update 1.1.0 web installer and simulator
     runs-on: ubuntu-24.04
@@ -123,6 +123,20 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y emscripten
           python3 -m pip install Pillow markdown-it-py
+      - name: Support Ubuntu's Emscripten 3.1.6 without editing the tagged source
+        run: |
+          mkdir -p "$RUNNER_TEMP/emwrap"
+          cat > "$RUNNER_TEMP/emwrap/emcc" <<'EOF'
+          #!/usr/bin/env bash
+          args=()
+          for arg in "$@"; do
+            if [ "$arg" = "-sSTACK_SIZE=262144" ]; then arg="-sTOTAL_STACK=262144"; fi
+            args+=("$arg")
+          done
+          exec /usr/bin/emcc "${args[@]}"
+          EOF
+          chmod +x "$RUNNER_TEMP/emwrap/emcc"
+          echo "$RUNNER_TEMP/emwrap" >> "$GITHUB_PATH"
       - name: Stage source-matched portal and verified installer
         run: |
           set -euo pipefail
