@@ -154,7 +154,13 @@ static void test_theme_index(void)
     theme_set(THEME_TAG | 2u);
     check("theme_set: C_BG / C_INK are the theme's (WHITE ON BLUE)", C_BG == THEMES[2].bg && C_INK == THEMES[2].ink &&
           C_BG == RGB(0x24, 0x45, 0xc8) && C_INK == RGB(0xea, 0xf1, 0xff));
-    check("themes: accepted ORANGE #e96f25 / #321308", THEMES[0].bg == RGB(0xe9, 0x6f, 0x25) && THEMES[0].ink == RGB(0x32, 0x13, 0x08));
+    check("themes: ORANGE enclosure #D45E31 / dark ink #1B1110",
+          THEMES[0].bg == RGB(0xd4, 0x5e, 0x31) && THEMES[0].ink == RGB(0x1b, 0x11, 0x10));
+    check("themes: ORANGE INV dark #160904 / enclosure ink #D45E31",
+          THEMES[1].bg == RGB(0x16, 0x09, 0x04) && THEMES[1].ink == RGB(0xd4, 0x5e, 0x31));
+    check("themes: fourteen entries and ORANGE indexes 0/1 unchanged",
+          NTHEMES == 14u && THEME_ORDER[0] == 0u && THEME_ORDER[1] == 1u &&
+          theme_index(THEME_TAG | 0u) == 0u && theme_index(THEME_TAG | 1u) == 1u);
     theme_set(THEME_TAG | 0u);
 }
 
