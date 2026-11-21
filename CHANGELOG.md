@@ -15,6 +15,11 @@ Historical entries retain their original scope and terminology.
 - Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
 - Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
 - Refresh the firmware ORANGE LCD palette (ID 0, #D45E31 background / #1B1110 ink) and ORANGE INV (ID 1, #160904 background / #D45E31 ink) to better match the orange FM-1 enclosure; all twelve other themes, saved IDs and website colors remain unchanged.
+- Add DLY MODE NORM/PING (second FX delay page): alternating stereo echoes reuse the existing delay ring. Old FDRF projects load as NORM; the mode uses reserved byte rsv[0], without changing the record length.
+- Append LFO DEST 20..23 = DST/CHO/DLY/REV. The Nauclerus ACID MORPH destination remains ID 19; every preexisting route retains its identity.
+- Add eight-track SOLO on the GLO/MUTE screen's black keys, with F#5 switching momentary/toggle. Existing white-key mute commands remain.
+- Enable SYSTEM SYNC OFF/USB, ROUT NOTE/SEL/TRACK, and GLOBAL THRU OFF/ON. USB clock and TRS-to-USB channel forwarding use the existing USB MIDI output; TRS remains input only. THRU is saved in previously unused settings bit 14.
+- New focused host regression programs cover ping-pong routing/persistence, LFO destination compatibility, SOLO, and MIDI routing/clock/THRU. Their execution, production build, simulator and physical hardware validation remain pending.
 - Update web Controls/FX help and the user guide; see [development release notes](docs/RELEASE_NOTES_1.1.0.md).
 - The initial 1.1.0 delay/encoder build passed simulation, focused host tests and owner-confirmed hardware acceptance. Later theme changes and remaining planned work require fresh verification; no 1.1.0 stable release has been published.
 
