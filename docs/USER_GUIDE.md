@@ -451,8 +451,8 @@ twelve themes and previous VIOLET color (#7524CF).
 
 | Stored index | Name | Background | Ink |
 | --- | --- | --- | --- |
-| 0 | ORANGE (default) | #FF4D00 | #120804 |
-| 1 | ORANGE INV | #100604 | #FF4D00 |
+| 0 | ORANGE (default) | #FF9500 | #120804 |
+| 1 | ORANGE INV | #100604 | #FF9500 |
 | 2 | BLUE | #2445C8 | #EAF1FF |
 | 4 | BLUE INV | #F4F8FF | #2445C8 |
 | 3 | WHITE | #FFFFFF | #000000 |
@@ -467,10 +467,10 @@ twelve themes and previous VIOLET color (#7524CF).
 | 13 | PINK INV | #000000 | #D397CA |
 
 Values are quantized to RGB565 by the existing renderer. In 1.1.0 the two
-ORANGE themes use high-saturation, red-leaning neon orange (#FF4D00), with
-nearly-black ink in ORANGE and neon orange ink on near-black in ORANGE INV.
-This replaces the earlier #FF6500 autumn-orange look; LCD color appearance
-still depends on the physical RGB565 panel. The website chrome is
+ORANGE themes use a brighter, high-saturation orange (#FF9500), with nearly-black
+ink in ORANGE and bright orange ink on near-black in ORANGE INV. Compared with
+the too-dark #FF4D00 candidate, the green channel is raised substantially to
+increase perceived luminance. Actual appearance depends on the RGB565 LCD. The website chrome is
 unchanged; the browser emulator renders the firmware LCD palette. ORANGE's two
 polarities use the distinct specified pairs, not an exact swap. Stored indices/default are
 unchanged: earlier index 0/1 selections now show Orange. Historical GREEN slots 3/5
