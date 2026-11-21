@@ -22,6 +22,7 @@ static const char *const N_SLOT[] = {"-", "A", "B", "C", "D"};   /* G_SLOT 1..4:
 static const char *const N_GO[] = {"--", "GO"};
 static const char *const N_SLCR[] = {"OFF", "GATE", "STUT"};             /* SL_OFF .. SL_STUT (slicer.c) */
 static const char *const N_SLDIV[] = {"1/8", "1/16", "1/32", "8T", "16T", "32T"};   /* SL_DEN */
+static const char *const N_DMODE[] = {"NORM", "PING"};
 static const char *const N_RTYPE[] = {"ROOM", "SPRNG"};              /* G_RTYPE: the reverb bus's model (fx.c); SPRING in 5 */
 static const char *const N_CHOKE[] = {"OFF", "1", "2", "3", "4"};
 static const char *const N_SRC[] = {"STEP", "G-KCK", "G-SNR", "G-HAT"};   /* P_SRC: its steps or a Grids channel */
@@ -140,6 +141,7 @@ static const param_desc_t GP[G_COUNT] = {
     [G_CMKUP] = PD("MKUP", F_CMKUP, 0, 127, 0),
     [G_CGHOST] = PE("GHOST", N_GHOST, CG_KEEP),
     [G_RTYPE] = PE("TYPE", N_RTYPE, 0),
+    [G_DMODE] = PE("MODE", N_DMODE, 0),
 };
 
 /* after G_COUNT: the TOOLS actions (G_CLRALL, G_INITALL) and GLOBAL 3/3's MUTE and METRO (G_MUTEBAR, G_METRO: the
