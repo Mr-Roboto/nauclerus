@@ -21,15 +21,15 @@ static int32_t cv_wx, cv_wy;     /* a window (cv_begin_win): where cv_px's corne
 /* Two-tone themes. Saved IDs retain ORANGE=0, ORANGE INV=1, BLUE=2, BLUE INV=4.
  * Former GREEN IDs 3/5 now select WHITE/WHITE INV. Menu order is independent.
  * Nauclerus 0.25.1 updates VIOLET and appends PINK, retaining all existing IDs.
- * Nauclerus 1.1.0 refreshes only ORANGE/ORANGE INV colors to match the orange
- * enclosure; the palette selection IDs and the other twelve themes stay. */
+ * Nauclerus 1.1.0 makes ORANGE/ORANGE INV vivid signal orange, clearly
+ * distinct from muted enclosure/burnt orange; saved IDs and other themes stay. */
 typedef struct {
     const char *name;          /* MENU > COLOR's value */
     uint16_t bg, ink;
 } theme_t;
 static const theme_t THEMES[] = {
-    {"ORANGE", RGB(0xd4, 0x5e, 0x31), RGB(0x1b, 0x11, 0x10)},       /* 0 ENCLOSURE ORANGE: DARK INK (default) */
-    {"ORANGE INV", RGB(0x16, 0x09, 0x04), RGB(0xd4, 0x5e, 0x31)},   /* 1 ENCLOSURE ORANGE ON DARK */
+    {"ORANGE", RGB(0xff, 0x65, 0x00), RGB(0x12, 0x08, 0x04)},       /* 0 VIVID SIGNAL ORANGE / DARK INK (default) */
+    {"ORANGE INV", RGB(0x10, 0x06, 0x04), RGB(0xff, 0x65, 0x00)},   /* 1 VIVID SIGNAL ORANGE ON NEAR BLACK */
     {"BLUE", RGB(0x24, 0x45, 0xc8), RGB(0xea, 0xf1, 0xff)},         /* 2 WHITE ON BLUE */
     {"WHITE", RGB(255, 255, 255), RGB(0, 0, 0)},                     /* 3 BLACK ON WHITE */
     {"BLUE INV", RGB(0xf4, 0xf8, 0xff), RGB(0x24, 0x45, 0xc8)},     /* 4 BLUE ON WHITE */
