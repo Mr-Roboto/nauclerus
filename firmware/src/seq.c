@@ -590,7 +590,7 @@ static int learn_note(uint32_t n, uint32_t on);
 static void learn_block(void);
 
 /* ROUT SEL/TRACK: MIDI C4 transposes as the STEPS note does; the selected
- */channel track's armed pattern records that pitch without changing defaults. */
+ * track's armed pattern records that pitch without changing defaults. */
 static void midi_pitched_hit(track_t *t, uint32_t vel, int32_t nt)
 {
     nt = clamp(nt, NT_MIN, NT_MAX);
