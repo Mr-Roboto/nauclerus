@@ -67,7 +67,7 @@ static struct {
     uint16_t msg_t;              /* popup frames: also the extended GO confirmation message */
     uint8_t bpm_t;
     uint8_t arm;                 /* destructive action armed: param id */
-    uint16_t arm_t;              /* GO confirmation frames left (~4 s at firmware UI cadence) */
+    uint16_t arm_t;              /* GO confirmation frames left (~3 s at firmware UI cadence) */
     uint32_t rec_t0;             /* REC press time (btn_hold) */
     uint8_t rec_all, rec_keep;   /* REC ALL (a REC tap off TRACKS, ui_input.c rec_tap): on; the arm mask before it (back
                                   * when it is left). Never stored, as the arm state */
