@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * Nauclerus 1.1: verify brighter ORANGE LCD palettes and unchanged theme IDs.
+ * Nauclerus 1.1: verify neon ORANGE LCD palettes and unchanged theme IDs.
  * Uses the firmware's actual two-tone color definitions.
  */
 #include "ui_host.h"
@@ -20,16 +20,16 @@ int main(void)
            theme_index(THEME_TAG | 1u) == 1u);
 
     theme_set(THEME_TAG | 0u);
-    verify("ORANGE: brighter RGB565 #FF9500 background, near-black #120804 ink",
-           C_BG == RGB(0xff, 0x95, 0x00) &&
+    verify("ORANGE: neon RGB565 #FF4D00 background, near-black #120804 ink",
+           C_BG == RGB(0xff, 0x4d, 0x00) &&
            C_INK == RGB(0x12, 0x08, 0x04));
-    verify("ORANGE differs from darker #FF4D00 candidate",
-           C_BG != RGB(0xff, 0x4d, 0x00));
+    verify("ORANGE differs from previous autumn #FF6500",
+           C_BG != RGB(0xff, 0x65, 0x00));
 
     theme_set(THEME_TAG | 1u);
-    verify("ORANGE INV: brighter RGB565 #FF9500 ink, near-black #100604 background",
+    verify("ORANGE INV: neon RGB565 #FF4D00 ink, near-black #100604 background",
            C_BG == RGB(0x10, 0x06, 0x04) &&
-           C_INK == RGB(0xff, 0x95, 0x00));
+           C_INK == RGB(0xff, 0x4d, 0x00));
 
     verify("theme menu order and other palettes remain available",
            theme_step(THEME_TAG | 0u, +1) == (THEME_TAG | 1u) &&
