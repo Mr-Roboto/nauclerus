@@ -253,8 +253,8 @@ html { scroll-behavior: smooth; }
   background: conic-gradient(from -135deg, var(--w) calc(var(--f, 0) * 270deg), var(--c1) 0 270deg, transparent 0); }
 .plate .knob .dial:active { cursor: grabbing; }
 .plate .knob .cap { position: absolute; inset: 5px; border-radius: 50%; background: var(--k); border: 2px solid var(--border); }
-.plate .knob .cap::after { content: ""; position: absolute; left: 50%; top: 3px; width: 2px; height: 14px; margin-left: -1px;
-  background: var(--w); }
+/* Feature-lab knobs model endless encoders: no absolute-position pointer. */
+.plate .knob .cap::after { display: none; }
 .plate .knob .name, .plate .chip { font: 16px/1 var(--mono); }
 .plate .knob .name { color: var(--c3); }
 .plate .knob .val { color: var(--c5); line-height: 1; min-height: 16px; }
