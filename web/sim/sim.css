@@ -532,6 +532,9 @@ canvas.lcd { image-rendering: pixelated; image-rendering: crisp-edges; border-ra
   border-radius: 2px; background: var(--silk);
 }
 .enc.master .cap::after { background: #fff; height: 9px; }
+/* Endless encoders have no absolute position. MASTER is a potentiometer. */
+.enc:not(.master) .cap { transform: none; }
+.enc:not(.master) .cap::after { display: none; }
 
 .btn {
   border-radius: 9px; cursor: pointer;
