@@ -69,6 +69,9 @@ The new choices are appended internally and displayed from longest to shortest:
 four-character display; 16D is distinct from the regular 1/16.
 This order reflects nominal rhythmic lengths; at slow tempos, several
 long choices may yield the same capped delay interval.
+For new and freshly initialized projects, **TIME defaults to 8D**
+(dotted eighth, stored ID 12), not the normal 1/8 (stored ID 1).
+Loading a saved project restores its own TIME setting unchanged.
 Saved projects and presets therefore retain their existing TIME meaning;
 no migration or change to project-storage layout is required.
 
