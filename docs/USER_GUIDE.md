@@ -46,11 +46,12 @@ Settings pages contain:
 | Page | K1 | K2 | K3 | K4 |
 | --- | --- | --- | --- | --- |
 | GLOBAL 1 | BPM | SWING | CLOCK | drum channel |
-| SYSTEM | — | SYNC | ROUTE | INFO |
+| SYSTEM | SYNC | ROUTE | INFO (CPU) | — |
 | GLOBAL 2 | MUTE timing | METRO | — | — |
 
-The SYSTEM page intentionally leaves K1 empty. USB-MIDI and stereo USB audio
-remain enabled as before; USB status is not a user-adjustable parameter.
+The SYSTEM page begins with SYNC on K1, ROUT on K2 and CPU status on K3;
+K4 is unused. The non-adjustable USB status was removed. USB-MIDI and stereo
+USB audio remain enabled as before; existing stored parameter IDs are unchanged.
 
 The separate MENU contains COLOR, SPEAKER EQ, USB LEVEL, PERFORM, ZOOM, ACCEL,
 BACKLIGHT, HARDWARE CALIBRATION and ABOUT. BLUETOOTH is conditional on a separate
