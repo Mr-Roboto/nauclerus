@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Pre-release checks: no tag, GitHub Release, site deployment, or device flashing.
+name: Nauclerus 1.1.0 validation
+
+on:
+  push:
+    branches:
+      - dev/nauclerus-1.1.0
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-regressions:
+    name: Focused 1.1 host regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install host tools
+        run: python3 -m pip install Pillow
+      - name: Generate firmware headers
+        run: python3 tools/build.py --gen-only
+      - name: Run 1.1 regression tests
+        run: sh tests/run_1_1_tests.sh
+
+  package-candidate:
+    name: Build private firmware candidate
+    needs: host-regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python dependency
+        run: python3 -m pip install Pillow
+      - name: Fetch JieLi pi32v2 toolchain
+        run: sh tools/get_toolchain.sh "$RUNNER_TEMP/.jieli"
+      - name: Fetch pinned JieLi AC79 SDK
+        run: |
+          git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 \
+            https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git "$RUNNER_TEMP/ac79"
+      - name: Build standard non-BLE 1.1.0 firmware package
+        env:
+          DRUM_PACKAGE: "1"
+          DRUM_SITE: "0"
+          DRUM_BUNDLE: "0"
+          FELUCCA_BLE: "0"
+          FELUCCA_CORE_REF: "0"
+        run: |
+          export JIELI_TOOLCHAIN="$RUNNER_TEMP/.jieli/toolchain"
+          export AC79_SDK="$RUNNER_TEMP/ac79"
+          sh build.sh
+      - name: Record candidate SHA-256
+        run: sha256sum build/nauclerus-1.1.0.fwsc build/felucca.bin build/loader/ota.bin | tee build/candidate-sha256.txt
+      - name: Retain build for manual acceptance only
+        uses: actions/upload-artifact@v4
+        with:
+          name: nauclerus-1.1.0-candidate
+          path: |
+            build/nauclerus-1.1.0.fwsc
+            build/felucca.bin
+            build/candidate-sha256.txt
+          if-no-files-found: error
+          retention-days: 7
