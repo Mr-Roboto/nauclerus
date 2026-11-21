@@ -1,5 +1,5 @@
 {
-  "source_digest": "318f1ce8133ae60104f8ca1fa8123611f138a0419471c2fe1020c1d8a7c90b1a",
+  "source_digest": "1faa474f51814e13c5737fcce7b2e1ef2e0e6bec6cc24f4bccfcf547c0433657",
   "files": [
     {
       "path": ".github/FUNDING.yml",
@@ -13,8 +13,8 @@
     },
     {
       "path": ".github/workflows/publish-nauclerus-1.1-stable.yml",
-      "sha256": "675337ea75e506e06ea7050ebaa23038a1c78ea9b8b86fe2aa3f6d093a7d9ae7",
-      "bytes": 8536
+      "sha256": "89e5f9ddcbe9bc94a48250ee8967c2fed57b827419aba3489da9dac337f3e9a6",
+      "bytes": 8829
     },
     {
       "path": ".gitignore",
@@ -408,8 +408,8 @@
     },
     {
       "path": "docs/SIMULATOR.md",
-      "sha256": "fea309d0324226ed30fd63710b11ffa6f43bb0237bb426557769c2bc41c620e1",
-      "bytes": 8620
+      "sha256": "52c559ce98d74460719f839d8efa281910225719be344859759a07be7aabffdb",
+      "bytes": 8755
     },
     {
       "path": "docs/UPSTREAM_1.0.2.md",

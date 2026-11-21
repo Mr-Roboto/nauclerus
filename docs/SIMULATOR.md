@@ -2,7 +2,9 @@
 
 The Nauclerus 1.1.0 portal accompanies the stable firmware release.
 The public installer is staged from the accepted SHA-256 verified firmware candidate,
-without changing device firmware during site deployment. Its installer
+without changing device firmware during site deployment.
+Pages deployment compares actual file checksums so same-sized installer metadata
+cannot be mistaken for an unchanged previous version. Its installer
 verifies the exact release package before enabling installation. The firmware
 artifact is reused without rebuilding; website preparation is independent.
 

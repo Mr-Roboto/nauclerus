@@ -4,24 +4,24 @@
 // piece on the firmware's own DSP. The analyser (lab.js Lab, silent, in the page) starts when the section nears the
 // screen and draws every piece; the player (LabPlayer, an AudioWorklet) starts on the first Play and sounds one piece
 // at a time. A piece that leaves the screen, or a hidden tab, stops.
-import { Lab, LabPlayer } from './lab.js?v=318f1ce8133a';
-import { el } from './lab_ui.js?v=318f1ce8133a';
-import { B, ENC } from './controls.js?v=318f1ce8133a';
-import { parseReel, snapshots } from './reel.js?v=318f1ce8133a';
+import { Lab, LabPlayer } from './lab.js?v=1faa474f5181';
+import { el } from './lab_ui.js?v=1faa474f5181';
+import { B, ENC } from './controls.js?v=1faa474f5181';
+import { parseReel, snapshots } from './reel.js?v=1faa474f5181';
 
 const PIECES = {
-  acid: () => import('./lab_nauclerus.js?v=318f1ce8133a'),
-  melody: () => import('./lab_nauclerus.js?v=318f1ce8133a'),
-  remix: () => import('./lab_nauclerus.js?v=318f1ce8133a'),
-  events: () => import('./lab_nauclerus.js?v=318f1ce8133a'),                                     // data-piece -> its module, loaded once the analyser runs
-  voices: () => import('./lab_voices.js?v=318f1ce8133a'),
-  reson: () => import('./lab_reson.js?v=318f1ce8133a'),
-  comp: () => import('./lab_comp.js?v=318f1ce8133a'),
-  lfo: () => import('./lab_lfo.js?v=318f1ce8133a'),
-  seq: () => import('./lab_seq.js?v=318f1ce8133a'),
-  grids: () => import('./lab_grids.js?v=318f1ce8133a'),
-  fx: () => import('./lab_fx.js?v=318f1ce8133a'),
-  ble: () => import('./lab_ble.js?v=318f1ce8133a'),
+  acid: () => import('./lab_nauclerus.js?v=1faa474f5181'),
+  melody: () => import('./lab_nauclerus.js?v=1faa474f5181'),
+  remix: () => import('./lab_nauclerus.js?v=1faa474f5181'),
+  events: () => import('./lab_nauclerus.js?v=1faa474f5181'),                                     // data-piece -> its module, loaded once the analyser runs
+  voices: () => import('./lab_voices.js?v=1faa474f5181'),
+  reson: () => import('./lab_reson.js?v=1faa474f5181'),
+  comp: () => import('./lab_comp.js?v=1faa474f5181'),
+  lfo: () => import('./lab_lfo.js?v=1faa474f5181'),
+  seq: () => import('./lab_seq.js?v=1faa474f5181'),
+  grids: () => import('./lab_grids.js?v=1faa474f5181'),
+  fx: () => import('./lab_fx.js?v=1faa474f5181'),
+  ble: () => import('./lab_ble.js?v=1faa474f5181'),
 };
 
 // each chapter's page on the FM-1's own screen: the panel moves that open it from the power-on screen (HOME's TRACKS
@@ -65,9 +65,9 @@ const screens = new Map();                            // chapter -> { lcd, clip,
 function loadClips() {
   if (!window.DecompressionStream || still.matches) return Promise.resolve();
   return Promise.all([
-    fetch('features.bin.gz?v=318f1ce8133a').then(r => (r.ok ? new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
+    fetch('features.bin.gz?v=1faa474f5181').then(r => (r.ok ? new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
       : Promise.reject(new Error(`features.bin.gz: HTTP ${r.status}`)))),
-    fetch('features.json?v=318f1ce8133a').then(r => (r.ok ? r.json() : Promise.reject(new Error(`features.json: HTTP ${r.status}`)))),
+    fetch('features.json?v=1faa474f5181').then(r => (r.ok ? r.json() : Promise.reject(new Error(`features.json: HTTP ${r.status}`)))),
   ]).then(([buf, list]) => {
     reel = parseReel(buf);
     clips = Object.fromEntries(list.map(c => [c.name, c]));
@@ -126,8 +126,8 @@ let lab = null, ids = null, wasm = null, player = null, starting = null, playing
 
 async function boot() {
   const [w, i] = await Promise.all([
-    fetch('fm1sim.wasm?v=318f1ce8133a').then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`fm1sim.wasm: HTTP ${r.status}`)))),
-    fetch('lab_ids.json?v=318f1ce8133a').then(r => (r.ok ? r.json() : Promise.reject(new Error(`lab_ids.json: HTTP ${r.status}`)))),
+    fetch('fm1sim.wasm?v=1faa474f5181').then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`fm1sim.wasm: HTTP ${r.status}`)))),
+    fetch('lab_ids.json?v=1faa474f5181').then(r => (r.ok ? r.json() : Promise.reject(new Error(`lab_ids.json: HTTP ${r.status}`)))),
   ]);
   wasm = w;
   ids = i;
