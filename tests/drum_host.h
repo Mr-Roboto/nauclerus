@@ -88,6 +88,7 @@ static void host_reset_fx(void)                     /* FX buses, master, slicer,
     ml_keys = 0;
     ml_kb_hit = 0;
     mute_mask = kb_mute = kb_mute_hit = 0;          /* the MUTE screen's keys (seq.c): none */
+    solo_mom = solo_down = 0;                       /* SOLO mode and pressed black keys: default TOGGLE */
     perf_kill = 0;
     perf_k[0] = perf_k[1] = perf_k[2] = perf_k[3] = 0;
     perf_seq = 0;
