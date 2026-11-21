@@ -1,0 +1,12 @@
+{
+  "what": "An eight-track groovebox for the M-VAVE FM-1 with classic drum models, up to two 303-style ACID bass voices, 64-step patterns, ORB Remix and TB-3PO generation, Grids, motion recording, parameter locks, LFOs and delay.",
+  "author": "Mr. Roboto",
+  "kinds": [
+    "groove"
+  ],
+  "play": "https://mr-roboto.github.io/nauclerus/#play",
+  "cheat": "https://mr-roboto.github.io/nauclerus/#manual",
+  "image": "docs/img/nauclerus-display-240.png",
+  "color": "#FF4D00",
+  "sounds": "own"
+}
