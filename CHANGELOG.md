@@ -14,6 +14,7 @@ Historical entries retain their original scope and terminology.
 - FX delay TIME adds dotted quarter (4D), dotted eighth (8D) and dotted sixteenth (16D), plus upstream 4T/32T triplets; original TIME IDs 0–9 keep their timing and storage values. Short LCD labels prevent 16D from being mistaken for 1/16.
 - Delay-time display order follows note duration; the existing 65,536-sample buffer continues limiting intervals to approximately 1.49 seconds, with no storage-layout change.
 - Change new/initialized projects' delay TIME default from regular 1/8 (stored ID 1) to dotted eighth 8D (stored ID 12). Explicit TIME selections in previously saved projects load unchanged.
+- Make PROJECT LOAD/SAVE and TOOLS clear/init GO confirmations usable: approximately four seconds to turn the same knob again, with AGAIN message visible for the full confirmation window. Untouched project data and unchanged action semantics.
 - Browser simulation hides absolute-position tick marks on endless encoders (main panel and FX feature labs) while retaining the MASTER volume pointer.
 - Refresh the firmware ORANGE LCD palette (ID 0, #D45E31 background / #1B1110 ink) and ORANGE INV (ID 1, #160904 background / #D45E31 ink) to better match the orange FM-1 enclosure; all twelve other themes, saved IDs and website colors remain unchanged.
 - Add DLY MODE NORM/PING (second FX delay page): alternating stereo echoes reuse the existing delay ring. Old FDRF projects load as NORM; the mode uses reserved byte rsv[0], without changing the record length.
