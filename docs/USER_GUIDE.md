@@ -462,6 +462,35 @@ save when MENU closes. SEL ENTER does not change a theme. PINK IDs 12/13 append
 to the existing menu; IDs 0–11, the legacy mapping and THEME_TAG encoding remain
 unchanged, with no settings format change.
 
+## Nauclerus 1.1.0 development additions
+
+The following features are in development and require a new build and acceptance
+tests before being considered ready for regular hardware use.
+
+- **Ping-pong delay:** On the FX family's second DLY page set MODE to NORM or
+  PING. TIME's existing rhythmic division and 1.49 s maximum remain.
+  PING alternates delay echoes left and right; NORM preserves the original
+  effect. The choice is saved with the project, using its previously reserved
+  byte so earlier projects select NORM.
+- **LFO effect destinations:** LFO DEST choices 20..23 are DST, CHO, DLY and
+  REV, controlling the respective track's distortion amount and effect sends.
+  Destination 19 remains Nauclerus ACID MORPH; no old project is renumbered.
+- **Solo:** Hold GLO to show MUTE. The eight black keys F#3..A#4 solo the
+  corresponding eight tracks. F#5 changes SOLO between TOGGLE and MOMENTARY.
+  The original white-key MUTE operations stay available; SOLO state is
+  temporary, not stored in projects.
+- **MIDI clock:** On SYSTEM set SYNC to OFF or USB. With CLK INT and SYNC USB,
+  PLAY/STOP sends MIDI transport and 24 clocks per quarter note over USB.
+  With CLK TRS, the received realtime transport/clock goes to USB; CLK USB
+  never sends that input back to the same USB port.
+- **MIDI routing:** On SYSTEM set ROUT NOTE (original drum-channel NOTE
+  mappings), SEL (the selected pitched track on the drum channel) or TRACK
+  (MIDI channels 1..8 play tracks 1..8, pitched relative to C4).
+- **MIDI Thru:** GLOBAL page 3/3 has THRU OFF/ON. ON forwards received
+  TRS MIDI channel messages to USB; USB messages are never fed back into
+  USB. THRU is saved as a device-wide setting and defaults OFF for old
+  settings records. The FM-1 TRS connector has no MIDI output.
+
 ## Attribution and release status
 
 Nauclerus development/modifications/remix work: **Mr. Roboto**. Hortator drum-machine
