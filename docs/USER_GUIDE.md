@@ -56,14 +56,19 @@ BLE build; its presence in source does not mean the default package enables it.
 ## Effects and tempo delay (1.1.0 development)
 
 On the **FX** delay page, **TIME** selects a tempo-synchronised note
-division. The planned 1.1.0 menu adds **1/4D** (dotted quarter),
-**1/8D** (dotted eighth) and **1/16D** (dotted sixteenth), alongside
+division. The planned 1.1.0 menu adds **4D** (dotted quarter, 1/4D),
+**8D** (dotted eighth, 1/8D) and **16D** (dotted sixteenth, 1/16D), alongside
 the existing normal and triplet values. It also exposes **4T** and
 **32T** from the upstream delay-specific division mapping. A dot adds
 half the normal note duration; a triplet is not a dotted note.
 
 The original TIME selection IDs 0–9 retain their numeric values and timing.
-The new choices are appended internally and displayed in duration order.
+The new choices are appended internally and displayed from longest to shortest:
+**4BAR, 2BAR, 1/1, 1/2, 4D, 1/4, 8D, 4T, 1/8, 16D, 8T,
+1/16, 16T, 1/32, 32T**. The shorter 4D/8D/16D labels fit the
+four-character display; 16D is distinct from the regular 1/16.
+This order reflects nominal rhythmic lengths; at slow tempos, several
+long choices may yield the same capped delay interval.
 Saved projects and presets therefore retain their existing TIME meaning;
 no migration or change to project-storage layout is required.
 
